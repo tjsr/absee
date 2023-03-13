@@ -1,4 +1,3 @@
-import * as defaultConfig from './config.json';
 import * as dotenv from 'dotenv';
 
 import { ComparableObjectMetadata, ComparisonRequestPutBody, ComparisonSelection, ConfigType, UserId, uuid } from './src/types';
@@ -21,13 +20,9 @@ const COMPARISON_UUID_NAMESPACE = process.env.COMPARISON_UUID_NAMESPACE || 'd101
 
 const SQLITE_HOST = process.env.SQLITE_HOST || 'http://localhost:8085/';
 
+const HTTP_PORT:number = process.env.HTTP_PORT !== undefined ? parseInt(process.env.HTTP_PORT!) : 8280;
+
 const app = express();
-
-
-const config: ConfigType = { ...defaultConfig };
-if (!config.port) {
-  config.port = 8280;
-}
 
 const getValues = (elements: number): any[] => {
   let arr: any[] = [];
@@ -117,6 +112,6 @@ app.use( session( {
   secret: process.env.SESSION_SECRET || ''
 }))
 
-app.listen(config.port, () => {
-  console.log(`Listening on port ${config.port}`);
+app.listen(HTTP_PORT, () => {
+  console.log(`Listening on port ${HTTP_PORT}`);
 });
