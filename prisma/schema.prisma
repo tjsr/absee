@@ -19,11 +19,17 @@ model Comparison {
   id String @id
   userId String
   requestTime String
-  a String
-  b String
+  requestIp String
+}
+
+model ComparisonElement {
+  id String @id
+  elementId String
+  comparisonId String
+  objectId String
 }
 
 model ComparisonResponse {
   id String @id
-  selectedResponse String
+  selectedComparisonElementId String
 }
