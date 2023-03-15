@@ -1,7 +1,8 @@
 import * as dotenv from 'dotenv';
 
-import { ComparableObjectMetadata, ComparableObjectPutBody, ComparisonRequestPutBody, ComparisonSelection, IPAddress, ISO8601Date, PinInfo, SnowflakeType, UserId, uuid } from './src/types';
+import { ComparableObjectMetadata, ComparableObjectPutBody, ComparableObjectResponse, ComparisonRequestPutBody, ComparisonSelection, ComparisonSelectionResponse, IPAddress, ISO8601Date, PinInfo, SnowflakeType, UserId, uuid } from './src/types';
 
+import cors from 'cors';
 import express from 'express';
 import { getSnowflake } from './src/snowflake';
 import requestIp from 'request-ip';
@@ -17,7 +18,13 @@ const COMPARISON_UUID_NAMESPACE = process.env.COMPARISON_UUID_NAMESPACE || 'd101
 
 const HTTP_PORT:number = process.env.HTTP_PORT !== undefined ? parseInt(process.env.HTTP_PORT!) : 8280;
 
+const corsOptions = {
+  origin: '*',
+  optionsSuccessStatus: 200,
+};
+
 const app = express();
+app.use(cors(corsOptions));
 app.use(requestIp.mw())
 app.set('trust proxy', true);
 
@@ -83,6 +90,26 @@ const getIp = (req: Express.Request): IPAddress => {
   return ip;
 };
 
+const createComparableObjectResponse = <T>(comparableObject: ComparableObjectMetadata<T>[]): ComparableObjectResponse<T> => {
+  if (comparableObject === undefined || comparableObject.length == 0) {
+    throw Error("Can't pass an empty array of comparable left/right elements to convert to a JSON Response object");
+  }
+  return {
+    elementId: comparableObject[0].elementId,
+    objects: comparableObject.map((co) => co.objectId),
+    data: comparableObject.map((co) => co.data)
+  };
+};
+
+const createComparisonSelectionResponse = <T>(comparisonRequest: ComparisonSelection<T>): ComparisonSelectionResponse<T> => {
+  return {
+    id: comparisonRequest.id,
+    userId: comparisonRequest.userId,
+    a: createComparableObjectResponse(comparisonRequest.a),
+    b: createComparableObjectResponse(comparisonRequest.b),
+  }
+}
+
 app.get("/", (request: Express.Request, response) => {
   const userId: UserId = getUserId();
   const ipAddress = getIp(request);
@@ -92,7 +119,8 @@ app.get("/", (request: Express.Request, response) => {
   const comparisonRequest: ComparisonSelection<PinInfo> = createComparisonSelection<PinInfo>(comparisonId, userId, ipAddress, left, right);
   storeComparisonRequest(comparisonRequest).then(() => {
     response.contentType('application/json');
-    response.send(comparisonRequest);
+    const responseJson: ComparisonSelectionResponse<PinInfo> = createComparisonSelectionResponse(comparisonRequest);
+    response.send(responseJson);
   }).catch((err: Error) => {
     console.error('Failed while storing comparisonRequest in DB');
     console.error(comparisonRequest);
@@ -103,11 +131,23 @@ app.get("/", (request: Express.Request, response) => {
   // Return two random options from the configured collection.
 });
 
+app.post("/:comparisonId/:elementId", (request: Express.Request, response) => {
+  // const comparisonId = request.params.comparisonId;
+  // getComparisonData(comparisonId);
+  // verify that this comparison has the correct owner
+
+  // verify that it comes from the same IP
+
+
+});
+
 app.use( session( {
   resave: true,
   saveUninitialized: false,
   secret: process.env.SESSION_SECRET || ''
-}))
+}));
+
+app.use(express.static("public"));
 
 app.listen(HTTP_PORT, () => {
   console.log(`Listening on port ${HTTP_PORT}`);

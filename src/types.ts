@@ -42,3 +42,16 @@ export type PinInfo = {
   id: string,
   img?: string,
 };
+
+export type ComparableObjectResponse<T> = {
+  elementId: SnowflakeType;
+  objects: string[];
+  data: T[];
+};
+
+export type ComparisonSelectionResponse<T> = {
+  id: SnowflakeType;
+  userId: UserId;
+  a: ComparableObjectResponse<T>;
+  b: ComparableObjectResponse<T>;
+};
