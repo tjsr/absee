@@ -1,10 +1,9 @@
-import { ComparisonRequestPutBody, ComparisonSelection } from "./types";
-
-import axios from "axios";
+import { ComparisonModel } from "./types/model";
+import { ComparisonRequestPutBody } from "./types";
 import { sqlinsert } from "./sqlrest";
 import { storeComparisonElements } from "./comparisonelement";
 
-export const storeComparisonRequest = async <T>(comparisonRequest: ComparisonSelection<T>): Promise<void> => {
+export const storeComparisonRequest = async <T>(comparisonRequest: ComparisonModel<T>): Promise<void> => {
   const postRequest: ComparisonRequestPutBody = {
     id: comparisonRequest.id,
     userId: comparisonRequest.userId,

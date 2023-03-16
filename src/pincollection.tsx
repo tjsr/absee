@@ -1,24 +1,19 @@
-import './pincollection.css';
+import { Collection, CollectionPropTypes } from './collection';
 
-import { ComparableObjectResponse, PinInfo } from './types';
-
+import { PinInfo } from './types';
 import React from 'react';
 
-type CollectionPropTypes<T> = {
-  element: ComparableObjectResponse<PinInfo>;
-};
-
-export const Collection = (collectionProps: CollectionPropTypes<PinInfo>): JSX.Element => {
+const getCollectionItem = (data: PinInfo): JSX.Element => {
   return (
     <>
-      <div data-elementId={collectionProps.element.elementId} className="comparisonElement">
-        {collectionProps.element.data.map((data) => (
-          <div className="collectionItem">
-            Pin ID: {data.id}
-            {data.img && <img src={data.img} />}
-          </div>
-        ))}
-      </div>
+      Pin ID: {data.id}
+      {data.img && <img src={data.img} />}
     </>
+  );
+};
+
+export const PinCollection = (props: CollectionPropTypes<PinInfo>): JSX.Element => {
+  return (
+    <Collection element={props.element} selectElement={props.selectElement} getCollectionItem={getCollectionItem} />
   );
 };

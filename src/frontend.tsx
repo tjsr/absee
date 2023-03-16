@@ -1,7 +1,7 @@
 import { ComparisonSelectionResponse, PinInfo } from './types';
 import React, { useEffect, useState } from 'react';
 
-import { Collection } from './pincollection';
+import { PinCollection } from './pincollection';
 
 const SERVER_HOST = 'http://localhost:8280/';
 
@@ -9,6 +9,10 @@ const Frontend = (): JSX.Element => {
   const [comparison, setComparison] = useState<ComparisonSelectionResponse<PinInfo> | undefined>(undefined);
   const [comparisonLoaded, setComparisonLoaded] = useState<boolean>(false);
   const [comparisonLoading, setComparisonLoading] = useState<boolean>(false);
+
+  const selectElement = (elementId: string): void => {
+    console.log(`Selected element ${elementId} for comparison ${comparison?.id}`);
+  };
 
   const fetchComparison = async () => {
     try {
@@ -44,8 +48,8 @@ const Frontend = (): JSX.Element => {
         <>
           <div>Comparison data: ${JSON.stringify(comparison)}</div>
           <div>
-            <Collection element={comparison!.a} />
-            <Collection element={comparison!.b} />
+            <PinCollection element={comparison!.a} selectElement={selectElement} />
+            <PinCollection element={comparison!.b} selectElement={selectElement} />
           </div>
         </>
       ) : (

@@ -1,0 +1,17 @@
+div.comparisonElement {
+  display: inline-flex;
+  min-height: 16rem;
+  width: 16rem;
+  border: 1px solid #000;
+  padding: auto;
+  text-align: center;
+  background-color: #e1e1e1;
+}
+
+div.comparisonElement:hover {
+  background-color: #20b020;
+}
+
+div.collectionItem {
+  display: block;
+}

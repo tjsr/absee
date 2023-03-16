@@ -1,8 +1,9 @@
-import { ComparableObjectMetadata, ComparableObjectPutBody, SnowflakeType } from "./types";
+import { ComparableObjectPutBody, SnowflakeType } from "./types";
 
+import { ComparableObjectModel } from "./types/model";
 import { sqlinsert } from "./sqlrest";
 
-export const storeComparisonElemment = async <T>(comparisonId: SnowflakeType, comparisonElement: ComparableObjectMetadata<T>): Promise<void> => {
+export const storeComparisonElement = async <T>(comparisonId: SnowflakeType, comparisonElement: ComparableObjectModel<T>): Promise<void> => {
   const postRequest: ComparableObjectPutBody = {
     id: comparisonElement.id,
     comparisonId: comparisonId,
@@ -19,11 +20,11 @@ export const storeComparisonElemment = async <T>(comparisonId: SnowflakeType, co
   })
 };
 
-export const storeComparisonElements = <T>(comparisonId: SnowflakeType, comparisonElements: ComparableObjectMetadata<T>[]): Promise<void>[] => {
+export const storeComparisonElements = <T>(comparisonId: SnowflakeType, comparisonElements: ComparableObjectModel<T>[]): Promise<void>[] => {
   const storagePromises: Promise<void>[] = [];
 
   comparisonElements.forEach((element) => {
-    storagePromises.push(storeComparisonElemment(comparisonId, element));
+    storagePromises.push(storeComparisonElement(comparisonId, element));
   });
   return storagePromises;
 };
