@@ -6,7 +6,7 @@ dotenv.config();
 
 const PIN_LIST_URL = process.env.PIN_LIST_URL || "https://pinpanion.com/pins.json";
 
-let pinData:Pin[]|undefined = undefined;
+let paxs:PAX[]|undefined = undefined;
 
 export type Pin = {
   id: number;
@@ -19,9 +19,15 @@ export type Pin = {
   image_name: string;
 };
 
+export type PAX = {
+  id: number;
+  name: string;
+};
+
 export const convertCollectionJson = <Pin>(data: any): Pin[] => {
   if (data.data.success === true) {
     const pins:Pin[] = data.data.pins;
+    paxs = data.data.paxs;
     console.log(`Got ${pins.length} pins.`);
     return pins;
   } else {

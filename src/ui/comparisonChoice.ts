@@ -19,7 +19,12 @@ export const submitComparisonChoice = async <T>(comparison: ComparisonSelectionR
   let httpStatus: number = 0;
   try {
     const postBody: ComparisonSubmissionRequestBody = { comparisonId: comparison.id, selectedElementId: elementId };
-    let response = await fetch(`${SERVER_HOST}/submit`, {method: "POST", body: JSON.stringify(postBody)});
+    let response = await fetch(`${SERVER_HOST}/submit`,
+    {
+      method: "POST",
+      body: JSON.stringify(postBody),
+      headers: { 'Accept': 'application/json', 'Content-Type': 'application/json'}
+    });
     httpStatus = response.status;
     let json = await response.json();
     return { success: true, status: httpStatus, data: json };

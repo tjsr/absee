@@ -7,3 +7,10 @@ export const sqlinsert = <T>(table: string, postRequest: T):Promise<void> => {
     'Content-Type': 'application/json'
   }})
 };
+
+export const sqlrequest = <T>(table: string, params: any): Promise<T> => {
+  const urlParams = new URLSearchParams(params).toString();
+  return axios.get(`${SQLITE_HOST}/${table}/?${urlParams}`, { headers: {
+    'Content-Type': 'application/json'
+  }});
+}

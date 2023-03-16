@@ -2,9 +2,9 @@ import * as dotenv from 'dotenv';
 
 import { ComparableObjectModel, ComparisonModel } from './types/model';
 import { ComparisonSelectionResponse, IPAddress, SnowflakeType, UserId } from "./types";
+import { storeComparisonRequest, verifyComparisonOwner } from "./comparison";
 
 import { CollectionTypeLoader } from './datainfo';
-import { Pin } from './pins/pinpanion';
 import cors from 'cors';
 import { createComparableObjectList } from "./comparableobjects";
 import { createComparisonSelection } from "./datastore";
@@ -15,7 +15,6 @@ import { getSnowflake } from "./snowflake";
 import { getUserId } from "./utils";
 import requestIp from 'request-ip';
 import session from 'express-session';
-import { storeComparisonRequest } from "./comparison";
 
 dotenv.config();
 
@@ -27,12 +26,7 @@ const corsOptions = {
 };
 
 export const getIp = (req: Express.Request): IPAddress => {
-  let ip = undefined;
-  ip = (req as any).ipInfo !== undefined ? (req as any).ipInfo : ip;
-  ip = (req as any).clientIp !== undefined ? (req as any).clientIp : ip;
-  console.log(`ipInfo=> ${JSON.stringify((req as any).ipInfo!)}`);
-  console.log(`clientIp=> ${JSON.stringify((req as any).clientIp!)}`);
-  return ip;
+  return (req as any).clientIp;
 };
 
 export const startApp = <T>(loader: CollectionTypeLoader<T>) => {
@@ -40,6 +34,17 @@ export const startApp = <T>(loader: CollectionTypeLoader<T>) => {
   app.use(cors(corsOptions));
   app.use(requestIp.mw())
   app.set('trust proxy', true);
+
+  app.use( session( {
+    resave: true,
+    saveUninitialized: false,
+    secret: process.env.SESSION_SECRET || ''
+  }));
+
+  app.use(express.urlencoded({
+    extended: true
+  }));
+  app.use(express.json());
 
   app.get("/", (request: Express.Request, response) => {
     const userId: UserId = getUserId();
@@ -64,8 +69,13 @@ export const startApp = <T>(loader: CollectionTypeLoader<T>) => {
 
   app.post("/submit", (request, response) => {
     // const comparisonId = request.params.comparisonId;
-    console.log(JSON.stringify(request.params));
     response.status(200);
+    
+    const userId: UserId = getUserId();
+    const ipAddress = getIp(request);
+    const comparisonId = request.body.comparisonId;
+    console.log(`submit: ${JSON.stringify(request.body)} from ${userId} at ${ipAddress}`);
+    verifyComparisonOwner(comparisonId, userId, ipAddress);
 
     const responseJson = {
       success: true
@@ -75,20 +85,15 @@ export const startApp = <T>(loader: CollectionTypeLoader<T>) => {
     // verify that this comparison has the correct owner
 
     // verify that it comes from the same IP
-
-
   });
-
-  app.use( session( {
-    resave: true,
-    saveUninitialized: false,
-    secret: process.env.SESSION_SECRET || ''
-  }));
 
   app.use(express.static("public"));
 
   app.listen(HTTP_PORT, () => {
     console.log(`Listening on port ${HTTP_PORT}`);
   });
+
+  // app.use(bodyParser.urlencoded({ extended: true }));
+  // app.use(bodyParser.json());
   return app;
 }
