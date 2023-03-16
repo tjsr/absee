@@ -51,8 +51,8 @@ export const startApp = <T>(loader: CollectionTypeLoader<T>) => {
     const userId: UserId = getUserId();
     const ipAddress = getIp(request);
     const comparisonId: SnowflakeType = getSnowflake();
-    const left: ComparableObjectModel<T>[] = createComparableObjectList<T>([getRandomId().toString()], comparisonId);
-    const right: ComparableObjectModel<T>[] = createComparableObjectList<T>([getRandomId().toString()], comparisonId);
+    const left: ComparableObjectModel<T>[] = createComparableObjectList<T>([getRandomId(loader.existingData?.length!).toString()], comparisonId);
+    const right: ComparableObjectModel<T>[] = createComparableObjectList<T>([getRandomId(loader.existingData?.length!).toString()], comparisonId);
     const comparisonRequest: ComparisonModel<T> = createComparisonSelection<T>(comparisonId, userId, ipAddress, left, right);
     storeComparisonRequest(comparisonRequest).then(() => {
       response.contentType('application/json');

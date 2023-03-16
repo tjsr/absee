@@ -18,8 +18,11 @@ const getValues = (elements: number): any[] => {
   return arr;
 };
 
-export const getRandomId = (): number => {
-  return Math.floor(Math.random() * COMPARABLE_OBJECTS.length);
+export const getRandomId = (max?: number): number => {
+  if (!max) {
+    return Math.floor(Math.random() * COMPARABLE_OBJECTS.length);  
+  }
+  return Math.floor(Math.random() * max!);
 };
 
 const COMPARABLE_OBJECTS:any[] = getValues(64);
