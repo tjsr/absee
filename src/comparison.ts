@@ -56,7 +56,6 @@ export const verifyComparisonOwner = async (comparisonId: SnowflakeType, userId:
       if (response.userId != userId) {
         reject(new Error('Response came from a different user than comparison was issued for'));
       }
-      console.log(response);
       resolve();
     });
   });

@@ -14,6 +14,7 @@ import { getRandomId } from "..";
 import { getSnowflake } from "./snowflake";
 import { getUserId } from "./utils";
 import requestIp from 'request-ip';
+import { saveComparisonSelection } from './comparisonresponse';
 import session from 'express-session';
 
 dotenv.config();
@@ -75,11 +76,25 @@ export const startApp = <T>(loader: CollectionTypeLoader<T>) => {
     const ipAddress = getIp(request);
     const comparisonId = request.body.comparisonId;
     console.log(`submit: ${JSON.stringify(request.body)} from ${userId} at ${ipAddress}`);
-    verifyComparisonOwner(comparisonId, userId, ipAddress);
 
     const responseJson = {
       success: true
     }
+
+    try {
+      verifyComparisonOwner(comparisonId, userId, ipAddress).then(() => {
+        const elementId = request.body.selectedElementId;
+        saveComparisonSelection(comparisonId, elementId);
+        // Now write the user selected element to the DB.
+      }).catch((err) => {
+        responseJson.success = false;
+        response.status(401);
+      })
+    } catch (err) {
+      responseJson.success = false;
+      response.status(500);
+  }
+
     response.send(responseJson);
     // getComparisonData(comparisonId);
     // verify that this comparison has the correct owner
