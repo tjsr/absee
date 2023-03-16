@@ -1,3 +1,5 @@
+import './frontend.css';
+
 import { ComparableObjectResponse, ComparisonSelectionResponse } from './types';
 import React, { useEffect, useState } from 'react';
 import { fetchNewComparison, submitComparisonChoice } from './ui/comparisonChoice';
@@ -43,8 +45,7 @@ const Frontend = <T extends unknown>(): JSX.Element => {
     <div>
       {comparisonLoaded ? (
         <>
-          <div>Comparison data: ${JSON.stringify(comparison)}</div>
-          <div>
+          <div className="comparisonContainer">
             <PinCollection element={comparison!.a as ComparableObjectResponse<Pin>} selectElement={selectElement} />
             <PinCollection element={comparison!.b as ComparableObjectResponse<Pin>} selectElement={selectElement} />
           </div>

@@ -75,7 +75,6 @@ export const startApp = <T>(loader: CollectionTypeLoader<T>) => {
     const userId: UserId = getUserId();
     const ipAddress = getIp(request);
     const comparisonId = request.body.comparisonId;
-    console.log(`submit: ${JSON.stringify(request.body)} from ${userId} at ${ipAddress}`);
 
     const responseJson = {
       success: true
@@ -85,6 +84,7 @@ export const startApp = <T>(loader: CollectionTypeLoader<T>) => {
       verifyComparisonOwner(comparisonId, userId, ipAddress).then(() => {
         const elementId = request.body.selectedElementId;
         saveComparisonSelection(comparisonId, elementId);
+        console.debug(`Saved respnse: ${elementId} for ${comparisonId} by ${userId}.`);
         // Now write the user selected element to the DB.
       }).catch((err) => {
         responseJson.success = false;
