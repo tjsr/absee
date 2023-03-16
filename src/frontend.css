@@ -1,4 +1,9 @@
 div.comparisonContainer {
   height: 100%;
   width: 100%;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  min-height: 95vh;
 }
