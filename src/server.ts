@@ -62,8 +62,15 @@ export const startApp = <T>(loader: CollectionTypeLoader<T>) => {
     // Return two random options from the configured collection.
   });
 
-  app.post("/:comparisonId/:elementId", (request: Express.Request, response) => {
+  app.post("/submit", (request, response) => {
     // const comparisonId = request.params.comparisonId;
+    console.log(JSON.stringify(request.params));
+    response.status(200);
+
+    const responseJson = {
+      success: true
+    }
+    response.send(responseJson);
     // getComparisonData(comparisonId);
     // verify that this comparison has the correct owner
 

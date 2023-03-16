@@ -24,12 +24,6 @@ export const getRandomId = (): number => {
 
 const COMPARABLE_OBJECTS:any[] = getValues(64);
 
-// export const getElementData = <T>(objectId: string): T => {
-//   return {
-//     id: objectId,
-//   } as T;
-// };
-
 initializeLoader(pinLoader).then(() => {
   startApp(pinLoader);
 }).catch((err:Error) => {
