@@ -1,12 +1,13 @@
-import { ComparisonSelectionResponse, PinInfo } from './types';
+import { ComparableObjectResponse, ComparisonSelectionResponse } from './types';
 import React, { useEffect, useState } from 'react';
 
-import { PinCollection } from './pincollection';
+import { Pin } from './pins/pinpanion';
+import { PinCollection } from './pins/pincollection';
 
 const SERVER_HOST = 'http://localhost:8280/';
 
-const Frontend = (): JSX.Element => {
-  const [comparison, setComparison] = useState<ComparisonSelectionResponse<PinInfo> | undefined>(undefined);
+const Frontend = <T extends unknown>(): JSX.Element => {
+  const [comparison, setComparison] = useState<ComparisonSelectionResponse<T> | undefined>(undefined);
   const [comparisonLoaded, setComparisonLoaded] = useState<boolean>(false);
   const [comparisonLoading, setComparisonLoading] = useState<boolean>(false);
 
@@ -14,7 +15,7 @@ const Frontend = (): JSX.Element => {
     console.log(`Selected element ${elementId} for comparison ${comparison?.id}`);
   };
 
-  const fetchComparison = async () => {
+  const fetchNewComparison = async () => {
     try {
       let response = await fetch(`${SERVER_HOST}`);
       let json = await response.json();
@@ -30,10 +31,10 @@ const Frontend = (): JSX.Element => {
       if (!comparisonLoading && !comparisonLoaded) {
         setComparisonLoading(true);
         setComparisonLoaded(false);
-        let res = await fetchComparison();
+        let res = await fetchNewComparison();
         if (res.success) {
           console.log(`Loaded ${JSON.stringify(res.data)}`);
-          const comparisonRequest: ComparisonSelectionResponse<PinInfo> = res.data;
+          const comparisonRequest: ComparisonSelectionResponse<T> = res.data;
           setComparison(comparisonRequest);
           setComparisonLoaded(true);
         }
@@ -48,8 +49,8 @@ const Frontend = (): JSX.Element => {
         <>
           <div>Comparison data: ${JSON.stringify(comparison)}</div>
           <div>
-            <PinCollection element={comparison!.a} selectElement={selectElement} />
-            <PinCollection element={comparison!.b} selectElement={selectElement} />
+            <PinCollection element={comparison!.a as ComparableObjectResponse<Pin>} selectElement={selectElement} />
+            <PinCollection element={comparison!.b as ComparableObjectResponse<Pin>} selectElement={selectElement} />
           </div>
         </>
       ) : (

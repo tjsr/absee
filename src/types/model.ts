@@ -4,7 +4,6 @@ export type ComparableObjectModel<T extends any> = {
   id: SnowflakeType,
   elementId: SnowflakeType,
   objectId: string,
-  data: T;
 };
 
 export type ComparisonModel<T extends any> = {

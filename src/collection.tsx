@@ -1,7 +1,8 @@
 import './collection.css';
 
-import { ComparableObjectResponse, PinInfo } from './types';
-import React, { MouseEventHandler } from 'react';
+import { ComparableObjectResponse } from './types';
+import { Pin } from './pins/pinpanion';
+import React from 'react';
 
 export type CollectionPropTypes<T> = {
   element: ComparableObjectResponse<T>;
@@ -14,7 +15,7 @@ export type ICollectionPropTypes<T> = {
   getCollectionItem: (data: T) => JSX.Element;
 };
 
-export const Collection = (props: ICollectionPropTypes<PinInfo>): JSX.Element => {
+export const Collection = (props: ICollectionPropTypes<Pin>): JSX.Element => {
   return (
     <>
       <div
@@ -23,11 +24,13 @@ export const Collection = (props: ICollectionPropTypes<PinInfo>): JSX.Element =>
         }}
         className="comparisonElement"
       >
-        {props.element.data.map((data, idx) => (
-          <div key={props.element.objects[idx]} className="collectionItem">
-            {props.getCollectionItem(data)}
-          </div>
-        ))}
+        {props.element.data.map((data, idx) => {
+          return (
+            <div key={props.element.objects[idx]} className="collectionItem">
+              {props.getCollectionItem(data)}
+            </div>
+          );
+        })}
       </div>
     </>
   );

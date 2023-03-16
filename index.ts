@@ -1,5 +1,8 @@
 import * as dotenv from 'dotenv';
 
+import { initializeLoader, retrieveCollectionData } from './src/datainfo';
+
+import { loader as pinLoader } from './src/pins/pinpanion';
 import { startApp } from './src/server';
 
 dotenv.config();
@@ -21,10 +24,14 @@ export const getRandomId = (): number => {
 
 const COMPARABLE_OBJECTS:any[] = getValues(64);
 
-export const getElementData = <T>(objectId: string): T => {
-  return {
-    id: objectId,
-  } as T;
-};
+// export const getElementData = <T>(objectId: string): T => {
+//   return {
+//     id: objectId,
+//   } as T;
+// };
 
-startApp();
+initializeLoader(pinLoader).then(() => {
+  startApp(pinLoader);
+}).catch((err:Error) => {
+  console.error('Failed getting pin collection data: ' + err.message);
+});

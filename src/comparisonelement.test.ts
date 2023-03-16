@@ -12,7 +12,7 @@ describe('comparisonelement', () => {
       id: getSnowflake(),
       elementId: getSnowflake(),
       objectId: "1",
-      data: { id: "1" }
+      // data: { id: "1" }
     };
     await expect(storeComparisonElement(comparisonId, meta)).resolves;
   });

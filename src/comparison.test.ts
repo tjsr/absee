@@ -14,14 +14,14 @@ describe('comparison', () => {
       id: getSnowflake(),
       elementId: getSnowflake(),
       objectId: "1",
-      data: { id: "1" }
+      // data: { id: "1" }
     }
 
     const metab: ComparableObjectModel<any> = {
       id: getSnowflake(),
       elementId: getSnowflake(),
       objectId: "2",
-      data: { id: "2" }
+      // data: { id: "2" }
     }
     const comparisonRequest: ComparisonModel<any> = {
       id: comparisonId,

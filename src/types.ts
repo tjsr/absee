@@ -22,10 +22,10 @@ export type ComparableObjectPutBody = {
   objectId: string,
 };
 
-export type PinInfo = {
-  id: string,
-  img?: string,
-};
+// export type PinInfo = {
+//   id: string,
+//   img?: string,
+// };
 
 export type ComparableObjectResponse<T> = {
   elementId: SnowflakeType;

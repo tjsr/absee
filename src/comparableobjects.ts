@@ -1,6 +1,6 @@
 import { ComparableObjectModel } from "./types/model";
 import { SnowflakeType } from "./types";
-import { getElementData } from "..";
+// import { getElementData } from "..";
 import { getSnowflake } from "./snowflake";
 
 const createComparableObject = <T>(objectId: string, elementId: SnowflakeType): ComparableObjectModel<T> => {
@@ -8,7 +8,7 @@ const createComparableObject = <T>(objectId: string, elementId: SnowflakeType): 
     id: getSnowflake(),
     elementId: elementId,
     objectId: objectId,
-    data: getElementData(objectId),
+    // data: getElementData(objectId),
   };
 };
 

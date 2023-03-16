@@ -1,8 +1,10 @@
 import * as dotenv from 'dotenv';
 
 import { ComparableObjectModel, ComparisonModel } from './types/model';
-import { ComparisonSelectionResponse, IPAddress, PinInfo, SnowflakeType, UserId } from "./types";
+import { ComparisonSelectionResponse, IPAddress, SnowflakeType, UserId } from "./types";
 
+import { CollectionTypeLoader } from './datainfo';
+import { Pin } from './pins/pinpanion';
 import cors from 'cors';
 import { createComparableObjectList } from "./comparableobjects";
 import { createComparisonSelection } from "./datastore";
@@ -33,7 +35,7 @@ export const getIp = (req: Express.Request): IPAddress => {
   return ip;
 };
 
-export const startApp = () => {
+export const startApp = <T>(loader: CollectionTypeLoader<T>) => {
   const app = express();
   app.use(cors(corsOptions));
   app.use(requestIp.mw())
@@ -43,12 +45,12 @@ export const startApp = () => {
     const userId: UserId = getUserId();
     const ipAddress = getIp(request);
     const comparisonId: SnowflakeType = getSnowflake();
-    const left: ComparableObjectModel<PinInfo>[] = createComparableObjectList<PinInfo>([getRandomId().toString()], comparisonId);
-    const right: ComparableObjectModel<PinInfo>[] = createComparableObjectList<PinInfo>([getRandomId().toString()], comparisonId);
-    const comparisonRequest: ComparisonModel<PinInfo> = createComparisonSelection<PinInfo>(comparisonId, userId, ipAddress, left, right);
+    const left: ComparableObjectModel<T>[] = createComparableObjectList<T>([getRandomId().toString()], comparisonId);
+    const right: ComparableObjectModel<T>[] = createComparableObjectList<T>([getRandomId().toString()], comparisonId);
+    const comparisonRequest: ComparisonModel<T> = createComparisonSelection<T>(comparisonId, userId, ipAddress, left, right);
     storeComparisonRequest(comparisonRequest).then(() => {
       response.contentType('application/json');
-      const responseJson: ComparisonSelectionResponse<PinInfo> = createComparisonSelectionResponse(comparisonRequest);
+      const responseJson: ComparisonSelectionResponse<T> = createComparisonSelectionResponse<T>(comparisonRequest, loader);
       response.send(responseJson);
     }).catch((err: Error) => {
       console.error('Failed while storing comparisonRequest in DB');
