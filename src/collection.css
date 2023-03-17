@@ -1,7 +1,8 @@
 div.comparisonElement {
-  display: inline-flex;
+  display: inline-table;
   min-height: 16rem;
-  width: 16rem;
+  max-width: 32.5rem;
+  min-width: 16rem;
   border: 1px solid #000;
   padding: auto;
   text-align: center;

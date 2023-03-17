@@ -1,7 +1,7 @@
 import { ComparableObjectPutBody, SnowflakeType } from "./types";
+import { PoolConnection, basicMySqlInsert, getConnection } from "./database/mysql";
 
 import { ComparableObjectModel } from "./types/model";
-import { sqlinsert } from "./sqlrest";
 
 export const storeComparisonElement = async <T>(comparisonId: SnowflakeType, comparisonElement: ComparableObjectModel<T>): Promise<void> => {
   const postRequest: ComparableObjectPutBody = {
@@ -10,14 +10,7 @@ export const storeComparisonElement = async <T>(comparisonId: SnowflakeType, com
     elementId: comparisonElement.elementId,
     objectId: comparisonElement.objectId
   };
-
-  return new Promise((resolve, reject) => {
-    sqlinsert('ComparisonElement', postRequest).then(() => {
-      resolve();
-    }).catch((err) => {
-      reject(err);
-    });
-  })
+  return basicMySqlInsert('ComparisonElement', ['id', 'comparisonId', 'elementId', 'objectId'], postRequest);
 };
 
 export const storeComparisonElements = <T>(comparisonId: SnowflakeType, comparisonElements: ComparableObjectModel<T>[]): Promise<void>[] => {

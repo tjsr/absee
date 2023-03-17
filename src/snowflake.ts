@@ -8,5 +8,5 @@ const generator = new Worker(0, 1, {
 });
 
 export const getSnowflake = (): SnowflakeType => {
-  return generator.nextId().toString();
+  return generator.nextId();
 };

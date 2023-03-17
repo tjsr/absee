@@ -1,5 +1,5 @@
 import { ComparisonRequestPutBody, IPAddress, SnowflakeType, UserId } from "./types";
-import { sqlinsert, sqlrequest } from "./sqlrest";
+import { PoolConnection, basicMySqlInsert, getConnection } from "./database/mysql";
 
 import { ComparisonModel } from "./types/model";
 import { ComparisonRequestResponseBody } from "./types/datasource";
@@ -15,12 +15,12 @@ export const storeComparisonRequest = async <T>(comparisonRequest: ComparisonMod
   const allPromises: Promise<void>[] = [
     ...storeComparisonElements(comparisonRequest.id, comparisonRequest.a),
     ...storeComparisonElements(comparisonRequest.id, comparisonRequest.b),
-    sqlinsert('comparison', postRequest),
+    basicMySqlInsert<ComparisonRequestPutBody>('Comparison', Object.keys(postRequest), postRequest),
   ];
   const resolved = Promise.all(allPromises).then((resolved) => {
     return Promise.resolve();
   }).catch((err) => {
-    console.error(err);
+    console.error('Error while storing comparison', err);
     return Promise.reject(err);
   });
   return resolved;
@@ -28,14 +28,34 @@ export const storeComparisonRequest = async <T>(comparisonRequest: ComparisonMod
 
 const retrieveComparisonRequest = async (comparisonId: SnowflakeType): Promise<ComparisonRequestResponseBody> => {
   return new Promise((resolve, reject) => {
-    sqlrequest('comparison', { id: comparisonId })
-      .then((request:any) => {
-        if (request.data.length == 0) {
-          reject(new Error(`No comparison found for id ${comparisonId}`));
-        }
-        resolve(request.data[0]);
-      })
-      .catch(reject);
+    try {
+      getConnection().then((conn: PoolConnection) => {
+        conn.query('select id, userId, requestTime, requestIp from Comparison where id=?', [comparisonId], (err, results, fields) => {
+          if (err) {
+            conn.release();
+            return reject(err);
+          }
+          if (results == undefined) {
+            conn.release();
+            return reject(new Error(`Retrieving by comparisonId ${comparisonId} results was undefined.`));
+          }
+          if (results.length != 1) {
+            conn.release();
+            return reject(new Error(`Retrieving by comparisonId ${comparisonId} should only ever return a single row, got ${results.length}`));
+          }
+          const data:ComparisonRequestResponseBody = {
+            id: results[0].id,
+            userId: results[0].userId,
+            requestTime: results[0].requestTime,
+            requestIp: results[0].requestIp
+          }
+          resolve(data);
+          conn.release();
+        });
+      }).catch(reject);
+    } catch (err) {
+      reject(err);
+    }
   });
 };
 

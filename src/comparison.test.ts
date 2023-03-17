@@ -28,7 +28,7 @@ describe('comparison', () => {
       a: [metaa],
       b: [metab],
       requestIp: "127.0.0.1",
-      requestTime: "",
+      requestTime: new Date(),
       userId: uuidv4()
     }
 

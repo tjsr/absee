@@ -9,6 +9,16 @@ export const getUserId = (): UserId => {
 };
 
 export const iso8601Now = (): ISO8601Date => {
-  return (new Date()).toISOString();
+  // return (new Date()).toISOString();
+  return new Date();
 };
 
+const createdWeightedRandomizerList = (max: number): number[] => {
+  let current = 1;
+  let output: number[] = [];
+
+  // do {
+  //   output = [...output]
+  // }
+  return [];
+};

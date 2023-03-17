@@ -1,6 +1,5 @@
+import { ComparisonSelectionResponse, SnowflakeType } from "../types";
 import { ComparisonSubmissionRequestBody, RestCallResult } from "../types/apicalls";
-
-import { ComparisonSelectionResponse } from "../types";
 
 const SERVER_HOST = 'http://localhost:8280';
 
@@ -15,7 +14,7 @@ export const fetchNewComparison = async () => {
   }
 };
 
-export const submitComparisonChoice = async <T>(comparison: ComparisonSelectionResponse<T>, elementId: string): Promise<RestCallResult> => {
+export const submitComparisonChoice = async <T>(comparison: ComparisonSelectionResponse<T>, elementId: SnowflakeType): Promise<RestCallResult> => {
   let httpStatus: number = 0;
   try {
     const postBody: ComparisonSubmissionRequestBody = { comparisonId: comparison.id, selectedElementId: elementId };

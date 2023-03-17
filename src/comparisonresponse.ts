@@ -1,6 +1,7 @@
+import { PoolConnection, basicMySqlInsert, getConnection } from "./database/mysql";
+
 import { SnowflakeType } from "./types";
-import { sqlinsert } from "./sqlrest";
 
 export const saveComparisonSelection = async (comparisonId: SnowflakeType, elementId: SnowflakeType): Promise<void> => {
-  return sqlinsert('comparisonresponse', { id: comparisonId, selectedComparisonElementId: elementId });
+  return basicMySqlInsert('ComparisonResponse', ['id', 'selectedComparisonElementId'], {id: comparisonId, selectedComparisonElementId: elementId});
 };

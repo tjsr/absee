@@ -6,30 +6,31 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+//  provider = "sqlite"
+  provider = "mysql"
+  url      = env("PRISMA_DATABASE_URL")
 }
 
 model User {
-  id String @id
+  id BigInt @id
   email String @unique
 }
 
 model Comparison {
-  id String @id
+  id BigInt @id
   userId String
-  requestTime String
+  requestTime DateTime
   requestIp String
 }
 
 model ComparisonElement {
-  id String @id
-  elementId String
-  comparisonId String
+  id BigInt @id
+  elementId BigInt
+  comparisonId BigInt
   objectId String
 }
 
 model ComparisonResponse {
-  id String @id
-  selectedComparisonElementId String
+  id BigInt @id
+  selectedComparisonElementId BigInt
 }

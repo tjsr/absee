@@ -1,7 +1,6 @@
+import { ISO8601Date, SnowflakeType } from './types/mysqltypes';
+
 export type uuid = string;
-
-export type SnowflakeType = string;
-
 export type IPAddress = string;
 
 export type ComparisonRequestPutBody = {
@@ -11,8 +10,6 @@ export type ComparisonRequestPutBody = {
   requestIp: IPAddress;
 };
 
-export type ISO8601Date = string;
-
 export type UserId = uuid;
 
 export type ComparableObjectPutBody = {
@@ -21,11 +18,6 @@ export type ComparableObjectPutBody = {
   elementId: SnowflakeType,
   objectId: string,
 };
-
-// export type PinInfo = {
-//   id: string,
-//   img?: string,
-// };
 
 export type ComparableObjectResponse<T> = {
   elementId: SnowflakeType;
@@ -40,3 +32,4 @@ export type ComparisonSelectionResponse<T> = {
   b: ComparableObjectResponse<T>;
 };
 
+export type { ISO8601Date, SnowflakeType };
