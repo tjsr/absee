@@ -1,10 +1,10 @@
 div.comparisonElement {
-  display: inline-table;
+  display: flex;
+  flex-wrap: wrap;
   min-height: 16rem;
-  max-width: 32.5rem;
+  max-width: 36rem;
   min-width: 16rem;
   border: 1px solid #000;
-  padding: auto;
   text-align: center;
   background-color: #e1e1e1;
 }
@@ -15,4 +15,5 @@ div.comparisonElement:hover {
 
 div.collectionItem {
   display: block;
+  max-width: 16rem;
 }

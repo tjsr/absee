@@ -4,6 +4,8 @@ import { ComparableObjectResponse, ComparisonSelectionResponse, SnowflakeType } 
 import React, { useEffect, useState } from 'react';
 import { fetchNewComparison, submitComparisonChoice } from './ui/comparisonChoice';
 
+import { FreeformEmailLoginBox } from './ui/freeformEmailLogin';
+import { GoogleLoginBox } from './ui/googleLogin';
 import { Pin } from './pins/pinpanion';
 import { PinCollection } from './pins/pincollection';
 import { RestCallResult } from './types/apicalls';
@@ -13,6 +15,7 @@ const Frontend = <T extends unknown>(): JSX.Element => {
   const [comparison, setComparison] = useState<ComparisonSelectionResponse<T> | undefined>(undefined);
   const [comparisonLoaded, setComparisonLoaded] = useState<boolean>(false);
   const [comparisonLoading, setComparisonLoading] = useState<boolean>(false);
+  const fakeEmails = true;
 
   const selectElement = async (elementId: SnowflakeType): Promise<void> => {
     console.log(`Selected element ${elementId} for comparison ${comparison?.id}`);
@@ -43,18 +46,21 @@ const Frontend = <T extends unknown>(): JSX.Element => {
   }, [comparisonLoaded]);
 
   return (
-    <div>
-      {comparisonLoaded ? (
-        <>
-          <div className="comparisonContainer">
-            <PinCollection element={comparison!.a as ComparableObjectResponse<Pin>} selectElement={selectElement} />
-            <PinCollection element={comparison!.b as ComparableObjectResponse<Pin>} selectElement={selectElement} />
-          </div>
-        </>
-      ) : (
-        <div>Loading...</div>
-      )}
-    </div>
+    <>
+      {fakeEmails ? <FreeformEmailLoginBox /> : <GoogleLoginBox />}
+      <div>
+        {comparisonLoaded ? (
+          <>
+            <div className="comparisonContainer">
+              <PinCollection element={comparison!.a as ComparableObjectResponse<Pin>} selectElement={selectElement} />
+              <PinCollection element={comparison!.b as ComparableObjectResponse<Pin>} selectElement={selectElement} />
+            </div>
+          </>
+        ) : (
+          <div>Loading...</div>
+        )}
+      </div>
+    </>
   );
 };
 

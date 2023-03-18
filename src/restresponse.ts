@@ -11,7 +11,7 @@ export const createComparableObjectResponse = <T>(comparableObject: ComparableOb
     throw Error("Can't populate data when existingData has not been loaded.");
   }
   return {
-    elementId: comparableObject[0].elementId,
+    elementId: comparableObject[0].elementId.toString(),
     objects: comparableObject.map((co) => co.objectId),
     data: comparableObject.map((co) => loader.getObjectForId(loader.existingData!, co.objectId))
   };
@@ -19,8 +19,8 @@ export const createComparableObjectResponse = <T>(comparableObject: ComparableOb
 
 export const createComparisonSelectionResponse = <T>(comparisonRequest: ComparisonModel<T>, loader: CollectionTypeLoader<T>): ComparisonSelectionResponse<T> => {
   return {
-    id: comparisonRequest.id,
-    userId: comparisonRequest.userId,
+    id: comparisonRequest.id.toString(),
+    userId: comparisonRequest.userId.toString(),
     a: createComparableObjectResponse(comparisonRequest.a, loader),
     b: createComparableObjectResponse(comparisonRequest.b, loader),
   }

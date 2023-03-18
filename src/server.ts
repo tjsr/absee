@@ -1,6 +1,7 @@
 import * as dotenv from 'dotenv';
 
-import { ComparableObjectModel, ComparisonModel } from './types/model';
+import { ABSeeRequest, getSession } from './session';
+import { ComparableObjectModel, ComparisonModel, UserModel } from './types/model';
 import { ComparisonSelectionResponse, IPAddress, SnowflakeType, UserId } from "./types";
 import { storeComparisonRequest, verifyComparisonOwner } from "./comparison";
 
@@ -11,12 +12,14 @@ import { createComparableObjectList } from "./comparableobjects";
 import { createComparisonSelection } from "./datastore";
 import { createComparisonSelectionResponse } from './restresponse';
 import express from 'express';
+import { getDbUserByEmail } from './database/mysql';
 import { getRandomId } from "..";
 import { getSnowflake } from "./snowflake";
 import { getUserId } from "./utils";
+import { initialisePassportToExpressApp } from './auth/passport';
+import passport from 'passport';
 import requestIp from 'request-ip';
 import { saveComparisonSelection } from './comparisonresponse';
-import session from 'express-session';
 
 dotenv.config();
 
@@ -37,11 +40,9 @@ export const startApp = <T>(loader: CollectionTypeLoader<T>) => {
   app.use(requestIp.mw())
   app.set('trust proxy', true);
 
-  app.use( session( {
-    resave: true,
-    saveUninitialized: false,
-    secret: process.env.SESSION_SECRET || ''
-  }));
+  app.use(getSession());
+
+  initialisePassportToExpressApp(app);
 
   app.use(express.urlencoded({
     extended: true
@@ -72,9 +73,25 @@ export const startApp = <T>(loader: CollectionTypeLoader<T>) => {
     return [arra, arrb];
   }
 
-  app.get("/", (request: Express.Request, response) => {
+  app.post('/login', async(req: ABSeeRequest, res: express.Response, next) => {
     try {
-      const userId: UserId = getUserId();
+      const email: string = req.body.email;
+      const user: UserModel = await getDbUserByEmail(email);
+      if (!user) {
+        res.statusCode = 403;
+        res.send({ message: 'Invalid email' });
+      }
+
+      req.session.userId = user.userId;
+      return res.redirect("/");
+    } catch (e) {
+      console.log(e);
+    }
+  });
+
+  app.get("/", (request: express.Request, response: express.Response) => {
+    try {
+      const userId: UserId = getUserId(request);
       const ipAddress = getIp(request);
       const comparisonId: SnowflakeType = getSnowflake();
 
@@ -100,12 +117,11 @@ export const startApp = <T>(loader: CollectionTypeLoader<T>) => {
     }
   });
 
-  app.post("/submit", (request, response) => {
+  app.post("/submit", (request: ABSeeRequest, response: express.Response) => {
     try {
       // const comparisonId = request.params.comparisonId;
-      response.status(200);
       
-      const userId: UserId = getUserId();
+      const userId: UserId = getUserId(request);
       const ipAddress = getIp(request);
       const comparisonId = request.body.comparisonId;
 
@@ -117,8 +133,9 @@ export const startApp = <T>(loader: CollectionTypeLoader<T>) => {
         verifyComparisonOwner(comparisonId, userId, ipAddress).then(() => {
           const elementId = request.body.selectedElementId;
           saveComparisonSelection(comparisonId, elementId);
-          console.debug(`Saved respnse: ${elementId} for ${comparisonId} by ${userId}.`);
+          console.debug(`Saved response: ${elementId} for ${comparisonId} by ${userId}.`);
           // Now write the user selected element to the DB.
+          response.status(200);
         }).catch((err) => {
           responseJson.success = false;
           response.status(401);

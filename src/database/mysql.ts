@@ -1,3 +1,5 @@
+import { EmailAddress } from '../types';
+import { UserModel } from '../types/model';
 // import axios from "axios"
 import mysql from 'mysql';
 export type PoolConnection = mysql.PoolConnection;
@@ -40,13 +42,22 @@ export const basicMySqlInsert = <Q extends any>(table: string, fields: string[],
       const sqlParams:any[] = [];
       conn.query(`insert into ${table} (${fields.join(', ')}) values (${params.join(', ')})`, Object.keys(values).map((v) => values[v]), (err) => {
         conn.release();
-        if (err) {
+        if (err && err.sqlState === '23000') {
+          resolve();
+        } else if (err) {
           reject(err);
         }
         resolve();
       });
     }).catch((err) => reject(err));
   });
+};
+
+export const getDbUserByEmail = (email: EmailAddress): UserModel  => {
+  return {
+    userId: '1',
+    email: 'x@y.com',
+  }
 };
 
 // export const sqlinsert = <T>(table: string, postRequest: T):Promise<void> => {

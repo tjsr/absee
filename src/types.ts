@@ -12,6 +12,8 @@ export type ComparisonRequestPutBody = {
 
 export type UserId = uuid;
 
+export type EmailAddress = string;
+
 export type ComparableObjectPutBody = {
   id: SnowflakeType,
   comparisonId: SnowflakeType,
