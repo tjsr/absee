@@ -8,6 +8,7 @@ import { storeComparisonElements } from "./comparisonelement";
 export const storeComparisonRequest = async <T>(comparisonRequest: ComparisonModel<T>): Promise<void> => {
   const postRequest: ComparisonRequestPutBody = {
     id: comparisonRequest.id,
+    collectionId: comparisonRequest.collectionId,
     userId: comparisonRequest.userId,
     requestTime: comparisonRequest.requestTime,
     requestIp: comparisonRequest.requestIp,
@@ -30,7 +31,7 @@ const retrieveComparisonRequest = async (comparisonId: SnowflakeType): Promise<C
   return new Promise((resolve, reject) => {
     try {
       getConnection().then((conn: PoolConnection) => {
-        conn.query('select id, userId, requestTime, requestIp from Comparison where id=?', [comparisonId], (err, results, fields) => {
+        conn.query('select id, collectionId, userId, requestTime, requestIp from Comparison where id=?', [comparisonId], (err, results, fields) => {
           if (err) {
             conn.release();
             return reject(err);
@@ -45,6 +46,7 @@ const retrieveComparisonRequest = async (comparisonId: SnowflakeType): Promise<C
           }
           const data:ComparisonRequestResponseBody = {
             id: results[0].id,
+            collectionId: results[0].collectionId,
             userId: results[0].userId,
             requestTime: results[0].requestTime,
             requestIp: results[0].requestIp

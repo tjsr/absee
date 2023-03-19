@@ -17,6 +17,7 @@ const Frontend = <T extends unknown>(): JSX.Element => {
   const [comparisonLoaded, setComparisonLoaded] = useState<boolean>(false);
   const [comparisonLoading, setComparisonLoading] = useState<boolean>(false);
   const fakeEmails = true;
+  const collectionId = '83fd0b3e-dd08-4707-8135-e5f138a43f00';
 
   const [isLoggedIn, setLoggedIn] = useState<boolean>(false);
   const [email, setEmail] = useState<EmailAddress | undefined>(undefined);
@@ -49,7 +50,7 @@ const Frontend = <T extends unknown>(): JSX.Element => {
       if (!comparisonLoading && !comparisonLoaded) {
         setComparisonLoading(true);
         setComparisonLoaded(false);
-        let res = await fetchNewComparison();
+        let res = await fetchNewComparison(collectionId);
         if (res.success) {
           console.log(`Loaded ${SuperJSON.stringify(res.data)}`);
           const comparisonRequest: ComparisonSelectionResponse<T> = res.data.json;

@@ -81,6 +81,7 @@ const datasourceConvertor = <PinpanionData>(inputData: any): PinpanionData => {
 }
 
 export const loader: CollectionTypeLoader<Pin, PinpanionData> = {
+  collectionId: '83fd0b3e-dd08-4707-8135-e5f138a43f00',
   datasourceUrl: PIN_LIST_URL,
   collectionData: undefined,
   getNumberOfElements: countPinsInCollection,

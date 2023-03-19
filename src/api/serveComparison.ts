@@ -24,7 +24,7 @@ export const serveComparison = <T, D>(loader: CollectionTypeLoader<T, D>, reques
 
     const left: ComparableObjectModel<T>[] = createComparableObjectList<T>(candidateElements[0], comparisonId);
     const right: ComparableObjectModel<T>[] = createComparableObjectList<T>(candidateElements[1], comparisonId);
-    const comparisonRequest: ComparisonModel<T> = createComparisonSelection<T>(comparisonId, userId, ipAddress, left, right);
+    const comparisonRequest: ComparisonModel<T> = createComparisonSelection<T>(loader.collectionId, comparisonId, userId, ipAddress, left, right);
     storeComparisonRequest(comparisonRequest).then(() => {
       response.contentType('application/json');
       const responseJson: ComparisonSelectionResponse<T> = createComparisonSelectionResponse<T>(comparisonRequest, loader);

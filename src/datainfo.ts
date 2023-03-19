@@ -1,5 +1,7 @@
 import * as dotenv from 'dotenv';
 
+import { CollectionIdType, uuid } from './types';
+
 import axios from "axios";
 
 dotenv.config();
@@ -23,6 +25,7 @@ export const retrieveCollectionData = async<T, D>(existingData: D|undefined, url
 type IdType = string;
 
 export type CollectionTypeLoader<T, D> = {
+  collectionId: CollectionIdType;
   datasourceUrl: string;
   collectionData: D|undefined;
   getNumberOfElements: (loader: CollectionTypeLoader<T, D>) => number; // defaultElementCounter;

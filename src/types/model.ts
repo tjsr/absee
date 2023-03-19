@@ -1,4 +1,4 @@
-import { EmailAddress, IPAddress, ISO8601Date, SnowflakeType, uuid } from "../types";
+import { CollectionIdType, EmailAddress, IPAddress, ISO8601Date, SnowflakeType, uuid } from "../types";
 
 export type ComparableObjectModel<T extends any> = {
   id: SnowflakeType,
@@ -8,6 +8,7 @@ export type ComparableObjectModel<T extends any> = {
 
 export type ComparisonModel<T extends any> = {
   id: SnowflakeType
+  collectionId: CollectionIdType,
   a: ComparableObjectModel<T>[];
   b: ComparableObjectModel<T>[];
   requestIp: IPAddress;

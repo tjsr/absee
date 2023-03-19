@@ -25,6 +25,7 @@ describe('comparison', () => {
     }
     const comparisonRequest: ComparisonModel<any> = {
       id: comparisonId,
+      collectionId: uuidv4(),
       a: [metaa],
       b: [metab],
       requestIp: "127.0.0.1",

@@ -21,7 +21,7 @@ export const fetchNewSession = async () => {
   }
 };
 
-export const fetchNewComparison = async () => {
+export const fetchNewComparison = async (collectionId: string) => {
   try {
     const headers: HeadersInit = {
       'Content-Type': 'application/json'
@@ -31,7 +31,7 @@ export const fetchNewComparison = async () => {
       headers['x-session-id'] = sessionId;
     }
 
-    let response = await fetch(`${getServerHost()}`, {
+    let response = await fetch(`${getServerHost()}/collection/${collectionId}`, {
       method: 'GET',
       headers});
 

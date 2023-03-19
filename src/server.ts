@@ -54,7 +54,16 @@ export const startApp = <T, D>(loader: CollectionTypeLoader<T, D>) => {
   app.get('/session', session);
   app.post('/login', login);
   app.get("/logout", logout);
-  app.get("/", (request: ABSeeRequest, response: express.Response) => serveComparison(loader, request, response));
+  app.get("/collection/:collectionId", (request: ABSeeRequest, response: express.Response) => {
+    const collectionId = request.params.collectionId;
+    if (collectionId == '83fd0b3e-dd08-4707-8135-e5f138a43f00') {
+      serveComparison(loader, request, response)
+    } else {
+      response.status(401);
+      response.end();
+    }
+  }
+  );
   app.post("/submit", submit);
 
   app.use((req, res, next) => {

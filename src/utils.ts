@@ -23,6 +23,9 @@ export const createCandidateElementList = <T>(loader: CollectionTypeLoader<T, an
   let sizea = Math.floor(Math.random() * (maxLeft == undefined ? 4 : maxLeft))+1;
   while (sizea > 0) {
     let newRandom: string = getRandomId(loader.collectionData?.length!).toString();
+    if (newRandom == '0') {
+      continue;
+    }
     if (!arra.includes(newRandom)) {
       arra.push(newRandom);
       sizea--;
@@ -33,6 +36,9 @@ export const createCandidateElementList = <T>(loader: CollectionTypeLoader<T, an
   let sizeb = Math.floor(Math.random() * (maxRight == undefined ? 4 : maxRight))+1;
   while (sizeb > 0) {
     let newRandom: string = getRandomId(loader.collectionData?.length!).toString();
+    if (newRandom == '0') {
+      continue;
+    }
     if (!arra.includes(newRandom) && !arrb.includes(newRandom)) {
       arrb.push(newRandom);
       sizeb--;

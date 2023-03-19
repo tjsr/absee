@@ -5,6 +5,7 @@ export type IPAddress = string;
 
 export type ComparisonRequestPutBody = {
   id: SnowflakeType
+  collectionId: CollectionIdType,
   userId: uuid,
   requestTime: ISO8601Date;
   requestIp: IPAddress;
@@ -14,6 +15,7 @@ export type UserId = uuid;
 
 export type EmailAddress = string;
 export type CookieName = string;
+export type CollectionIdType = uuid;
 
 export type ComparableObjectPutBody = {
   id: SnowflakeType,
