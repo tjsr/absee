@@ -3,13 +3,13 @@ import * as dotenv from 'dotenv';
 import * as expressSession from 'express-session';
 
 import { EmailAddress, UserId, uuid } from './types';
-import { getConnection, getConnectionPool } from './database/mysql';
 import session, { Session, SessionData } from 'express-session';
 
 import { IncomingHttpHeaders } from 'http';
 import MySQLStore from 'express-mysql-session';
-import { createRandomUserId } from './utils';
+import { createRandomUserId } from './auth/user';
 import express from 'express';
+import { getConnectionPool } from './database/mysql';
 import { v4 as uuidv4 } from "uuid";
 
 export interface ABSeeSessionData extends SessionData {
@@ -25,7 +25,6 @@ dotenv.config();
 const IN_PROD = process.env.NODE_ENV === 'production'
 const TWO_HOURS = (1000 * 60 * 60) * 2;
 const TWENTYFOUR_HOURS = (1000 * 60 * 60) * 24;
-
 
 const sessionStoreOptions = {
   schema: {
@@ -84,27 +83,18 @@ export const useSessionId = (req: ABSeeRequest, res:express.Response, next: () =
     // retrieve session from session store using sessionId
      req.sessionStore.get(sessionId, (err, sessionData) => {
       if (!err) {
-        // console.warn(`No session found for ${sessionId}`);
         req.session.save();
       }
       if (sessionData) {
-        // req.session.id = sessionId;
-        // req.session.id = req.sessionID;
         req.session = Object.assign(req.session, sessionData);
-        // Object.assign(req.session, { id: sessionId });
-        // req.session.cookie = sessionData!.cookie;
         if (req.session.userId == undefined) {
           const userId: uuid = createRandomUserId();
           console.log(`Assigned a new userId ${userId} to session ${sessionId}`);
           req.session.userId = userId;
         }
-        // req.session.userId = sessionData!.userId;
-
-        // console.log(`Found session data ${JSON.stringify(sessionData)} for sessionId: ${sessionId}`);
-        // console.log(`Session: ${JSON.stringify(req.session)}`);
       }
       next();
-    }); // your code to retrieve session from session store
+    });
   } else {
     if (req.session.userId == undefined) {
       const userId: uuid = createRandomUserId();

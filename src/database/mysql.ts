@@ -1,9 +1,9 @@
+import { createRandomUserId, createUserIdFromEmail } from '../auth/user';
+
 import { EmailAddress } from '../types';
 import { UserModel } from '../types/model';
-import { createRandomUserId } from '../utils';
-import { getSnowflake } from '../snowflake';
-// import axios from "axios"
 import mysql from 'mysql';
+
 export type PoolConnection = mysql.PoolConnection;
 
 const requireEnv = (val: string): string => {
@@ -61,7 +61,7 @@ export const basicMySqlInsert = <Q extends any>(table: string, fields: string[],
 
 export const getDbUserByEmail = (email: EmailAddress): UserModel  => {
   return {
-    userId: createRandomUserId(),
+    userId: createUserIdFromEmail(email),
     email: email,
   }
 };
