@@ -4,12 +4,12 @@ import axios from "axios";
 
 dotenv.config();
 
-export const retrieveCollectionData = async<T>(existingData: T[]|undefined, url: string, resultDataConvertor: <T>(data: any) => T[]): Promise<T[]> => {
+export const retrieveCollectionData = async<T, D>(existingData: D|undefined, url: string, datasourceConvertor: <D>(data: any) => D): Promise<D> => {
   return new Promise((resolve, reject) => {
     if (existingData == undefined) {
       axios.get(url).then((data) => {
         try {
-          resolve(resultDataConvertor(data));
+          resolve(datasourceConvertor(data.data));
         } catch (err) {
           reject(err);
         }
@@ -22,24 +22,23 @@ export const retrieveCollectionData = async<T>(existingData: T[]|undefined, url:
 
 type IdType = string;
 
-export type CollectionTypeLoader<T> = {
+export type CollectionTypeLoader<T, D> = {
   datasourceUrl: string;
-  // retrieveCollectionData: <T>() => Promise<T[]>;
-  // retrieveCachedCollectionData: <T>() => T[];
-  existingData: T[] | undefined;
-  resultDataConvertor: <T>(data: any) => T[];
-  getObjectForId: <T>(existingData: T[], id: IdType) => T;
+  collectionData: D|undefined;
+  getNumberOfElements: (loader: CollectionTypeLoader<T, D>) => number; // defaultElementCounter;
+  convertDatasourceOnLoad: <D>(data: any) => D;
+  getObjectForId: (collectionData: D, id: IdType) => T;
 };
 
-export const initializeLoader = async <T>(loader: CollectionTypeLoader<T>): Promise<T[]> => {
+export const initializeLoader = async <T, D>(loader: CollectionTypeLoader<T, D>): Promise<D> => {
   return new Promise((resolve, reject) => {
-    retrieveCollectionData(loader.existingData, loader.datasourceUrl, loader.resultDataConvertor).then((data:T[]) => {
-      loader.existingData = data;
+    retrieveCollectionData(loader.collectionData, loader.datasourceUrl, loader.convertDatasourceOnLoad).then((data:D) => {
+      loader.collectionData = data;
       resolve(data);
     }).catch((err) => reject(err));
   });
 };
 
-export const dataFromLoader = <T>(loader: CollectionTypeLoader<T>): T[] => {
-  return loader.existingData!;
+export const dataFromLoader = <T, D>(loader: CollectionTypeLoader<T, D>): D => {
+  return loader.collectionData!;
 };

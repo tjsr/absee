@@ -13,14 +13,14 @@ import { getSnowflake } from "../snowflake";
 import { getUserId } from "../auth/user";
 import { storeComparisonRequest } from "../comparison";
 
-export const serveComparison = <T>(loader: CollectionTypeLoader<T>, request: express.Request, response: express.Response) => {
+export const serveComparison = <T, D>(loader: CollectionTypeLoader<T, D>, request: express.Request, response: express.Response) => {
   try {
     const userId: UserId = getUserId(request);
     const ipAddress = getIp(request);
     const comparisonId: SnowflakeType = getSnowflake();
     console.log(`Got request from userId ${userId}`);
 
-    const candidateElements: [string[], string[]] = createCandidateElementList(loader, loader.existingData?.length!,1, 1);
+    const candidateElements: [string[], string[]] = createCandidateElementList(loader, loader.getNumberOfElements(loader),1, 1);
 
     const left: ComparableObjectModel<T>[] = createComparableObjectList<T>(candidateElements[0], comparisonId);
     const right: ComparableObjectModel<T>[] = createComparableObjectList<T>(candidateElements[1], comparisonId);

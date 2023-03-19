@@ -17,12 +17,12 @@ const createdWeightedRandomizerList = (max: number): number[] => {
   return [];
 };
 
-export const createCandidateElementList = <T>(loader: CollectionTypeLoader<T>, maxId: number, maxLeft?: number, maxRight?: number): [string[], string[]] => {
+export const createCandidateElementList = <T>(loader: CollectionTypeLoader<T, any>, maxId: number, maxLeft?: number, maxRight?: number): [string[], string[]] => {
   const arra: string[] = [];
 
   let sizea = Math.floor(Math.random() * (maxLeft == undefined ? 4 : maxLeft))+1;
   while (sizea > 0) {
-    let newRandom: string = getRandomId(loader.existingData?.length!).toString();
+    let newRandom: string = getRandomId(loader.collectionData?.length!).toString();
     if (!arra.includes(newRandom)) {
       arra.push(newRandom);
       sizea--;
@@ -32,7 +32,7 @@ export const createCandidateElementList = <T>(loader: CollectionTypeLoader<T>, m
   const arrb: string[] = [];
   let sizeb = Math.floor(Math.random() * (maxRight == undefined ? 4 : maxRight))+1;
   while (sizeb > 0) {
-    let newRandom: string = getRandomId(loader.existingData?.length!).toString();
+    let newRandom: string = getRandomId(loader.collectionData?.length!).toString();
     if (!arra.includes(newRandom) && !arrb.includes(newRandom)) {
       arrb.push(newRandom);
       sizeb--;

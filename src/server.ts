@@ -29,7 +29,7 @@ export const getIp = (req: Express.Request): IPAddress => {
   return (req as any).clientIp;
 };
 
-export const startApp = <T>(loader: CollectionTypeLoader<T>) => {
+export const startApp = <T, D>(loader: CollectionTypeLoader<T, D>) => {
   const app = express();
   app.use(cors(corsOptions));
   app.use(requestIp.mw())

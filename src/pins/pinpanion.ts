@@ -7,9 +7,10 @@ dotenv.config();
 const PIN_LIST_URL = process.env.PIN_LIST_URL || "https://pinpanion.com/pins.json";
 
 let paxs:PAX[]|undefined = undefined;
+let pins:Pin[]|undefined = undefined;
 
-export type Pin = {
-  id: number;
+type PinpanionPin = {
+  id: string;
   name: string;
   set_id: number | null;
   sub_set_id: number | null;
@@ -18,33 +19,71 @@ export type Pin = {
   alternate: string;
   image_name: string;
 };
+  
+export type Pin = {
+  id: number;
+  name: string;
+  year: number;
+  paxName: string;
+  imageUrl: string;
+};
 
 export type PAX = {
   id: number;
   name: string;
 };
 
-export const convertCollectionJson = <Pin>(data: any): Pin[] => {
-  if (data.data.success === true) {
-    const pins:Pin[] = data.data.pins;
-    paxs = data.data.paxs;
-    console.log(`Got ${pins.length} pins.`);
-    return pins;
-  } else {
-    throw new Error('returned pin list did not have success=true');
+type PinpanionData = {
+  pins: PinpanionPin[];
+  paxs: PAX[];
+  success: boolean;
+};
+
+export const countPinsInCollection = (currentLoader: CollectionTypeLoader<Pin, PinpanionData>): number => {
+  if (currentLoader.collectionData) {
+    return currentLoader.collectionData.pins.length;
   }
+
+  return 0;
 };
 
-const getObjectForId = <Pin>(existingData: Pin[], id: string): Pin => {
-  return existingData[parseInt(id)];
-  // return existingData.find((p: Pin) => {
-  //   return p.id === parseInt(id) }
-  // )!;
+const convertPaxIdToPaxName = (paxId: number): string => {
+  const pax:PAX|undefined = paxs?.find((p) => p.id == paxId);
+  return pax ? pax.name : 'Unknown';
+}
+
+const convertToDisplayPin = (pin: PinpanionPin): Pin => {
+  const output: Pin = {
+    id: parseInt(pin.id),
+    name: pin.name,
+    year: pin.year,
+    paxName: convertPaxIdToPaxName(pin.pax_id),
+    imageUrl: pin.image_name
+  };
+  return output;
 };
 
-export const loader: CollectionTypeLoader<Pin> = {
+const getPinById = (sourceData: PinpanionData, id: string): PinpanionPin|undefined => {
+  return sourceData.pins?.find((p: PinpanionPin) => p.id === id);
+};
+
+const getObjectForId = (sourceData: PinpanionData, id: string): Pin => {
+  const sourcePin: PinpanionPin|undefined = getPinById(sourceData, id);
+  if (sourcePin) {
+    return convertToDisplayPin(sourcePin);
+  }
+  throw new Error(`Couldn't find pin for id ${id}`);
+};
+
+const datasourceConvertor = <PinpanionData>(inputData: any): PinpanionData => {
+  paxs = inputData.paxs;
+  return inputData;
+}
+
+export const loader: CollectionTypeLoader<Pin, PinpanionData> = {
   datasourceUrl: PIN_LIST_URL,
-  existingData: undefined,
-  resultDataConvertor: convertCollectionJson,
+  collectionData: undefined,
+  getNumberOfElements: countPinsInCollection,
   getObjectForId: getObjectForId,
+  convertDatasourceOnLoad: datasourceConvertor
 };
