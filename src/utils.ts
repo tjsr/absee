@@ -22,7 +22,15 @@ export const createCandidateElementList = <T>(loader: CollectionTypeLoader<T, an
 
   let sizea = Math.floor(Math.random() * (maxLeft == undefined ? 4 : maxLeft))+1;
   while (sizea > 0) {
-    let newRandom: string = getRandomId(loader.collectionData?.length!).toString();
+    let newRandom: string = getRandomId(loader.getNumberOfElements(loader)).toString();
+    try {
+      // ensure the object exists as numbers might not be sequential.
+      const objectForId = loader.getObjectForId(loader.collectionData, newRandom);
+    } catch (err) {
+      // Re-try if the element doesn't exist in the collection.
+      console.warn(`Random object id selector picked an id ${newRandom} that doesn't exist in dataset ${loader.collectionId}`);
+      continue;
+    }
     if (newRandom == '0') {
       continue;
     }
@@ -35,7 +43,15 @@ export const createCandidateElementList = <T>(loader: CollectionTypeLoader<T, an
   const arrb: string[] = [];
   let sizeb = Math.floor(Math.random() * (maxRight == undefined ? 4 : maxRight))+1;
   while (sizeb > 0) {
-    let newRandom: string = getRandomId(loader.collectionData?.length!).toString();
+    let newRandom: string = getRandomId(loader.getNumberOfElements(loader)).toString();
+    try {
+      // ensure the object exists as numbers might not be sequential.
+      const objectForId = loader.getObjectForId(loader.collectionData, newRandom);
+    } catch (err) {
+      // Re-try if the element doesn't exist in the collection.
+      console.warn(`Random object id selector picked an id ${newRandom} that doesn't exist in dataset ${loader.collectionId}`);
+      continue;
+    }
     if (newRandom == '0') {
       continue;
     }
