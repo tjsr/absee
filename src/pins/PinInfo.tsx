@@ -1,4 +1,5 @@
 import './pincolours.css';
+import './pinpanion.css';
 
 import { Pin } from './pinpanion';
 import React from 'react';
@@ -13,7 +14,7 @@ const PINPANION_IMAGE_LOCATION = 'https://pinpanion.com/imgs';
 export const PinInfo = ({ pin, style }: PinInfoPropTypes): JSX.Element => {
   const url = `${PINPANION_IMAGE_LOCATION}/${pin.imageUrl}`;
 
-  let pinClasses = 'pin-normal';
+  let pinClasses = 'pin-normal pin';
   let paxCssClass = 'pax';
   let setCssClass = 'set';
 
