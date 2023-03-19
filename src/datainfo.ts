@@ -28,6 +28,7 @@ export type CollectionTypeLoader<T, D> = {
   collectionId: CollectionIdType;
   datasourceUrl: string;
   collectionData: D|undefined;
+  maxElementsPerComparison: number;
   getNumberOfElements: (loader: CollectionTypeLoader<T, D>) => number; // defaultElementCounter;
   convertDatasourceOnLoad: <D>(data: any) => D;
   getObjectForId: (collectionData: D, id: IdType) => T;

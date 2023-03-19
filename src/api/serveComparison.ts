@@ -20,7 +20,7 @@ export const serveComparison = <T, D>(loader: CollectionTypeLoader<T, D>, reques
     const comparisonId: SnowflakeType = getSnowflake();
     console.log(`Got request from userId ${userId}`);
 
-    const candidateElements: [string[], string[]] = createCandidateElementList(loader, loader.getNumberOfElements(loader),1, 1);
+    const candidateElements: [string[], string[]] = createCandidateElementList(loader, loader.getNumberOfElements(loader),loader.maxElementsPerComparison, loader.maxElementsPerComparison);
 
     const left: ComparableObjectModel<T>[] = createComparableObjectList<T>(candidateElements[0], comparisonId);
     const right: ComparableObjectModel<T>[] = createComparableObjectList<T>(candidateElements[1], comparisonId);
