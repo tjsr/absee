@@ -7,6 +7,8 @@ div.comparisonElement {
   border: 1px solid #000;
   text-align: center;
   background-color: #e1e1e1;
+  align-items: center;
+  justify-content: center;
 }
 
 div.comparisonElement:hover {
@@ -15,5 +17,6 @@ div.comparisonElement:hover {
 
 div.collectionItem {
   display: block;
+  align-self: center;
   max-width: 16rem;
 }

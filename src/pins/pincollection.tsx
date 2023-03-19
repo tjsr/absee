@@ -1,3 +1,5 @@
+import './pincollection.css';
+
 import { Collection, CollectionPropTypes } from '../ui/collection';
 
 import { Pin } from './pinpanion';
@@ -9,8 +11,8 @@ const PINPANION_IMAGE_LOCATION = 'https://pinpanion.com/imgs';
 const getCollectionItem = (data: Pin): JSX.Element => {
   return (
     <>
-      Pin ID: {data.id}
-      {data.image_name && <img src={`${PINPANION_IMAGE_LOCATION}/${data.image_name}`} />}
+      {/* Pin ID: {data.id} */}
+      {data.image_name && <img className="paPinImage" src={`${PINPANION_IMAGE_LOCATION}/${data.image_name}`} />}
       <h3>{data.name}</h3>
       <div className="pinPax">
         {data.year} {data.pax_id}
