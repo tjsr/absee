@@ -1,4 +1,4 @@
-import { Collection, CollectionPropTypes } from '../collection';
+import { Collection, CollectionPropTypes } from '../ui/collection';
 
 import { Pin } from './pinpanion';
 // import { PinInfo } from '../types';

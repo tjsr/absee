@@ -1,4 +1,4 @@
-import Frontend from './frontend';
+import Frontend from './ui/frontend';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import reportWebVitals from './reportWebVitals';

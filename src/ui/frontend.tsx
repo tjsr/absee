@@ -1,14 +1,15 @@
 import './frontend.css';
 
-import { ComparableObjectResponse, ComparisonSelectionResponse, SnowflakeType } from './types';
+import { ComparableObjectResponse, ComparisonSelectionResponse, EmailAddress, SnowflakeType } from '../types';
 import React, { useEffect, useState } from 'react';
-import { fetchNewComparison, submitComparisonChoice } from './ui/comparisonChoice';
+import { fetchNewComparison, fetchNewSession, submitComparisonChoice } from './comparisonChoice';
 
-import { FreeformEmailLoginBox } from './ui/freeformEmailLogin';
-import { GoogleLoginBox } from './ui/googleLogin';
-import { Pin } from './pins/pinpanion';
-import { PinCollection } from './pins/pincollection';
-import { RestCallResult } from './types/apicalls';
+import Cookies from 'js-cookie';
+import { FreeformEmailLoginBox } from './freeformEmailLogin';
+import { GoogleLoginBox } from './googleLogin';
+import { Pin } from '../pins/pinpanion';
+import { PinCollection } from '../pins/pincollection';
+import { RestCallResult } from '../types/apicalls';
 import SuperJSON from 'superjson';
 
 const Frontend = <T extends unknown>(): JSX.Element => {
@@ -16,6 +17,9 @@ const Frontend = <T extends unknown>(): JSX.Element => {
   const [comparisonLoaded, setComparisonLoaded] = useState<boolean>(false);
   const [comparisonLoading, setComparisonLoading] = useState<boolean>(false);
   const fakeEmails = true;
+
+  const [isLoggedIn, setLoggedIn] = useState<boolean>(false);
+  const [email, setEmail] = useState<EmailAddress | undefined>(undefined);
 
   const selectElement = async (elementId: SnowflakeType): Promise<void> => {
     console.log(`Selected element ${elementId} for comparison ${comparison?.id}`);
@@ -29,7 +33,19 @@ const Frontend = <T extends unknown>(): JSX.Element => {
   };
 
   useEffect(() => {
+    const sessionId = Cookies.get('sessionId');
+
     (async () => {
+      if (sessionId === undefined || sessionId == 'undefined') {
+        await fetchNewSession();
+      }
+
+      const isLoggedIn = Cookies.get('isLoggedIn');
+      const cookieEmail = Cookies.get('email');
+      if (isLoggedIn === 'true' && cookieEmail !== undefined) {
+        setLoggedIn(true);
+        setEmail(cookieEmail);
+      }
       if (!comparisonLoading && !comparisonLoaded) {
         setComparisonLoading(true);
         setComparisonLoaded(false);

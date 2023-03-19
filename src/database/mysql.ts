@@ -1,5 +1,7 @@
 import { EmailAddress } from '../types';
 import { UserModel } from '../types/model';
+import { createRandomUserId } from '../utils';
+import { getSnowflake } from '../snowflake';
 // import axios from "axios"
 import mysql from 'mysql';
 export type PoolConnection = mysql.PoolConnection;
@@ -22,6 +24,10 @@ const config: mysql.PoolConfig = {
 }
 
 const connectionPool = mysql.createPool(config);
+
+export const getConnectionPool = () => {
+  return connectionPool;
+};
 
 export const getConnection = async (): Promise<PoolConnection> => {
   return new Promise((resolve, reject) => {
@@ -55,8 +61,8 @@ export const basicMySqlInsert = <Q extends any>(table: string, fields: string[],
 
 export const getDbUserByEmail = (email: EmailAddress): UserModel  => {
   return {
-    userId: '1',
-    email: 'x@y.com',
+    userId: createRandomUserId(),
+    email: email,
   }
 };
 

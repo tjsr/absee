@@ -1,12 +1,14 @@
 import * as dotenv from 'dotenv';
 
-import { ABSeeRequest, getSession } from './session';
+import { ABSeeRequest, getSession, useSessionId } from './session';
 import { ComparableObjectModel, ComparisonModel, UserModel } from './types/model';
 import { ComparisonSelectionResponse, IPAddress, SnowflakeType, UserId } from "./types";
 import { storeComparisonRequest, verifyComparisonOwner } from "./comparison";
 
+import { AuthenticationRestResult } from './types/apicalls';
 import { CollectionTypeLoader } from './datainfo';
 import SuperJSON from 'superjson';
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import { createComparableObjectList } from "./comparableobjects";
 import { createComparisonSelection } from "./datastore";
@@ -28,11 +30,15 @@ const HTTP_PORT:number = process.env.HTTP_PORT !== undefined ? parseInt(process.
 const corsOptions = {
   origin: '*',
   optionsSuccessStatus: 200,
+  'Access-Control-Expose-Headers': '*',
+  // 'Access-Control-Allow-Origin': 'http://localhost:3000',
 };
 
 export const getIp = (req: Express.Request): IPAddress => {
   return (req as any).clientIp;
 };
+
+
 
 export const startApp = <T>(loader: CollectionTypeLoader<T>) => {
   const app = express();
@@ -40,9 +46,16 @@ export const startApp = <T>(loader: CollectionTypeLoader<T>) => {
   app.use(requestIp.mw())
   app.set('trust proxy', true);
 
-  app.use(getSession());
+  app.use(function(req, res, next) {
+    res.header('Access-Control-Expose-Headers', '*');
+    next();
+  });
 
-  initialisePassportToExpressApp(app);
+  app.use(cookieParser());
+  app.use(getSession());
+  app.use(useSessionId);
+  
+  // initialisePassportToExpressApp(app);
 
   app.use(express.urlencoded({
     extended: true
@@ -77,15 +90,75 @@ export const startApp = <T>(loader: CollectionTypeLoader<T>) => {
     try {
       const email: string = req.body.email;
       const user: UserModel = await getDbUserByEmail(email);
+
       if (!user) {
+        const result: AuthenticationRestResult = {
+          email: undefined,
+          isLoggedIn: false,
+          message: 'Invalid email',
+        };
+        req.session.userId = undefined;
+        req.session.email = undefined;
+        req.session.save((err) => {
+          if (err) {
+            console.error(`Failed saving session`, err);
+          }
+        });
+  
         res.statusCode = 403;
-        res.send({ message: 'Invalid email' });
+        return res.send({ message: 'Invalid email' });
       }
 
+      const result: AuthenticationRestResult = {
+        email: email,
+        isLoggedIn: true,
+        sessionId: req.session.id,
+      };
+
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('x-session-id', req.session.id);
+      res.cookie('sessionId', req.session.id);
+
       req.session.userId = user.userId;
-      return res.redirect("/");
+      req.session.email = email;
+      console.log(`User ${email} logged in and has userId ${user.userId}`);
+      req.session.save((err) => {
+        if (err) {
+          console.error(`Failed saving session`, err);
+        }
+      });
+
+      res.status(200);
+      res.send(result);
     } catch (e) {
+      res.status(500);
       console.log(e);
+      return res.send();
+    }
+  });
+
+  app.get("/logout", async(request: ABSeeRequest, res: express.Response, next) => {
+    const userId: UserId = getUserId(request);
+    console.log(`Got logout userId ${userId}`);
+    const result: AuthenticationRestResult = {
+      email: undefined,
+      isLoggedIn: false,
+    };
+    try {
+      request.session.userId = undefined;
+      request.session.email = undefined;
+      request.session.save((err) => {
+        if (err) {
+          console.error(`Failed saving session`, err);
+        }
+      });
+
+      res.status(200);
+      return res.send(result);
+    } catch (e) {
+      res.status(500);
+      console.log(e);
+      return res.send(result);
     }
   });
 
@@ -94,8 +167,9 @@ export const startApp = <T>(loader: CollectionTypeLoader<T>) => {
       const userId: UserId = getUserId(request);
       const ipAddress = getIp(request);
       const comparisonId: SnowflakeType = getSnowflake();
+      console.log(`Got request from userId ${userId}`);
 
-      const candidateElemenets: [string[], string[]] = createCandidateElementList(loader.existingData?.length!);
+      const candidateElemenets: [string[], string[]] = createCandidateElementList(loader.existingData?.length!,1, 1);
 
       const left: ComparableObjectModel<T>[] = createComparableObjectList<T>(candidateElemenets[0], comparisonId);
       const right: ComparableObjectModel<T>[] = createComparableObjectList<T>(candidateElemenets[1], comparisonId);
@@ -155,13 +229,25 @@ export const startApp = <T>(loader: CollectionTypeLoader<T>) => {
     }
   });
 
-  app.use(express.static("public"));
+  app.get('/session', (request: ABSeeRequest, response: express.Response) => {
+    request.session.save();
+    response.status(200);
+    response.send({
+      sessionId: request.session.id
+    });
+    response.end();
+  });
 
+  app.use((req, res, next) => {
+    res.set("Set-Cookie", `sessionId=${req.session.id}`);
+    next();
+  });
+
+  app.use(express.static("public"));
+  
   app.listen(HTTP_PORT, () => {
     console.log(`Listening on port ${HTTP_PORT}`);
   });
 
-  // app.use(bodyParser.urlencoded({ extended: true }));
-  // app.use(bodyParser.json());
   return app;
 }

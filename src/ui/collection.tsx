@@ -1,8 +1,8 @@
 import './collection.css';
 
-import { ComparableObjectResponse, SnowflakeType } from './types';
+import { ComparableObjectResponse, SnowflakeType } from '../types';
 
-import { Pin } from './pins/pinpanion';
+import { Pin } from '../pins/pinpanion';
 import React from 'react';
 import SuperJSON from 'superjson';
 
