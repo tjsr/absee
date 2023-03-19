@@ -18,9 +18,19 @@ model User {
 
 model Comparison {
   id BigInt @id
+  collectionId String @default("")
   userId String
   requestTime DateTime
   requestIp String
+}
+
+model Collection {
+  collectionId String @id
+  name String
+  datasource String @db.Text
+  description String @db.Text
+  cachedData String @db.Text
+  lastUpdateTime DateTime
 }
 
 model ComparisonElement {
