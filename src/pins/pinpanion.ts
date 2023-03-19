@@ -1,6 +1,7 @@
 import * as dotenv from 'dotenv';
 
 import { CollectionTypeLoader } from '../datainfo';
+import events from './eventnames.json'
 
 dotenv.config();
 
@@ -8,6 +9,7 @@ const PIN_LIST_URL = process.env.PIN_LIST_URL || "https://pinpanion.com/pins.jso
 
 let paxs:PAX[]|undefined = undefined;
 let pins:Pin[]|undefined = undefined;
+let sets:PinSet[]|undefined = undefined;
 
 type PinpanionPin = {
   id: string;
@@ -24,8 +26,18 @@ export type Pin = {
   id: number;
   name: string;
   year: number;
-  paxName: string;
+  paxName?: string;
   imageUrl: string;
+  setName?: string;
+  paxId: number;
+  setId?: number;
+  cssClass: string;
+};
+
+export type PinSet = {
+  id: number;
+  name: string;
+  year: number;
 };
 
 export type PAX = {
@@ -52,14 +64,28 @@ const convertPaxIdToPaxName = (paxId: number): string => {
   return pax ? pax.name : 'Unknown';
 }
 
+const getPinSetName = (setId: number): string|undefined => {
+  const set:PinSet|undefined = sets?.find((ps) => ps.id == setId);
+  if (set) {
+    return set.name;
+  }
+}
+
 const convertToDisplayPin = (pin: PinpanionPin): Pin => {
+  const cssClass: string|undefined = events.find((e) => e.id == pin.pax_id)?.cssClass;
   const output: Pin = {
     id: parseInt(pin.id),
     name: pin.name,
     year: pin.year,
     paxName: convertPaxIdToPaxName(pin.pax_id),
-    imageUrl: pin.image_name
+    imageUrl: pin.image_name.split('?')[0],
+    paxId: pin.pax_id,
+    cssClass: cssClass !== undefined ? cssClass : 'unknown',
   };
+  if (pin.set_id) {
+    output.setName = getPinSetName(pin.set_id);
+    output.setId = pin.set_id;
+  }
   return output;
 };
 
@@ -77,6 +103,7 @@ const getObjectForId = (sourceData: PinpanionData, id: string): Pin => {
 
 const datasourceConvertor = <PinpanionData>(inputData: any): PinpanionData => {
   paxs = inputData.paxs;
+  sets = inputData.sets;
   return inputData;
 }
 

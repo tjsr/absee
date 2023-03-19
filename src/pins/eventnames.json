@@ -1,0 +1,52 @@
+[
+  {
+    "id": 0,
+    "description": "PAX",
+    "cssClass": "Gaming"
+  },
+  {
+    "id": 1,
+    "description": "West",
+    "cssClass": "West"
+  },
+  {
+    "id": 2,
+    "description": "East",
+    "cssClass": "East"
+  },
+  {
+    "id": 3,
+    "description": "Aus",
+    "cssClass": "Aus"
+  },
+  {
+    "id": 4,
+    "description": "Penny Arcade",
+    "cssClass": "Gaming"
+  },
+  {
+    "id": 5,
+    "description": "Online",
+    "cssClass": "Online"
+  },
+  {
+    "id": 6,
+    "description": "Limited",
+    "cssClass": "Limited"
+  },
+  {
+    "id": 7,
+    "description": "Gaming",
+    "cssClass": "Gaming"
+  },
+  {
+    "id": 8,
+    "description": "South",
+    "cssClass": "South"
+  },
+  {
+    "id": 9,
+    "description": "Unplugged",
+    "cssClass": "Unplugged"
+  }
+]

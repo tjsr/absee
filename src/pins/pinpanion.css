@@ -1,0 +1,65 @@
+.pin {
+  display: inline-block;
+  margin: 2px;
+  background-color: #e1e1e1;
+  border: 2px solid;
+ }
+ 
+ div.pinInfoPadding {
+   display: inline-block;
+   margin: 2px;
+ }
+ 
+ div.pinInfo h3 {
+   margin-top: 0.2em;
+   height: 2.5em;
+   overflow: hidden;
+   font-size: 1em;
+   margin-block-end: 0em;
+ }
+ 
+ .pin-tiny {
+   width: 6rem;
+ }
+ 
+ .pin-sm {
+   width: 8rem;
+ }
+ 
+ .pin-normal {
+   width: 12rem;
+ }
+ 
+ .pin-large {
+   width: 14rem;
+ }
+ 
+ .pin-tiny img.pinImage {
+   max-height: 70px;
+   max-width: 70px;
+ }
+ 
+ .pin-sm img.pinImage {
+   max-height: 100px;
+   max-width: 100px;
+ }
+ 
+ .pin-normal img.pinImage {
+   max-height: 140px;
+   max-width: 140px;
+ }
+ 
+ .pin-large img.pinImage {
+   max-height: 240px;
+   max-width: 240px;
+ }
+
+ .set {
+  font-weight: bold;
+  color: #e1e1e1;
+  font-size: 0.8rem;
+  height: 1rem;
+  padding-top: 0.1rem;
+  padding-bottom: 0.1rem;
+  overflow: hidden;
+}

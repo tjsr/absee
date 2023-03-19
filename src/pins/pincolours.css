@@ -1,0 +1,88 @@
+:root {
+  --pax-colour-west: #009DDC;
+  --pax-colour-aus: #FBB024;
+  --pax-colour-east: #CE1D24;
+  --pax-colour-gaming: #097F00;
+  --pax-colour-staff: #001DD5;
+  --pax-colour-limited: #000;
+  --pax-colour-online: #000;
+  --pax-colour-unplugged: #90479A;
+  --pax-colour-south: #DD5C1B;
+
+  --pax-text-online: #E1E1E1;
+  --pax-text-limited: #E1E1E1;
+}
+
+.paxWest {
+  background-color: var(--pax-colour-west)
+}
+
+.paxAus {
+  background-color: var(--pax-colour-aus);
+}
+
+.paxGaming {
+  background-color: var(--pax-colour-gaming)
+}
+
+.paxOnline {
+  background-color: var(--pax-colour-online);
+  color: var(--pax-text-online);
+}
+
+.paxStaff {
+  background-color: var(--pax-colour-staff)
+}
+
+.paxLimited {
+  background-color: var(--pax-colour-limited);
+  color: var(--pax-text-online);
+}
+
+.paxEast {
+  background-color: var(--pax-colour-east)
+}
+
+.paxUnplugged {
+  background-color: var(--pax-colour-unplugged)
+}
+
+.paxSouth {
+  background-color: var(--pax-colour-south)
+}
+
+.pinWest {
+  border-color: var(--pax-colour-west)
+}
+
+.pinAus {
+  border-color: var(--pax-colour-aus)
+}
+
+.pinGaming {
+  border-color: var(--pax-colour-gaming)
+}
+
+.pinOnline {
+  border-color: var(--pax-colour-online)
+}
+
+.pinStaff {
+  border-color: var(--pax-colour-staff)
+}
+
+.pinLimited {
+  border-color: var(--pax-colour-limited)
+}
+
+.pinEast {
+  border-color: var(--pax-colour-east)
+}
+
+.pinUnplugged {
+  border-color: var(--pax-colour-unplugged)
+}
+
+.pinSouth {
+  border-color: var(--pax-colour-south)
+}
