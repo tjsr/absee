@@ -3,7 +3,6 @@ import './pinpanion.css';
 
 import { Pin } from './pinpanion';
 import React from 'react';
-import { titleCase } from 'title-case';
 
 type PinInfoPropTypes = {
   pin: Pin;

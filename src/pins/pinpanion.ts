@@ -9,7 +9,6 @@ const PIN_LIST_URL =
   process.env.PIN_LIST_URL || 'https://pinpanion.com/pins.json';
 
 let paxs: PAX[] | undefined = undefined;
-const pins: Pin[] | undefined = undefined;
 let sets: PinSet[] | undefined = undefined;
 
 type PinpanionPin = {

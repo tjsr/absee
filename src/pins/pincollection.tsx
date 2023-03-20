@@ -6,8 +6,6 @@ import { Pin } from './pinpanion';
 import { PinInfo } from './PinInfo';
 import React from 'react';
 
-const PINPANION_IMAGE_LOCATION = 'https://pinpanion.com/imgs';
-
 const getCollectionItem = (data: Pin): JSX.Element => {
   return <PinInfo pin={data} />;
 };
