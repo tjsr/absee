@@ -31,6 +31,7 @@ model Collection {
   description String @db.Text
   cachedData String @db.Text
   lastUpdateTime DateTime
+  maxElementsPerComparison Int @default(1)
 }
 
 model ComparisonElement {
