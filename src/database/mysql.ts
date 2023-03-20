@@ -43,7 +43,7 @@ export const getConnection = async (): Promise<PoolConnection> => {
   });
 };
 
-export const basicMySqlInsert = <Q extends any>(
+export const basicMySqlInsert = (
   table: string,
   fields: string[],
   values: any

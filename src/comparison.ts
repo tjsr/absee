@@ -27,7 +27,7 @@ export const storeComparisonRequest = async <T>(
   const allPromises: Promise<void>[] = [
     ...storeComparisonElements(comparisonRequest.id, comparisonRequest.a),
     ...storeComparisonElements(comparisonRequest.id, comparisonRequest.b),
-    basicMySqlInsert<ComparisonRequestPutBody>(
+    basicMySqlInsert(
       'Comparison',
       Object.keys(postRequest),
       postRequest
