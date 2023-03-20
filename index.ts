@@ -3,12 +3,14 @@ import * as dotenv from 'dotenv';
 import { initializeLoader, retrieveCollectionData } from './src/datainfo';
 
 import { loader as pinLoader } from './src/pins/pinpanion';
+import { requireEnv } from './src/utils';
 import { startApp } from './src/server';
 
 dotenv.config();
 
-const ID_UUID_NAMESPACE = process.env.ID_UUID_NAMESPACE || 'f345a1f6-ee55-4621-a46d-77e663c7a775';
-const COMPARISON_UUID_NAMESPACE = process.env.COMPARISON_UUID_NAMESPACE || 'd1012c53-7978-4fd8-a10a-faf15d050242';
+requireEnv('SESSION_SECRET');
+requireEnv('USERID_UUID_NAMESPACE');
+requireEnv('HTTP_PORT');
 
 initializeLoader(pinLoader).then(() => {
   startApp(pinLoader);
