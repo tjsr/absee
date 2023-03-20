@@ -12,6 +12,7 @@ import { PinCollection } from '../pins/pincollection';
 import { RestCallResult } from '../types/apicalls';
 import SuperJSON from 'superjson';
 
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-constraint
 const Frontend = <T extends unknown>(): JSX.Element => {
   const [comparison, setComparison] = useState<ComparisonSelectionResponse<T> | undefined>(undefined);
   const [comparisonLoaded, setComparisonLoaded] = useState<boolean>(false);

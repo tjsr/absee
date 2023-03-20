@@ -1,24 +1,21 @@
 import { ComparableObjectModel } from './types/model';
 import { SnowflakeType } from './types';
-// import { getElementData } from "..";
 import { getSnowflake } from './snowflake';
 
-const createComparableObject = <T>(
+const createComparableObject = (
   objectId: string,
   elementId: SnowflakeType
-): ComparableObjectModel<T> => {
+): ComparableObjectModel => {
   return {
     elementId: elementId,
     id: getSnowflake(),
     objectId: objectId,
-    // data: getElementData(objectId),
   };
 };
 
-export const createComparableObjectList = <T>(
+export const createComparableObjectList = (
   objectIdList: string[],
-  comparisonId: SnowflakeType
-): ComparableObjectModel<T>[] => {
+): ComparableObjectModel[] => {
   const elementId = getSnowflake();
   return objectIdList.map((objectId) =>
     createComparableObject(objectId, elementId)

@@ -15,7 +15,7 @@ import { ComparisonRequestResponseBody } from './types/datasource';
 import { storeComparisonElements } from './comparisonelement';
 
 export const storeComparisonRequest = async <T>(
-  comparisonRequest: ComparisonModel<T>
+  comparisonRequest: ComparisonModel
 ): Promise<void> => {
   const postRequest: ComparisonRequestPutBody = {
     collectionId: comparisonRequest.collectionId,

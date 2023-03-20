@@ -31,15 +31,13 @@ export const serveComparison = <T, D>(
       loader.maxElementsPerComparison
     );
 
-    const left: ComparableObjectModel<T>[] = createComparableObjectList<T>(
+    const left: ComparableObjectModel[] = createComparableObjectList(
       candidateElements[0],
-      comparisonId
     );
-    const right: ComparableObjectModel<T>[] = createComparableObjectList<T>(
+    const right: ComparableObjectModel[] = createComparableObjectList(
       candidateElements[1],
-      comparisonId
     );
-    const comparisonRequest: ComparisonModel<T> = createComparisonSelection<T>(
+    const comparisonRequest: ComparisonModel = createComparisonSelection<T>(
       loader.collectionId,
       comparisonId,
       userId,

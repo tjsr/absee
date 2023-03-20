@@ -7,17 +7,17 @@ import {
   uuid,
 } from '../types';
 
-export type ComparableObjectModel<T extends any> = {
+export type ComparableObjectModel = {
   id: SnowflakeType;
   elementId: SnowflakeType;
   objectId: string;
 };
 
-export type ComparisonModel<T extends any> = {
+export type ComparisonModel = {
   id: SnowflakeType;
   collectionId: CollectionIdType;
-  a: ComparableObjectModel<T>[];
-  b: ComparableObjectModel<T>[];
+  a: ComparableObjectModel[];
+  b: ComparableObjectModel[];
   requestIp: IPAddress;
   requestTime: ISO8601Date;
   userId: uuid;

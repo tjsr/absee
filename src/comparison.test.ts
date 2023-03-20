@@ -10,20 +10,18 @@ import { v4 as uuidv4 } from 'uuid';
 describe('comparison', () => {
   test('Should write a comparison request to the DB', () => {
     const comparisonId: SnowflakeType = getSnowflake();
-    const metaa: ComparableObjectModel<any> = {
+    const metaa: ComparableObjectModel = {
       elementId: getSnowflake(),
       id: getSnowflake(),
       objectId: '1',
-      // data: { id: "1" }
     };
 
-    const metab: ComparableObjectModel<any> = {
+    const metab: ComparableObjectModel = {
       elementId: getSnowflake(),
       id: getSnowflake(),
       objectId: '2',
-      // data: { id: "2" }
     };
-    const comparisonRequest: ComparisonModel<any> = {
+    const comparisonRequest: ComparisonModel = {
       a: [metaa],
       b: [metab],
       collectionId: uuidv4(),

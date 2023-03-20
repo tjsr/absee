@@ -8,9 +8,9 @@ export const createComparisonSelection = <T>(
   comparisonId: SnowflakeType,
   userId: UserId,
   ipAddress: IPAddress,
-  left: ComparableObjectModel<T>[],
-  right: ComparableObjectModel<T>[]
-): ComparisonModel<T> => {
+  left: ComparableObjectModel[],
+  right: ComparableObjectModel[]
+): ComparisonModel => {
   return {
     a: left,
     b: right,

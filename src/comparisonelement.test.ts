@@ -8,11 +8,10 @@ import { storeComparisonElement } from './comparisonelement';
 describe('comparisonelement', () => {
   test('Should write an element to the DB', async () => {
     const comparisonId: SnowflakeType = getSnowflake();
-    const meta: ComparableObjectModel<any> = {
+    const meta: ComparableObjectModel = {
       elementId: getSnowflake(),
       id: getSnowflake(),
       objectId: '1',
-      // data: { id: "1" }
     };
     await expect(storeComparisonElement(comparisonId, meta)).resolves;
   });

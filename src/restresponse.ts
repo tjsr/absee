@@ -4,7 +4,7 @@ import { ComparableObjectResponse, ComparisonSelectionResponse } from './types';
 import { CollectionTypeLoader } from './datainfo';
 
 export const createComparableObjectResponse = <T>(
-  comparableObject: ComparableObjectModel<T>[],
+  comparableObject: ComparableObjectModel[],
   loader: CollectionTypeLoader<T, any>
 ): ComparableObjectResponse<T> => {
   if (comparableObject === undefined || comparableObject.length == 0) {
@@ -25,7 +25,7 @@ export const createComparableObjectResponse = <T>(
 };
 
 export const createComparisonSelectionResponse = <T>(
-  comparisonRequest: ComparisonModel<T>,
+  comparisonRequest: ComparisonModel,
   loader: CollectionTypeLoader<T, any>
 ): ComparisonSelectionResponse<T> => {
   return {
