@@ -48,7 +48,7 @@ const memoryStore = new session.MemoryStore();
 export const getSession = () => {
   return session({
     cookie: {
-      maxAge: TWENTYFOUR_HOURS,
+      maxAge: IN_PROD ? TWO_HOURS : TWENTYFOUR_HOURS,
       path: '/',
       sameSite: true,
       secure: IN_PROD,
