@@ -16,4 +16,6 @@ COPY tsconfig.json /opt/absee
 WORKDIR /opt/absee
 RUN npm i && npm run build
 
+EXPOSE 8280
+
 CMD ["npm", "run", "start:prod"]
