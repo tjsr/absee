@@ -7,6 +7,7 @@
     "start": "npm run build && ts-node index.ts",
     "start:frontend": "react-scripts start",
     "start:dev": "nodemon index.ts && react-scripts start",
+    "start:prod": "ts-node index.ts",
     "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider react-scripts build",
     "test": "ts-jest",
     "db:init:dev": "npx prisma migrate dev --name init",
