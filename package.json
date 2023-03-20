@@ -4,10 +4,9 @@
   "description": "A comparison and data store tool",
   "main": "index.ts",
   "scripts": {
-    "start": "ts-node index.ts",
+    "start": "npm run build && ts-node index.ts",
     "start:frontend": "react-scripts start",
     "start:dev": "nodemon index.ts && react-scripts start",
-    "build": "react-scripts build",
     "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider react-scripts build",
     "test": "ts-jest",
     "db:init:dev": "npx prisma migrate dev --name init",
