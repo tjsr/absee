@@ -4,9 +4,9 @@ export type uuid = string;
 export type IPAddress = string;
 
 export type ComparisonRequestPutBody = {
-  id: SnowflakeType
-  collectionId: CollectionIdType,
-  userId: uuid,
+  id: SnowflakeType;
+  collectionId: CollectionIdType;
+  userId: uuid;
   requestTime: ISO8601Date;
   requestIp: IPAddress;
 };
@@ -18,10 +18,10 @@ export type CookieName = string;
 export type CollectionIdType = uuid;
 
 export type ComparableObjectPutBody = {
-  id: SnowflakeType,
-  comparisonId: SnowflakeType,
-  elementId: SnowflakeType,
-  objectId: string,
+  id: SnowflakeType;
+  comparisonId: SnowflakeType;
+  elementId: SnowflakeType;
+  objectId: string;
 };
 
 export type ComparableObjectResponse<T> = {

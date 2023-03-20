@@ -6,11 +6,11 @@ import { EmailAddress, UserId, uuid } from './types';
 import session, { Session, SessionData } from 'express-session';
 
 import { IncomingHttpHeaders } from 'http';
-import MySQLStore from 'express-mysql-session';
 import { createRandomUserId } from './auth/user';
 import express from 'express';
 import { getConnectionPool } from './database/mysql';
-import { v4 as uuidv4 } from "uuid";
+import mySQLStore from 'express-mysql-session';
+import { v4 as uuidv4 } from 'uuid';
 
 export interface ABSeeSessionData extends SessionData {
   userId: UserId;
@@ -18,40 +18,49 @@ export interface ABSeeSessionData extends SessionData {
 }
 
 export interface ABSeeRequest extends Express.Request {
- session: Session & Partial<ABSeeSessionData>;
+  session: Session & Partial<ABSeeSessionData>;
 }
 
 dotenv.config();
-const IN_PROD = process.env.NODE_ENV === 'production'
-const TWO_HOURS = (1000 * 60 * 60) * 2;
-const TWENTYFOUR_HOURS = (1000 * 60 * 60) * 24;
+const IN_PROD = process.env.NODE_ENV === 'production';
+const TWO_HOURS = 1000 * 60 * 60 * 2;
+const TWENTYFOUR_HOURS = 1000 * 60 * 60 * 24;
 
 const sessionStoreOptions = {
   schema: {
-		tableName: 'session',
-		columnNames: {
-			session_id: 'session_id',
-			expires: 'expire',
-			data: 'sess'
-		}
-	}
+    columnNames: {
+      data: 'sess',
+      expires: 'expire',
+      session_id: 'session_id',
+    },
+    tableName: 'session',
+  },
 };
-const mysqlSessionStore = MySQLStore(expressSession);
+const MysqlSessionStore = mySQLStore(expressSession);
 
-const sessionStore = new mysqlSessionStore(sessionStoreOptions/* session store options */, getConnectionPool());
+const sessionStore = new MysqlSessionStore(
+  sessionStoreOptions /* session store options */,
+  getConnectionPool()
+);
 
-var memoryStore = new session.MemoryStore();
+const memoryStore = new session.MemoryStore();
 
 export const getSession = () => {
-  return session( {
-    resave: false,
-    rolling: false,
-    saveUninitialized: false,
-    secret: process.env.SESSION_SECRET || '',
-    genid: function(req: express.Request) {
+  return session({
+    cookie: {
+      maxAge: TWENTYFOUR_HOURS,
+      path: '/',
+      sameSite: true,
+      secure: IN_PROD,
+    },
+    genid: function (req: express.Request) {
       const headers: IncomingHttpHeaders = req.headers;
-      const sessionIdHeader: string|string[]|undefined = headers['x-session-id'];
-      if (typeof sessionIdHeader === 'string' && sessionIdHeader !== 'undefined') {
+      const sessionIdHeader: string | string[] | undefined =
+      headers['x-session-id'];
+      if (
+        typeof sessionIdHeader === 'string' &&
+        sessionIdHeader !== 'undefined'
+      ) {
         return sessionIdHeader;
       }
       if (req.sessionID) {
@@ -61,27 +70,29 @@ export const getSession = () => {
       if (cookieValue !== undefined && cookieValue !== 'undefined') {
         return cookieValue;
       }
-      const newId = uuidv4();  // use UUIDs for session IDs
+      const newId = uuidv4(); // use UUIDs for session IDs
       return newId;
     },
-    cookie: {
-      maxAge: TWENTYFOUR_HOURS,
-      sameSite: true,
-      secure: IN_PROD,
-      path: "/",
-    },
+    resave: false,
+    rolling: false,
+    saveUninitialized: false,
+    secret: process.env.SESSION_SECRET || '',
     store: sessionStore !== undefined ? sessionStore : memoryStore,
-  })
+  });
 };
 
-export const useSessionId = (req: ABSeeRequest, res:express.Response, next: () => void) => {
+export const useSessionId = (
+  req: ABSeeRequest,
+  res: express.Response,
+  next: () => void
+) => {
   const sessionId = req.header('x-session-id');
   if (sessionId && sessionId !== 'undefined') {
     if (!req.sessionID) {
       req.sessionID = sessionId;
     }
     // retrieve session from session store using sessionId
-     req.sessionStore.get(sessionId, (err, sessionData) => {
+    req.sessionStore.get(sessionId, (err, sessionData) => {
       if (!err) {
         req.session.save();
       }
@@ -89,7 +100,9 @@ export const useSessionId = (req: ABSeeRequest, res:express.Response, next: () =
         req.session = Object.assign(req.session, sessionData);
         if (req.session.userId == undefined) {
           const userId: uuid = createRandomUserId();
-          console.log(`Assigned a new userId ${userId} to session ${sessionId}`);
+          console.log(
+            `Assigned a new userId ${userId} to session ${sessionId}`
+          );
           req.session.userId = userId;
         }
       }
@@ -98,10 +111,12 @@ export const useSessionId = (req: ABSeeRequest, res:express.Response, next: () =
   } else {
     if (req.session.userId == undefined) {
       const userId: uuid = createRandomUserId();
-      console.log(`Assigned a new userId ${userId} to session ${req.session.id}`);
+      console.log(
+        `Assigned a new userId ${userId} to session ${req.session.id}`
+      );
       req.session.userId = userId;
     }
-    
+
     next();
   }
 };

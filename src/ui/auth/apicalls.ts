@@ -1,11 +1,11 @@
-import { CookieName, EmailAddress } from "../../types";
+import { CookieName, EmailAddress } from '../../types';
 
-import { AuthenticationRestResult } from "../../types/apicalls";
-import Cookies from "js-cookie";
-import { getServerHost } from "../utils";
+import { AuthenticationRestResult } from '../../types/apicalls';
+import Cookies from 'js-cookie';
+import { getServerHost } from '../utils';
 
 type LoginPostBody = {
-  email: EmailAddress,
+  email: EmailAddress;
 };
 
 export const submitLogin = async (email: EmailAddress) => {
@@ -14,21 +14,21 @@ export const submitLogin = async (email: EmailAddress) => {
       email,
     };
     const sessionId = Cookies.get('sessionId');
-    let response: Response = await fetch(`${getServerHost()}/login`, 
-    {
-      method: "POST",
-      mode: "cors",
-      cache: "no-cache",
+    const response: Response = await fetch(`${getServerHost()}/login`, {
       body: JSON.stringify(loginPostBody),
+      cache: 'no-cache',
       headers: {
         // 'Accept': 'application/json',
-      'Content-Type': 'application/json',
-      'x-session-id': sessionId!}
+        'Content-Type': 'application/json',
+        'x-session-id': sessionId!,
+      },
+      method: 'POST',
+      mode: 'cors',
     });
 
     const headers = response.headers.get('Set-Cookie');
     // const rawHeaders = response.headers.raw()['Set-Cookie'];
-    const cookie = headers ? headers.split(",") : [];
+    const cookie = headers ? headers.split(',') : [];
 
     const loginBody: AuthenticationRestResult = await response.json();
     setAuthenticationCookies(loginBody);
@@ -56,20 +56,21 @@ const setAuthenticationCookies = (body: AuthenticationRestResult) => {
   } else {
     Cookies.remove('sessionId');
   }
-}
+};
 
 export const submitLogout = async () => {
   try {
     const sessionId = Cookies.get('sessionId');
-    let response = await fetch(`${getServerHost()}/logout`, {
-      headers: { 
-        //'Accept': 'application/json',
+    const response = await fetch(`${getServerHost()}/logout`, {
+      headers: {
+        // 'Accept': 'application/json',
         'Content-Type': 'application/json',
-        'x-session-id': sessionId!}
+        'x-session-id': sessionId!,
+      },
     });
     const logoutBody: AuthenticationRestResult = await response.json();
     setAuthenticationCookies(logoutBody);
   } catch (err) {
     console.warn(`Failed trying to log out`, err);
-  }  
-}
+  }
+};

@@ -22,7 +22,11 @@ export const Collection = (props: ICollectionPropTypes<Pin>): JSX.Element => {
     return <div>Error: element undefined.</div>;
   }
   if (props.element.data == undefined) {
-    return <div>Error: element.data undefined: ${SuperJSON.stringify(props.element)}.</div>;
+    return (
+      <div>
+        Error: element.data undefined: ${SuperJSON.stringify(props.element)}.
+      </div>
+    );
   }
   return (
     <>

@@ -14,6 +14,10 @@ const getCollectionItem = (data: Pin): JSX.Element => {
 
 export const PinCollection = (props: CollectionPropTypes<Pin>): JSX.Element => {
   return (
-    <Collection element={props.element} selectElement={props.selectElement} getCollectionItem={getCollectionItem} />
+    <Collection
+      element={props.element}
+      selectElement={props.selectElement}
+      getCollectionItem={getCollectionItem}
+    />
   );
 };

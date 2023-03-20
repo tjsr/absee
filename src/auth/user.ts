@@ -1,10 +1,11 @@
-import { EmailAddress, UserId, uuid } from "../types";
+import { EmailAddress, UserId, uuid } from '../types';
 
-import { ABSeeRequest } from "../session";
-import { getSnowflake } from "../snowflake";
+import { ABSeeRequest } from '../session';
+import { getSnowflake } from '../snowflake';
 import { v5 as uuidv5 } from 'uuid';
 
-const USERID_UUID_NAMESPACE = process.env.USERID_UUID_NAMESPACE || 'd850e0d9-a02c-4a25-9ade-9711b942b8ba';
+const USERID_UUID_NAMESPACE =
+  process.env.USERID_UUID_NAMESPACE || 'd850e0d9-a02c-4a25-9ade-9711b942b8ba';
 
 export const createUserIdFromEmail = (email: EmailAddress): uuid => {
   return uuidv5(email, USERID_UUID_NAMESPACE);
@@ -26,4 +27,3 @@ export const getUserId = (request: ABSeeRequest): UserId => {
     return request.session.userId;
   }
 };
-

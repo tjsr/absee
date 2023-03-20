@@ -1,15 +1,16 @@
 import * as dotenv from 'dotenv';
 
 import { CollectionTypeLoader } from '../datainfo';
-import events from './eventnames.json'
+import events from './eventnames.json';
 
 dotenv.config();
 
-const PIN_LIST_URL = process.env.PIN_LIST_URL || "https://pinpanion.com/pins.json";
+const PIN_LIST_URL =
+  process.env.PIN_LIST_URL || 'https://pinpanion.com/pins.json';
 
-let paxs:PAX[]|undefined = undefined;
-let pins:Pin[]|undefined = undefined;
-let sets:PinSet[]|undefined = undefined;
+let paxs: PAX[] | undefined = undefined;
+const pins: Pin[] | undefined = undefined;
+let sets: PinSet[] | undefined = undefined;
 
 type PinpanionPin = {
   id: string;
@@ -21,7 +22,7 @@ type PinpanionPin = {
   alternate: string;
   image_name: string;
 };
-  
+
 export type Pin = {
   id: number;
   name: string;
@@ -51,7 +52,9 @@ type PinpanionData = {
   success: boolean;
 };
 
-export const countPinsInCollection = (currentLoader: CollectionTypeLoader<Pin, PinpanionData>): number => {
+export const countPinsInCollection = (
+  currentLoader: CollectionTypeLoader<Pin, PinpanionData>
+): number => {
   if (currentLoader.collectionData) {
     return currentLoader.collectionData.pins.length;
   }
@@ -60,27 +63,29 @@ export const countPinsInCollection = (currentLoader: CollectionTypeLoader<Pin, P
 };
 
 const convertPaxIdToPaxName = (paxId: number): string => {
-  const pax:PAX|undefined = paxs?.find((p) => p.id == paxId);
+  const pax: PAX | undefined = paxs?.find((p) => p.id == paxId);
   return pax ? pax.name : 'Unknown';
-}
+};
 
-const getPinSetName = (setId: number): string|undefined => {
-  const set:PinSet|undefined = sets?.find((ps) => ps.id == setId);
+const getPinSetName = (setId: number): string | undefined => {
+  const set: PinSet | undefined = sets?.find((ps) => ps.id == setId);
   if (set) {
     return set.name;
   }
-}
+};
 
 const convertToDisplayPin = (pin: PinpanionPin): Pin => {
-  const cssClass: string|undefined = events.find((e) => e.id == pin.pax_id)?.cssClass;
+  const cssClass: string | undefined = events.find(
+    (e) => e.id == pin.pax_id
+  )?.cssClass;
   const output: Pin = {
-    id: parseInt(pin.id),
-    name: pin.name,
-    year: pin.year,
-    paxName: convertPaxIdToPaxName(pin.pax_id),
-    imageUrl: pin.image_name.split('?')[0],
-    paxId: pin.pax_id,
     cssClass: cssClass !== undefined ? cssClass : 'unknown',
+    id: parseInt(pin.id),
+    imageUrl: pin.image_name.split('?')[0],
+    name: pin.name,
+    paxId: pin.pax_id,
+    paxName: convertPaxIdToPaxName(pin.pax_id),
+    year: pin.year,
   };
   if (pin.set_id) {
     output.setName = getPinSetName(pin.set_id);
@@ -89,12 +94,15 @@ const convertToDisplayPin = (pin: PinpanionPin): Pin => {
   return output;
 };
 
-const getPinById = (sourceData: PinpanionData, id: string): PinpanionPin|undefined => {
+const getPinById = (
+  sourceData: PinpanionData,
+  id: string
+): PinpanionPin | undefined => {
   return sourceData.pins?.find((p: PinpanionPin) => p.id === id);
 };
 
 const getObjectForId = (sourceData: PinpanionData, id: string): Pin => {
-  const sourcePin: PinpanionPin|undefined = getPinById(sourceData, id);
+  const sourcePin: PinpanionPin | undefined = getPinById(sourceData, id);
   if (sourcePin) {
     return convertToDisplayPin(sourcePin);
   }
@@ -105,14 +113,14 @@ const datasourceConvertor = <PinpanionData>(inputData: any): PinpanionData => {
   paxs = inputData.paxs;
   sets = inputData.sets;
   return inputData;
-}
+};
 
 export const loader: CollectionTypeLoader<Pin, PinpanionData> = {
-  collectionId: '83fd0b3e-dd08-4707-8135-e5f138a43f00',
-  datasourceUrl: PIN_LIST_URL,
   collectionData: undefined,
-  maxElementsPerComparison: 2,
+  collectionId: '83fd0b3e-dd08-4707-8135-e5f138a43f00',
+  convertDatasourceOnLoad: datasourceConvertor,
+  datasourceUrl: PIN_LIST_URL,
   getNumberOfElements: countPinsInCollection,
   getObjectForId: getObjectForId,
-  convertDatasourceOnLoad: datasourceConvertor
+  maxElementsPerComparison: 2,
 };

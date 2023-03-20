@@ -50,7 +50,7 @@ const Frontend = <T extends unknown>(): JSX.Element => {
       if (!comparisonLoading && !comparisonLoaded) {
         setComparisonLoading(true);
         setComparisonLoaded(false);
-        let res = await fetchNewComparison(collectionId);
+        const res = await fetchNewComparison(collectionId);
         if (res.success) {
           console.log(`Loaded ${SuperJSON.stringify(res.data)}`);
           const comparisonRequest: ComparisonSelectionResponse<T> = res.data.json;

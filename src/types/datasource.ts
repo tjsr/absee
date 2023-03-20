@@ -1,3 +1,3 @@
-import { ComparisonRequestPutBody } from "../types";
+import { ComparisonRequestPutBody } from '../types';
 
 export type ComparisonRequestResponseBody = ComparisonRequestPutBody;

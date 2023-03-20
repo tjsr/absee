@@ -1,10 +1,10 @@
-import { ABSeeRequest } from "../session";
-import { AuthenticationRestResult } from "../types/apicalls";
-import { UserModel } from "../types/model";
+import { ABSeeRequest } from '../session';
+import { AuthenticationRestResult } from '../types/apicalls';
+import { UserModel } from '../types/model';
 import express from 'express';
-import { getDbUserByEmail } from "../database/mysql";
+import { getDbUserByEmail } from '../database/mysql';
 
-export const login = async(req: ABSeeRequest, res: express.Response) => {
+export const login = async (req: ABSeeRequest, res: express.Response) => {
   try {
     const email: string = req.body.email;
     const user: UserModel = await getDbUserByEmail(email);
@@ -55,4 +55,4 @@ export const login = async(req: ABSeeRequest, res: express.Response) => {
   } finally {
     res.end();
   }
-}
+};

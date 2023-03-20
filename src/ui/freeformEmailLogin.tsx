@@ -55,10 +55,14 @@ export const FreeformEmailLoginBox = (): JSX.Element => {
         ) : (
           <div>
             <div className="loginNote">
-              For now, while in testing, you can just free-form enter any email address and it will accept it. Please
-              don't abuse this.
+              For now, while in testing, you can just free-form enter any email
+              address and it will accept it. Please don't abuse this.
             </div>
-            <input type="email" value={email} onChange={(e) => setEmail(e.currentTarget.value)} />
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.currentTarget.value)}
+            />
             <button id="loginButton" onClick={login}>
               Log in
             </button>
