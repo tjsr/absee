@@ -2,8 +2,8 @@
 
 set -e
 
-if test -f ".env"; then
-  export $(grep -v '^#' .env | xargs)
+if test -f ".env.docker"; then
+  export $(grep -v '^#' .env.docker | xargs)
 fi
 
 require_env() {

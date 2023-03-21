@@ -30,12 +30,13 @@ pipelines:
         environment:
           BITBUCKET_REPO_SLUG: $BITBUCKET_REPO_SLUG
           BITBUCKET_COMMIT: $BITBUCKET_COMMIT
-          REGISTRY_HOST: $REGISTRY_HOST
     - step:
         runs-on:
         - 'self.hosted'
         - 'linux'
         image: tjsrowe/bb-dind-aws:latest
+        variables:
+          DOCKER_OPTS: '--insecure-registry=172.29.0.214:5000'
         name: Deploy to docker
         deployment: test
         trigger: manual  # Uncomment to make this a manual deployment.
