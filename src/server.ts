@@ -18,7 +18,7 @@ import { submit } from './api/submit';
 dotenv.config();
 
 const morganLog = morgan('common');
-//process.env.PRODUCTION =='true' ? 'common' : 'dev'
+// process.env.PRODUCTION =='true' ? 'common' : 'dev'
 
 const HTTP_PORT: number =
   process.env.HTTP_PORT !== undefined ? parseInt(process.env.HTTP_PORT!) : 8280;

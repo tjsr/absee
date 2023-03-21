@@ -2,12 +2,12 @@ import {
   ComparisonRequestPutBody,
   IPAddress,
   SnowflakeType,
-  UserId,
+  UserId
 } from './types';
 import {
   PoolConnection,
   basicMySqlInsert,
-  getConnection,
+  getConnection
 } from './database/mysql';
 
 import { ComparisonModel } from './types/model';
@@ -27,11 +27,7 @@ export const storeComparisonRequest = async <T>(
   const allPromises: Promise<void>[] = [
     ...storeComparisonElements(comparisonRequest.id, comparisonRequest.a),
     ...storeComparisonElements(comparisonRequest.id, comparisonRequest.b),
-    basicMySqlInsert(
-      'Comparison',
-      Object.keys(postRequest),
-      postRequest
-    ),
+    basicMySqlInsert('Comparison', Object.keys(postRequest), postRequest),
   ];
   const resolved = Promise.all(allPromises)
     .then((resolved) => {
@@ -71,8 +67,8 @@ const retrieveComparisonRequest = async (
                 conn.release();
                 return reject(
                   new Error(
-                    `Retrieving by comparisonId ${comparisonId} should only ever `+
-                    `return a single row, got ${results.length}`
+                    `Retrieving by comparisonId ${comparisonId} should only ever ` +
+                      `return a single row, got ${results.length}`
                   )
                 );
               }
@@ -115,7 +111,7 @@ export const verifyComparisonOwner = async (
           reject(
             new Error(
               `Response came from a different IP Address (${requestIpAddress}) ` +
-              `origin than comparison was issued for (${response.requestIp})`
+                `origin than comparison was issued for (${response.requestIp})`
             )
           );
         }

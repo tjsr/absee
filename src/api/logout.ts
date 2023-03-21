@@ -4,10 +4,7 @@ import { UserId } from '../types';
 import express from 'express';
 import { getUserId } from '../auth/user';
 
-export const logout = async (
-  request: ABSeeRequest,
-  res: express.Response
-) => {
+export const logout = async (request: ABSeeRequest, res: express.Response) => {
   const userId: UserId = getUserId(request);
   console.log(`Got logout userId ${userId}`);
   const result: AuthenticationRestResult = {

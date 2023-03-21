@@ -56,7 +56,7 @@ export const getSession = () => {
     genid: function (req: express.Request) {
       const headers: IncomingHttpHeaders = req.headers;
       const sessionIdHeader: string | string[] | undefined =
-      headers['x-session-id'];
+        headers['x-session-id'];
       if (
         typeof sessionIdHeader === 'string' &&
         sessionIdHeader !== 'undefined'

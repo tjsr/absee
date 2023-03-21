@@ -2,11 +2,11 @@ import {
   ComparisonSelectionResponse,
   CookieName,
   EmailAddress,
-  SnowflakeType,
+  SnowflakeType
 } from '../types';
 import {
   ComparisonSubmissionRequestBody,
-  RestCallResult,
+  RestCallResult
 } from '../types/apicalls';
 
 import Cookies from 'js-cookie';
@@ -80,6 +80,6 @@ export const submitComparisonChoice = async <T>(
     return { data: json, status: httpStatus, success: true };
   } catch (error) {
     console.log(error);
-    return { status: httpStatus, success: false, };
+    return { status: httpStatus, success: false };
   }
 };

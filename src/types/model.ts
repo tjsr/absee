@@ -4,7 +4,7 @@ import {
   IPAddress,
   ISO8601Date,
   SnowflakeType,
-  uuid4,
+  uuid4
 } from '../types';
 
 export type ComparableObjectModel = {

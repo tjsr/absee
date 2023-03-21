@@ -32,10 +32,10 @@ export const serveComparison = <T, D>(
     );
 
     const left: ComparableObjectModel[] = createComparableObjectList(
-      candidateElements[0],
+      candidateElements[0]
     );
     const right: ComparableObjectModel[] = createComparableObjectList(
-      candidateElements[1],
+      candidateElements[1]
     );
     const comparisonRequest: ComparisonModel = createComparisonSelection<T>(
       loader.collectionId,

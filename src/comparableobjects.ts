@@ -14,7 +14,7 @@ const createComparableObject = (
 };
 
 export const createComparableObjectList = (
-  objectIdList: string[],
+  objectIdList: string[]
 ): ComparableObjectModel[] => {
   const elementId = getSnowflake();
   return objectIdList.map((objectId) =>

@@ -1,7 +1,7 @@
 import {
   PoolConnection,
   basicMySqlInsert,
-  getConnection,
+  getConnection
 } from './database/mysql';
 
 import { SnowflakeType } from './types';

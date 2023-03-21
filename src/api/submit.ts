@@ -17,14 +17,14 @@ export const submit = (request: ABSeeRequest, response: express.Response) => {
 
     if (!isSnowflake(comparisonId)) {
       response.status(400);
-      response.send({message: 'Invalid comparisonId'});
+      response.send({ message: 'Invalid comparisonId' });
       return;
     }
 
     const elementId = request.body.selectedElementId;
     if (!isSnowflake(elementId)) {
       response.status(400);
-      response.send({message: 'Invalid selectedElementId'});
+      response.send({ message: 'Invalid selectedElementId' });
       return;
     }
 
@@ -57,8 +57,7 @@ export const submit = (request: ABSeeRequest, response: express.Response) => {
     // verify that it comes from the same IP
   } catch (err) {
     console.error(`Failure in POST /submit`, err);
-  }
-  finally {
+  } finally {
     response.end();
   }
 };
