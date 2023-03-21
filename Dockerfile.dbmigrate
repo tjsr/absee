@@ -1,4 +1,4 @@
-FROM node:18.13.0-alpine3.17 as dbmigrate
+FROM node:18.13.0-alpine3.17 as absee-dbmigrate
 
 RUN npm install -g npm@9.6.2
 

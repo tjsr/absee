@@ -3,7 +3,7 @@ FROM node:18.13.0-alpine3.17 as absee
 RUN npm install -g npm@9.6.2
 
 RUN mkdir /opt/absee
-COPY --from=dbmigrate /opt/absee/node_modules /opt/absee/node_modules
+COPY --from=absee-dbmigrate /opt/absee/node_modules /opt/absee/node_modules
 
 COPY src/ /opt/absee/src
 COPY public/ /opt/absee/public
