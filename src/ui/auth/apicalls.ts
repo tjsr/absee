@@ -1,7 +1,6 @@
-import { CookieName, EmailAddress } from '../../types';
-
 import { AuthenticationRestResult } from '../../types/apicalls';
 import Cookies from 'js-cookie';
+import { EmailAddress } from '../../types';
 import { getServerHost } from '../utils';
 
 type LoginPostBody = {
