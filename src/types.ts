@@ -1,6 +1,8 @@
 import { ISO8601Date, SnowflakeType } from './types/mysqltypes';
 
 export type uuid = string;
+export type uuid5 = uuid;
+export type uuid4 = uuid;
 export type IPAddress = string;
 
 export type ComparisonRequestPutBody = {
@@ -11,11 +13,11 @@ export type ComparisonRequestPutBody = {
   requestIp: IPAddress;
 };
 
-export type UserId = uuid;
+export type UserId = uuid5;
 
 export type EmailAddress = string;
 export type CookieName = string;
-export type CollectionIdType = uuid;
+export type CollectionIdType = uuid4;
 
 export type ComparableObjectPutBody = {
   id: SnowflakeType;

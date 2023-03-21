@@ -2,7 +2,7 @@ import * as Express from 'express';
 import * as dotenv from 'dotenv';
 import * as expressSession from 'express-session';
 
-import { EmailAddress, UserId, uuid } from './types';
+import { EmailAddress, UserId, uuid, uuid4, uuid5 } from './types';
 import session, { Session, SessionData } from 'express-session';
 
 import { IncomingHttpHeaders } from 'http';
@@ -70,7 +70,7 @@ export const getSession = () => {
       if (cookieValue !== undefined && cookieValue !== 'undefined') {
         return cookieValue;
       }
-      const newId = uuidv4(); // use UUIDs for session IDs
+      const newId: uuid4 = uuidv4(); // use UUIDs for session IDs
       return newId;
     },
     resave: false,
@@ -99,7 +99,7 @@ export const useSessionId = (
       if (sessionData) {
         req.session = Object.assign(req.session, sessionData);
         if (req.session.userId == undefined) {
-          const userId: uuid = createRandomUserId();
+          const userId: uuid5 = createRandomUserId();
           console.log(
             `Assigned a new userId ${userId} to session ${sessionId}`
           );
@@ -110,7 +110,7 @@ export const useSessionId = (
     });
   } else {
     if (req.session.userId == undefined) {
-      const userId: uuid = createRandomUserId();
+      const userId: uuid5 = createRandomUserId();
       console.log(
         `Assigned a new userId ${userId} to session ${req.session.id}`
       );

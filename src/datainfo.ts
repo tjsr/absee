@@ -1,7 +1,6 @@
 import * as dotenv from 'dotenv';
 
-import { CollectionIdType, uuid } from './types';
-
+import { CollectionIdType } from './types';
 import axios from 'axios';
 
 dotenv.config();

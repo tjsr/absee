@@ -1,8 +1,11 @@
+import { IPAddress, UserId } from '../types';
+
 import { ABSeeRequest } from '../session';
-import { UserId } from '../types';
 import express from 'express';
 import { getIp } from '../server';
 import { getUserId } from '../auth/user';
+import { isSnowflake } from '../validate';
+import isUuid from 'is-uuid';
 import { saveComparisonSelection } from '../comparisonresponse';
 import { verifyComparisonOwner } from '../comparison';
 
@@ -10,8 +13,13 @@ export const submit = (request: ABSeeRequest, response: express.Response) => {
   try {
     // const comparisonId = request.params.comparisonId;
     const userId: UserId = getUserId(request);
-    const ipAddress = getIp(request);
+    const ipAddress: IPAddress = getIp(request);
     const comparisonId = request.body.comparisonId;
+
+    if (!isSnowflake(comparisonId)) {
+      response.status(400);
+      response.end();
+    }
 
     const responseJson = {
       success: true,
