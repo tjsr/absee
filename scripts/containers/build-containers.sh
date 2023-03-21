@@ -25,6 +25,12 @@ DB_IMAGE_NAME=$BITBUCKET_REPO_SLUG-dbmigrate:$BITBUCKET_COMMIT
 
 echo Output image will be $IMAGE_NAME
 
+echo Building dbmigrate image $DB_IMAGE_NAME
 DOCKER_BUILDKIT=1 BUILDKIT_PROGRESS=plain docker build -f Dockerfile.dbmigrate -t $DB_IMAGE_NAME .
+echo Tagging $DB_IMAGE_NAME as absee-dbmigrate
 docker tag $DB_IMAGE_NAME absee-dbmigrate
+
+echo Building absee image $IMAGE_NAME
 DOCKER_BUILDKIT=1 BUILDKIT_PROGRESS=plain docker build -f Dockerfile -t $IMAGE_NAME .
+
+echo "Done building images."
