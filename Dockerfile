@@ -1,9 +1,11 @@
-FROM node:18.13.0-alpine3.17 as absee
-
+FROM node:18.13.0-alpine3.17 as absee-build-preflight
 RUN npm install -g npm@9.6.2
 
 RUN mkdir /opt/absee
-COPY --from=absee-dbmigrate /opt/absee/node_modules /opt/absee/node_modules
+
+WORKDIR /opt/absee
+
+FROM absee-build-preflight as absee-build
 
 COPY src/ /opt/absee/src
 COPY public/ /opt/absee/public
@@ -13,9 +15,17 @@ COPY .eslintrc.json /opt/absee
 COPY babel.config.js /opt/absee
 COPY tsconfig.json /opt/absee
 
-WORKDIR /opt/absee
 RUN npm i && npm run build
+
+FROM absee-build-preflight as absee
+
+COPY package*.json /opt/absee
+
+RUN npm i --production
+COPY --from=absee-build /opt/absee/dist /opt/absee/dist
+COPY --from=absee-build /opt/absee/build /opt/absee/dist/build
+WORKDIR /opt/absee/dist
 
 EXPOSE 8280
 
-CMD ["npm", "run", "start:prod"]
+CMD ["node", "index.js"]
