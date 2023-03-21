@@ -30,6 +30,7 @@ pipelines:
         environment:
           BITBUCKET_REPO_SLUG: $BITBUCKET_REPO_SLUG
           BITBUCKET_COMMIT: $BITBUCKET_COMMIT
+          REGISTRY_HOST: $REGISTRY_HOST
     - step:
         runs-on:
         - 'self.hosted'
