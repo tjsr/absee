@@ -45,5 +45,7 @@ pipelines:
         - COMMIT_IMAGE=$IMAGE_NAME:$BITBUCKET_COMMIT
         - REGISTRY_COMMIT=public.ecr.aws/$AWS_USER/$COMMIT_IMAGE
         - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/$AWS_USER
-        - docker tag $IMAGE_NAME:$BITBUCKET_COMMIT $REGISTRY_COMMIT
+        - docker pull 172.29.0.214:5000/absee/$IMAGE_NAME:$BITBUCKET_COMMIT
+        - docker tag 172.29.0.214:5000/absee/$IMAGE_NAME:$BITBUCKET_COMMIT $IMAGE_NAME:$BITBUCKET_COMMIT
+        - docker tag 172.29.0.214:5000/absee/$IMAGE_NAME:$BITBUCKET_COMMIT $REGISTRY_COMMIT
         - docker push $REGISTRY_COMMIT
