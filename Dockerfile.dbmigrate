@@ -8,4 +8,4 @@ COPY . /opt/absee
 WORKDIR /opt/absee
 RUN npm i
 
-CMD ["npm", "run", "dbmigrate"]
+CMD ["npm", "run", "db:upgrade:deploy"]

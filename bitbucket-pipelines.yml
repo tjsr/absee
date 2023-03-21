@@ -37,7 +37,7 @@ pipelines:
         image: tjsrowe/bb-dind-aws:latest
         variables:
           DOCKER_OPTS: '--insecure-registry=172.29.0.214:5000'
-        name: Deploy to docker
+        name: Deploy to dev
         deployment: test
         trigger: manual  # Uncomment to make this a manual deployment.
         script:
@@ -49,3 +49,6 @@ pipelines:
         - docker tag 172.29.0.214:5000/absee/$IMAGE_NAME:$BITBUCKET_COMMIT $IMAGE_NAME:$BITBUCKET_COMMIT
         - docker tag 172.29.0.214:5000/absee/$IMAGE_NAME:$BITBUCKET_COMMIT $REGISTRY_COMMIT
         - docker push $REGISTRY_COMMIT
+        - docker pull 172.29.0.214:5000/absee/$IMAGE_NAME-dbmigrate:$BITBUCKET_COMMIT
+        - docker exec -e PRISMA_DATABASE_URL=$PRISMA_DEV_DATABASE_URL
+ 
