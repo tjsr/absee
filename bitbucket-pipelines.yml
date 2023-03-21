@@ -50,5 +50,5 @@ pipelines:
         - docker tag 172.29.0.214:5000/absee/$IMAGE_NAME:$BITBUCKET_COMMIT $REGISTRY_COMMIT
         - docker push $REGISTRY_COMMIT
         - docker pull 172.29.0.214:5000/absee/$IMAGE_NAME-dbmigrate:$BITBUCKET_COMMIT
-        - docker exec -e PRISMA_DATABASE_URL=$PRISMA_DEV_DATABASE_URL
+        - docker run -e PRISMA_DATABASE_URL=$PRISMA_DEV_DATABASE_URL --rm --name absee-migrate -t 172.29.0.214:5000/absee/$IMAGE_NAME-dbmigrate:$BITBUCKET_COMMIT
  
