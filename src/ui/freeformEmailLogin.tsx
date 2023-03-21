@@ -21,7 +21,7 @@ export const FreeformEmailLoginBox = (): JSX.Element => {
   const login = () => {
     submitLogin(email)
       .then((response) => {
-        setLoggedIn(true);
+        setLoggedIn(response.success);
       })
       .catch((err) => {
         setLoggedIn(false);
