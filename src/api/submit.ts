@@ -21,6 +21,13 @@ export const submit = (request: ABSeeRequest, response: express.Response) => {
       return;
     }
 
+    const elementId = request.body.selectedElementId;
+    if (!isSnowflake(elementId)) {
+      response.status(400);
+      response.send({message: 'Invalid selectedElementId'});
+      return;
+    }
+
     const responseJson = {
       success: true,
     };
@@ -28,7 +35,6 @@ export const submit = (request: ABSeeRequest, response: express.Response) => {
     try {
       verifyComparisonOwner(comparisonId, userId, ipAddress)
         .then(() => {
-          const elementId = request.body.selectedElementId;
           saveComparisonSelection(comparisonId, elementId);
           console.debug(
             `Saved response: ${elementId} for ${comparisonId} by ${userId}.`
