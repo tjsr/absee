@@ -1,0 +1,47 @@
+#  Template NodeJS build
+
+#  This template allows you to validate your NodeJS code.
+#  The workflow allows running tests and code linting on the default branch.
+
+image: node:16.14.2
+options:
+  docker: true
+
+definitions:
+  services:
+    docker:
+      image: tjsrowe/bb-dind-aws:latest
+      memory: 3072
+      variables:
+        DOCKER_OPTS: '--insecure-registry=172.29.0.214:5000'
+
+pipelines:
+  default:
+    - step:
+        services: [docker]
+        runs-on:
+          - 'self.hosted'
+          - 'linux'
+        name: Build app Docker image
+        script:
+          - /bin/sh scripts/ci/runci.sh
+        caches:
+          - docker
+        environment:
+          BITBUCKET_REPO_SLUG: $BITBUCKET_REPO_SLUG
+          BITBUCKET_COMMIT: $BITBUCKET_COMMIT
+    - step:
+        runs-on:
+        - 'self.hosted'
+        - 'linux'
+        image: tjsrowe/bb-dind-aws:latest
+        name: Deploy to docker
+        deployment: test
+        trigger: manual  # Uncomment to make this a manual deployment.
+        script:
+        - IMAGE_NAME=absee
+        - COMMIT_IMAGE=$IMAGE_NAME:$BITBUCKET_COMMIT
+        - REGISTRY_COMMIT=public.ecr.aws/$AWS_USER/$COMMIT_IMAGE
+        - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/$AWS_USER
+        - docker tag $IMAGE_NAME:$BITBUCKET_COMMIT $REGISTRY_COMMIT
+        - docker push $REGISTRY_COMMIT
