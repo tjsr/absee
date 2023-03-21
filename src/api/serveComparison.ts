@@ -51,6 +51,7 @@ export const serveComparison = <T, D>(
         const responseJson: ComparisonSelectionResponse<T> =
           createComparisonSelectionResponse<T>(comparisonRequest, loader);
         response.send(SuperJSON.stringify(responseJson));
+        response.end();
       })
       .catch((err: Error) => {
         console.error('Failed while storing comparisonRequest in DB');
@@ -62,6 +63,9 @@ export const serveComparison = <T, D>(
       });
     // Return two random options from the configured collection.
   } catch (err) {
+    response.status(500);
+    response.send();
+    response.end();
     console.warn(`Failure in GET /`, err);
   }
 };

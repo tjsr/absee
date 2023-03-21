@@ -12,16 +12,23 @@ A/B See is an A/B testing tool which will generate pairs of elements a user can 
 
 * Summary of set up
 * Configuration
-* Dependencies
 
-This project makes use of the restsqlite service available at https://bitbucket.org/tjsrowe/restsqlite/  
-The intent of using a REST-base API like this is so that the data source could in future be easily replaced, especially if you were to implement this in a high-traffic environment.
+Notes on morgan logging: If you are running this in vscode, the debug console will not capture output to process.stdout.write which is what VSCode monitors - it only captures console.log  
+
+To solve this, you need to make sure you have "console": "integratedTerminal" in launch.json - See https://stackoverflow.com/a/65437944 for more info.
+
+* Dependencies
 
 Generated IDs are uniquely created as snowflake numbers.
 
 * Database configuration
+
+The project now expect a MySQL database for the backend.  Details to come.
+
 * How to run tests
 * Deployment instructions
+
+Containers are built from scripts called from bitbucket-pipelines.yml - see scripts directory.
 
 ### Contribution guidelines ###
 

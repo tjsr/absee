@@ -1,7 +1,6 @@
 import * as dotenv from 'dotenv';
 
-import { initializeLoader, retrieveCollectionData } from './src/datainfo';
-
+import { initializeLoader } from './src/datainfo';
 import { loader as pinLoader } from './src/pins/pinpanion';
 import { requireEnv } from './src/utils';
 import { startApp } from './src/server';

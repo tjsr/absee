@@ -9,12 +9,16 @@ import cors from 'cors';
 import express from 'express';
 import { login } from './api/login';
 import { logout } from './api/logout';
+import morgan from 'morgan';
 import requestIp from 'request-ip';
 import { serveComparison } from './api/serveComparison';
 import { session } from './api/session';
 import { submit } from './api/submit';
 
 dotenv.config();
+
+const morganLog = morgan('common');
+//process.env.PRODUCTION =='true' ? 'common' : 'dev'
 
 const HTTP_PORT: number =
   process.env.HTTP_PORT !== undefined ? parseInt(process.env.HTTP_PORT!) : 8280;
@@ -32,6 +36,7 @@ export const getIp = (req: Express.Request): IPAddress => {
 
 export const startApp = <T, D>(loader: CollectionTypeLoader<T, D>) => {
   const app = express();
+  app.use(morganLog);
   app.use(cors(corsOptions));
   app.use(requestIp.mw());
   app.set('trust proxy', true);
@@ -77,7 +82,7 @@ export const startApp = <T, D>(loader: CollectionTypeLoader<T, D>) => {
   });
 
   app.use(express.static('build'));
-  
+
   app.listen(HTTP_PORT, () => {
     console.log(`Listening on port ${HTTP_PORT}`);
   });

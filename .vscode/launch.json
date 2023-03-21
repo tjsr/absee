@@ -12,7 +12,8 @@
       "program": "${workspaceFolder}\\index.ts",
       //"preLaunchTask": "tsc: build - tsconfig.json",
       "restart": true,
-      "runtimeExecutable": "nodemon"
+      "runtimeExecutable": "nodemon",
+      "console": "integratedTerminal"
     }
   ]
 }
