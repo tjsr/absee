@@ -1,15 +1,14 @@
 import { ABSeeRequest } from '../session';
 import { AuthenticationRestResult } from '../types/apicalls';
 import { UserModel } from '../types/model';
-import { emailRegexSafe } from 'email-regex-safe';
 import express from 'express';
 import { getDbUserByEmail } from '../database/mysql';
+import { validateEmailString } from '../utils';
 
 export const login = async (req: ABSeeRequest, res: express.Response) => {
   try {
     const email: string = req.body.email;
-    const safeEmail = emailRegexSafe(email);
-    if (email !== safeEmail) {
+    if (!validateEmailString(email)) {
       res.status(400);
       return;
     }

@@ -77,7 +77,7 @@ export const startApp = <T, D>(loader: CollectionTypeLoader<T, D>) => {
   });
 
   app.use(express.static('build'));
-
+  
   app.listen(HTTP_PORT, () => {
     console.log(`Listening on port ${HTTP_PORT}`);
   });

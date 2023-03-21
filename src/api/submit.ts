@@ -5,7 +5,6 @@ import express from 'express';
 import { getIp } from '../server';
 import { getUserId } from '../auth/user';
 import { isSnowflake } from '../validate';
-import isUuid from 'is-uuid';
 import { saveComparisonSelection } from '../comparisonresponse';
 import { verifyComparisonOwner } from '../comparison';
 
@@ -18,7 +17,8 @@ export const submit = (request: ABSeeRequest, response: express.Response) => {
 
     if (!isSnowflake(comparisonId)) {
       response.status(400);
-      response.end();
+      response.send({message: 'Invalid comparisonId'});
+      return;
     }
 
     const responseJson = {
@@ -51,5 +51,8 @@ export const submit = (request: ABSeeRequest, response: express.Response) => {
     // verify that it comes from the same IP
   } catch (err) {
     console.error(`Failure in POST /submit`, err);
+  }
+  finally {
+    response.end();
   }
 };

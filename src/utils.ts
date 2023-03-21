@@ -1,3 +1,5 @@
+import * as EmailValidator from 'email-validator';
+
 import { CollectionTypeLoader } from './datainfo';
 import { ISO8601Date } from './types';
 
@@ -105,4 +107,8 @@ export const requireEnv = (val: string): string => {
     throw Error(`${val} environment variable not set, which is required.`);
   }
   return process.env[val] as string;
+};
+
+export const validateEmailString = (email: string): boolean => {
+  return EmailValidator.validate(email);
 };
