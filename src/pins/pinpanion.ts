@@ -73,6 +73,8 @@ const getPinSetName = (setId: number): string | undefined => {
   }
 };
 
+const getObjectId = (pin: Pin): string => pin.id.toString();
+
 const convertToDisplayPin = (pin: PinpanionPin): Pin => {
   const cssClass: string | undefined = events.find(
     (e) => e.id == pin.pax_id
@@ -91,6 +93,13 @@ const convertToDisplayPin = (pin: PinpanionPin): Pin => {
     output.setId = pin.set_id;
   }
   return output;
+};
+
+const getObjectForIndex = (
+  sourceData: PinpanionData,
+  index: number
+): Pin => {
+  return convertToDisplayPin(sourceData.pins[index]);
 };
 
 const getPinById = (
@@ -120,6 +129,8 @@ export const loader: CollectionTypeLoader<Pin, PinpanionData> = {
   convertDatasourceOnLoad: datasourceConvertor,
   datasourceUrl: PIN_LIST_URL,
   getNumberOfElements: countPinsInCollection,
+  getObjectByIndex: getObjectForIndex,
   getObjectForId: getObjectForId,
+  getObjectId: getObjectId,
   maxElementsPerComparison: 2,
 };

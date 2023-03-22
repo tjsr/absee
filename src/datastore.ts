@@ -3,7 +3,7 @@ import { ComparableObjectModel, ComparisonModel } from './types/model';
 
 import { iso8601Now } from './utils';
 
-export const createComparisonSelection = <T>(
+export const createComparisonSelection = (
   collectionId: CollectionIdType,
   comparisonId: SnowflakeType,
   userId: UserId,

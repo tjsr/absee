@@ -1,10 +1,7 @@
-import {
-  PoolConnection,
-  basicMySqlInsert,
-  getConnection
-} from './database/mysql';
-
 import { SnowflakeType } from './types';
+import {
+  basicMySqlInsert
+} from './database/mysql';
 
 export const saveComparisonSelection = async (
   comparisonId: SnowflakeType,

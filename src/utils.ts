@@ -18,70 +18,38 @@ const createdWeightedRandomizerList = (max: number): number[] => {
   return [];
 };
 
+const createNewUniqueElementArray = <T>(loader: CollectionTypeLoader<T, any>,
+  max?: number,
+  existingSets?: string[][]): string[] => {
+  const results: string[] = [];
+
+  let sizea =
+    Math.floor(Math.random() * (max == undefined ? 4 : max)) + 1;
+  while (sizea > 0) {
+    const randomObjectId: string = getRandomObjectId<T>(loader);
+    if (randomObjectId == '0') {
+      continue;
+    }
+    if (existingSets !== undefined && existingSets.flat().includes(randomObjectId)) {
+      continue;
+    }
+    if (results.includes(randomObjectId)) {
+      continue;
+    }
+    results.push(randomObjectId);
+    sizea--;
+  }
+  return results;
+};
+
 export const createCandidateElementList = <T>(
   loader: CollectionTypeLoader<T, any>,
   maxId: number,
   maxLeft?: number,
   maxRight?: number
 ): [string[], string[]] => {
-  const arra: string[] = [];
-
-  let sizea =
-    Math.floor(Math.random() * (maxLeft == undefined ? 4 : maxLeft)) + 1;
-  while (sizea > 0) {
-    const newRandom: string = getRandomId(
-      loader.getNumberOfElements(loader)
-    ).toString();
-    try {
-      // ensure the object exists as numbers might not be sequential.
-      const objectForId = loader.getObjectForId(
-        loader.collectionData,
-        newRandom
-      );
-    } catch (err) {
-      // Re-try if the element doesn't exist in the collection.
-      console.warn(
-        `Random object id selector picked an id ${newRandom} that doesn't exist in dataset ${loader.collectionId}`
-      );
-      continue;
-    }
-    if (newRandom == '0') {
-      continue;
-    }
-    if (!arra.includes(newRandom)) {
-      arra.push(newRandom);
-      sizea--;
-    }
-  }
-
-  const arrb: string[] = [];
-  let sizeb =
-    Math.floor(Math.random() * (maxRight == undefined ? 4 : maxRight)) + 1;
-  while (sizeb > 0) {
-    const newRandom: string = getRandomId(
-      loader.getNumberOfElements(loader)
-    ).toString();
-    try {
-      // ensure the object exists as numbers might not be sequential.
-      const objectForId = loader.getObjectForId(
-        loader.collectionData,
-        newRandom
-      );
-    } catch (err) {
-      // Re-try if the element doesn't exist in the collection.
-      console.warn(
-        `Random object id selector picked an id ${newRandom} that doesn't exist in dataset ${loader.collectionId}`
-      );
-      continue;
-    }
-    if (newRandom == '0') {
-      continue;
-    }
-    if (!arra.includes(newRandom) && !arrb.includes(newRandom)) {
-      arrb.push(newRandom);
-      sizeb--;
-    }
-  }
+  const arra: string[] = createNewUniqueElementArray(loader, maxLeft);
+  const arrb: string[] = createNewUniqueElementArray(loader, maxRight, [arra]);
   return [arra, arrb];
 };
 
@@ -112,3 +80,13 @@ export const requireEnv = (val: string): string => {
 export const validateEmailString = (email: string): boolean => {
   return EmailValidator.validate(email);
 };
+function getRandomObjectId<T>(loader: CollectionTypeLoader<T, any>) {
+  const randomIndex: number = getRandomId(
+    loader.getNumberOfElements(loader)
+  );
+
+  const objectForIndex: T = loader.getObjectByIndex(loader.collectionData, randomIndex);
+  const randomObjectId: string = loader.getObjectId(objectForIndex);
+  return randomObjectId;
+}
+

@@ -35,6 +35,8 @@ export type CollectionTypeLoader<T, D> = {
   getNumberOfElements: (loader: CollectionTypeLoader<T, D>) => number; // defaultElementCounter;
   convertDatasourceOnLoad: <D>(data: any) => D;
   getObjectForId: (collectionData: D, id: IdType) => T;
+  getObjectByIndex: (collectionData: D, index: number) => T;
+  getObjectId: (object: T) => string;
 };
 
 export const initializeLoader = async <T, D>(

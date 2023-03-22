@@ -37,7 +37,7 @@ export const serveComparison = <T, D>(
     const right: ComparableObjectModel[] = createComparableObjectList(
       candidateElements[1]
     );
-    const comparisonRequest: ComparisonModel = createComparisonSelection<T>(
+    const comparisonRequest: ComparisonModel = createComparisonSelection(
       loader.collectionId,
       comparisonId,
       userId,

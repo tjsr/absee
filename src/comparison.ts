@@ -5,9 +5,8 @@ import {
   UserId
 } from './types';
 import {
-  PoolConnection,
   basicMySqlInsert,
-  getConnection
+  retrieveComparisonRequest
 } from './database/mysql';
 
 import { ComparisonModel } from './types/model';
@@ -38,57 +37,6 @@ export const storeComparisonRequest = async <T>(
       return Promise.reject(err);
     });
   return resolved;
-};
-
-const retrieveComparisonRequest = async (
-  comparisonId: SnowflakeType
-): Promise<ComparisonRequestResponseBody> => {
-  return new Promise((resolve, reject) => {
-    try {
-      getConnection()
-        .then((conn: PoolConnection) => {
-          conn.query(
-            'select id, collectionId, userId, requestTime, requestIp from Comparison where id=?',
-            [comparisonId],
-            (err, results, fields) => {
-              if (err) {
-                conn.release();
-                return reject(err);
-              }
-              if (results == undefined) {
-                conn.release();
-                return reject(
-                  new Error(
-                    `Retrieving by comparisonId ${comparisonId} results was undefined.`
-                  )
-                );
-              }
-              if (results.length != 1) {
-                conn.release();
-                return reject(
-                  new Error(
-                    `Retrieving by comparisonId ${comparisonId} should only ever ` +
-                      `return a single row, got ${results.length}`
-                  )
-                );
-              }
-              const data: ComparisonRequestResponseBody = {
-                collectionId: results[0].collectionId,
-                id: results[0].id,
-                requestIp: results[0].requestIp,
-                requestTime: results[0].requestTime,
-                userId: results[0].userId,
-              };
-              resolve(data);
-              conn.release();
-            }
-          );
-        })
-        .catch(reject);
-    } catch (err) {
-      reject(err);
-    }
-  });
 };
 
 const ipAddressMatches = (first: IPAddress, second: IPAddress): boolean => {
