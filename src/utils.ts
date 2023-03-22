@@ -8,14 +8,22 @@ export const iso8601Now = (): ISO8601Date => {
   return new Date();
 };
 
-const createdWeightedRandomizerList = (max: number): number[] => {
-  const current = 1;
-  const output: number[] = [];
+export const createdWeightedRandomizerList = (maxNumber: number): number[] => {
+  const list: number[] = [];
 
-  // do {
-  //   output = [...output]
-  // }
-  return [];
+  for (let i = 1; i <= maxNumber; i++) {
+    for (let j = i; j <= maxNumber; j++) {
+      list.push(i);
+    }
+  }
+
+  return list;
+};
+
+const randomlySelectNumberOfElements = (max: number): number => {
+  const list: number[] = createdWeightedRandomizerList(max);
+  const randomIndex = (Math.floor(Math.random() * list.length));
+  return list[randomIndex];
 };
 
 const createNewUniqueElementArray = <T>(loader: CollectionTypeLoader<T, any>,
@@ -23,9 +31,8 @@ const createNewUniqueElementArray = <T>(loader: CollectionTypeLoader<T, any>,
   existingSets?: string[][]): string[] => {
   const results: string[] = [];
 
-  let sizea =
-    Math.floor(Math.random() * (max == undefined ? 4 : max)) + 1;
-  while (sizea > 0) {
+  let listSize = randomlySelectNumberOfElements(max == undefined ? 4 : max);
+  while (listSize > 0) {
     const randomObjectId: string = getRandomObjectId<T>(loader);
     if (randomObjectId == '0') {
       continue;
@@ -37,7 +44,7 @@ const createNewUniqueElementArray = <T>(loader: CollectionTypeLoader<T, any>,
       continue;
     }
     results.push(randomObjectId);
-    sizea--;
+    listSize--;
   }
   return results;
 };
