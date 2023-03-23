@@ -16,6 +16,7 @@ import {
 import Cookies from 'js-cookie';
 import { FreeformEmailLoginBox } from './freeformEmailLogin';
 import { GoogleLoginBox } from './googleLogin';
+import { InfoBlurb } from './InfoBlurb';
 import { Pin } from '../pins/pinpanion';
 import { PinCollection } from '../pins/pincollection';
 import { RestCallResult } from '../types/apicalls';
@@ -23,9 +24,7 @@ import SuperJSON from 'superjson';
 
 // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-constraint
 const Frontend = <T extends unknown>(): JSX.Element => {
-  const [comparison, setComparison] = useState<
-    ComparisonSelectionResponse<T> | undefined
-  >(undefined);
+  const [comparison, setComparison] = useState<ComparisonSelectionResponse<T> | undefined>(undefined);
   const [comparisonLoaded, setComparisonLoaded] = useState<boolean>(false);
   const [comparisonLoading, setComparisonLoading] = useState<boolean>(false);
   const fakeEmails = true;
@@ -35,20 +34,11 @@ const Frontend = <T extends unknown>(): JSX.Element => {
   const [email, setEmail] = useState<EmailAddress | undefined>(undefined);
 
   const selectElement = async (elementId: SnowflakeType): Promise<void> => {
-    console.log(
-      `Selected element ${elementId} for comparison ${comparison?.id}`
-    );
-    const result: RestCallResult = await submitComparisonChoice(
-      comparison!,
-      elementId
-    );
+    console.log(`Selected element ${elementId} for comparison ${comparison?.id}`);
+    const result: RestCallResult = await submitComparisonChoice(comparison!, elementId);
     if (result.success) {
       setComparisonLoaded(false);
-      console.log(
-        `Successfully submitted choice of ${elementId} for comparison ${
-          comparison!.id
-        }`
-      );
+      console.log(`Successfully submitted choice of ${elementId} for comparison ${comparison!.id}`);
     } else {
       throw new Error(`Failed with HTTP status ${result.status}`);
     }
@@ -74,8 +64,7 @@ const Frontend = <T extends unknown>(): JSX.Element => {
         const res = await fetchNewComparison(collectionId);
         if (res.success) {
           console.log(`Loaded ${SuperJSON.stringify(res.data)}`);
-          const comparisonRequest: ComparisonSelectionResponse<T> =
-            res.data.json;
+          const comparisonRequest: ComparisonSelectionResponse<T> = res.data.json;
           setComparison(comparisonRequest);
           setComparisonLoaded(true);
         }
@@ -91,15 +80,11 @@ const Frontend = <T extends unknown>(): JSX.Element => {
         {comparisonLoaded ? (
           <>
             <div className="comparisonContainer">
-              <PinCollection
-                element={comparison!.a as ComparableObjectResponse<Pin>}
-                selectElement={selectElement}
-              />
-              <PinCollection
-                element={comparison!.b as ComparableObjectResponse<Pin>}
-                selectElement={selectElement}
-              />
+              <PinCollection element={comparison!.a as ComparableObjectResponse<Pin>} selectElement={selectElement} />
+              <div className="vs">vs</div>
+              <PinCollection element={comparison!.b as ComparableObjectResponse<Pin>} selectElement={selectElement} />
             </div>
+            <InfoBlurb />
           </>
         ) : (
           <div>Loading...</div>
