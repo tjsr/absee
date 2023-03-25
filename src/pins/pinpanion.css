@@ -53,15 +53,3 @@
    max-height: 240px;
    max-width: 240px;
  }
-
- .set {
-  font-weight: bold;
-  color: #e1e1e1;
-  font-size: 0.8rem;
-  height: 1rem;
-  position: relative;
-  margin-top: 75%;
-  padding-top: 0.1rem;
-  padding-bottom: 0.1rem;
-  overflow: hidden;
-}

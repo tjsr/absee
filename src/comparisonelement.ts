@@ -20,7 +20,7 @@ export const storeComparisonElement = async (
   );
 };
 
-export const storeComparisonElements = <T>(
+export const storeComparisonElements = (
   comparisonId: SnowflakeType,
   comparisonElements: ComparableObjectModel[]
 ): Promise<void>[] => {

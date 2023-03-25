@@ -2,6 +2,7 @@ import './collection.css';
 
 import { ComparableObjectResponse, SnowflakeType } from '../types';
 
+import { ComparisonElement } from './collection.styles';
 import { Pin } from '../pins/pinpanion';
 import React from 'react';
 import SuperJSON from 'superjson';
@@ -26,13 +27,14 @@ export const Collection = (props: ICollectionPropTypes<Pin>): JSX.Element => {
   }
   return (
     <>
-      <div
+      <ComparisonElement
+        paddingLeft={0}
+        paddingRight={0}
         onClick={() => {
           if (props.selectElement) {
             props.selectElement(props.element.elementId);
           }
         }}
-        className="comparisonElement"
       >
         {props.element.data.map((data, idx) => {
           return (
@@ -41,7 +43,7 @@ export const Collection = (props: ICollectionPropTypes<Pin>): JSX.Element => {
             </div>
           );
         })}
-      </div>
+      </ComparisonElement>
     </>
   );
 };

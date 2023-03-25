@@ -1,13 +1,11 @@
 import Frontend from './ui/frontend';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { TestFrontend } from './ui/testfrontend';
 import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(
   <React.StrictMode>
-    {/* <TestFrontend /> */}
     <Frontend />
   </React.StrictMode>
 );

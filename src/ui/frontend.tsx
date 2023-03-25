@@ -119,8 +119,8 @@ const Frontend = <T extends unknown>(): JSX.Element => {
             {isSwiperEnabled ? (
               <div className="comparisonContainer">
                 <DualSwiper
-                  boxMinHeight={16}
-                  boxMinWidth={16}
+                  boxMinHeight={8}
+                  boxMinWidth={8}
                   itemSelected={itemSelected}
                   leftContent={
                     <PinCollection

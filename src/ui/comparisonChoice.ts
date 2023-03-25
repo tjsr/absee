@@ -1,7 +1,5 @@
 import {
   ComparisonSelectionResponse,
-  CookieName,
-  EmailAddress,
   SnowflakeType
 } from '../types';
 import {

@@ -1,6 +1,8 @@
 import './pincolours.css';
 import './pinpanion.css';
 
+import { PaxInfo, PinName, SetInfo, SizedPin } from './PinInfo.styles';
+
 import { Pin } from './pinpanion';
 import React from 'react';
 
@@ -13,7 +15,7 @@ const PINPANION_IMAGE_LOCATION = 'https://pinpanion.com/imgs';
 export const PinInfo = ({ pin, style }: PinInfoPropTypes): JSX.Element => {
   const url = `${PINPANION_IMAGE_LOCATION}/${pin.imageUrl}`;
 
-  let pinClasses = 'pin-normal pin';
+  let pinClasses = 'pin';
   let paxCssClass = 'pax';
   let setCssClass = 'set';
 
@@ -25,7 +27,7 @@ export const PinInfo = ({ pin, style }: PinInfoPropTypes): JSX.Element => {
 
   return (
     <>
-      <div className={pinClasses} id={`pin_${pin.id}`} style={style}>
+      <SizedPin className={pinClasses} id={`pin_${pin.id}`} maxWidth={12} style={style}>
         <div
           className="pinInfo"
           style={{
@@ -36,20 +38,20 @@ export const PinInfo = ({ pin, style }: PinInfoPropTypes): JSX.Element => {
             height: '200px',
           }}
         >
-          <h3>{pin.name}</h3>
+          <PinName maxWidth={12}>{pin.name}</PinName>
           {pin.setName ? (
-            <div className={setCssClass}>
+            <SetInfo fromTop={8} className={setCssClass}>
               {pin.year} {pin.setName}
-            </div>
+            </SetInfo>
           ) : pin.paxName ? (
-            <div className={paxCssClass}>
+            <PaxInfo fromTop={8} className={paxCssClass}>
               {pin.year} {pin.paxName}
-            </div>
+            </PaxInfo>
           ) : (
             <></>
           )}
         </div>
-      </div>
+      </SizedPin>
     </>
   );
 };
