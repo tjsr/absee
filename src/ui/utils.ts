@@ -3,5 +3,5 @@ export const getServerHost = (): string => {
   if (['80', '443', '8280', ''].includes(port)) {
     return '';
   }
-  return 'http://localhost:8280';
+  return `http://${window.location.hostname}:8280`;
 };
