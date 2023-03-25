@@ -12,7 +12,8 @@
     "prettier",
     "google",
     "plugin:@typescript-eslint/eslint-recommended",
-    "plugin:@typescript-eslint/recommended"
+    "plugin:@typescript-eslint/recommended",
+    "plugin:react-hooks/recommended"
   ],
   "parserOptions": {
     "ecmaVersion": 12,
@@ -27,10 +28,7 @@
     "requireConfigFile": "off",
     "require-jsdoc": "off",
     // "quotes": ["error", "single"],
-    "comma-dangle": [
-      "error",
-      { "functions": "never", "arrays": "always-multiline", "objects": "always-multiline" }
-    ],
+    "comma-dangle": ["error", { "functions": "never", "arrays": "always-multiline", "objects": "always-multiline" }],
     // "space-before-function-paren" was causing all kinds fo headaches because prettier won't honour it.
     "space-before-function-paren": "off",
     "operator-linebreak": ["error"],
@@ -52,6 +50,8 @@
     "no-explicit-any": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/no-explicit-any": "off",
-    "@typescript-eslint/ban-types": "off"
+    "@typescript-eslint/ban-types": "off",
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn"
   }
 }

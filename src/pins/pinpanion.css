@@ -1,8 +1,8 @@
 .pin {
   display: inline-block;
   margin: 2px;
-  background-color: #e1e1e1;
-  border: 2px solid;
+  /* background-color: #e1e1e1; */
+  /* border: 2px solid; */
  }
  
  div.pinInfoPadding {
@@ -59,6 +59,8 @@
   color: #e1e1e1;
   font-size: 0.8rem;
   height: 1rem;
+  position: relative;
+  margin-top: 75%;
   padding-top: 0.1rem;
   padding-bottom: 0.1rem;
   overflow: hidden;

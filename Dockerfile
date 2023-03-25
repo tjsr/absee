@@ -14,12 +14,14 @@ COPY index.ts /opt/absee
 COPY .eslintrc.json /opt/absee
 COPY babel.config.js /opt/absee
 COPY tsconfig.json /opt/absee
+COPY .npmrc /opt/absee
 
 RUN npm i && npm run build
 
 FROM absee-build-preflight as absee
 
 COPY package*.json /opt/absee
+COPY .npmrc /opt/absee
 
 RUN npm i --production
 COPY --from=absee-build /opt/absee/dist /opt/absee/dist

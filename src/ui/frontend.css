@@ -4,6 +4,24 @@ div.comparisonContainer {
   text-align: center;
   align-items: center;
   justify-content: center;
-  display: flex;
   min-height: 95vh;
+  vertical-align: middle;
+}
+
+div.comparisonText {
+  padding-top: 50%;
+  padding-bottom: 50%;
+  padding-left: 1vw;
+  padding-right: 1vw;
+  text-align: center;
+  height: 100%;
+}
+
+div.desktopSelector {
+  display: inline-flex;
+}
+
+h3.comparisonHelp {
+  font-size: 12pt;
+  text-align: center;
 }

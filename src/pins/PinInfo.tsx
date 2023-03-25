@@ -26,7 +26,16 @@ export const PinInfo = ({ pin, style }: PinInfoPropTypes): JSX.Element => {
   return (
     <>
       <div className={pinClasses} id={`pin_${pin.id}`} style={style}>
-        <div className="pinInfo">
+        <div
+          className="pinInfo"
+          style={{
+            backgroundImage: `url(${url})`,
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            backgroundSize: 'contain',
+            height: '200px',
+          }}
+        >
           <h3>{pin.name}</h3>
           {pin.setName ? (
             <div className={setCssClass}>
@@ -39,7 +48,6 @@ export const PinInfo = ({ pin, style }: PinInfoPropTypes): JSX.Element => {
           ) : (
             <></>
           )}
-          <img className="pinImage" alt={pin.name} src={url} />
         </div>
       </div>
     </>

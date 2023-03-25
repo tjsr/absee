@@ -8,12 +8,12 @@ import SuperJSON from 'superjson';
 
 export type CollectionPropTypes<T> = {
   element: ComparableObjectResponse<T>;
-  selectElement: (elementId: SnowflakeType) => void;
+  selectElement?: (elementId: SnowflakeType) => void;
 };
 
 export type ICollectionPropTypes<T> = {
   element: ComparableObjectResponse<T>;
-  selectElement: (elementId: SnowflakeType) => void;
+  selectElement?: (elementId: SnowflakeType) => void;
   getCollectionItem: (data: T) => JSX.Element;
 };
 
@@ -22,17 +22,15 @@ export const Collection = (props: ICollectionPropTypes<Pin>): JSX.Element => {
     return <div>Error: element undefined.</div>;
   }
   if (props.element.data == undefined) {
-    return (
-      <div>
-        Error: element.data undefined: ${SuperJSON.stringify(props.element)}.
-      </div>
-    );
+    return <div>Error: element.data undefined: ${SuperJSON.stringify(props.element)}.</div>;
   }
   return (
     <>
       <div
         onClick={() => {
-          props.selectElement(props.element.elementId);
+          if (props.selectElement) {
+            props.selectElement(props.element.elementId);
+          }
         }}
         className="comparisonElement"
       >
