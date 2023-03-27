@@ -58,13 +58,13 @@ pipelines:
   - stage:
       name: Deploy dev environment
       deployment: test
+      trigger: manual
       steps:
       - step:
           runs-on:
           - 'self.hosted'
           - 'linux'
           name: Run database migration on dev
-          trigger: manual
           image: tjsrowe/bb-dind-aws:latest
           variables:
             DOCKER_OPTS: '--insecure-registry=172.29.0.214:5000'
