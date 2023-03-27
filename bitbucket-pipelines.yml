@@ -73,7 +73,7 @@ pipelines:
           - docker run -e PRISMA_DATABASE_URL=$PRISMA_DEV_DATABASE_URL --rm --name absee-migrate -t 172.29.0.214:5000/absee/$IMAGE_NAME-dbmigrate:$BITBUCKET_COMMIT
   - stage:
       name: Publish prod containers
-      deployment: prod
+      deployment: production
       trigger: manual
       steps:
       - step:
