@@ -34,7 +34,7 @@ pipelines:
             BITBUCKET_REPO_SLUG: $BITBUCKET_REPO_SLUG
             BITBUCKET_COMMIT: $BITBUCKET_COMMIT
   - stage:
-      name: Deploy containers to dev
+      name: Publish dev containers
       trigger: manual
       steps:
       - step:
@@ -59,4 +59,24 @@ pipelines:
           - docker push public.ecr.aws/$AWS_USER/$IMAGE_NAME:latest-dev
           - docker pull 172.29.0.214:5000/absee/$IMAGE_NAME-dbmigrate:$BITBUCKET_COMMIT
           - docker run -e PRISMA_DATABASE_URL=$PRISMA_DEV_DATABASE_URL --rm --name absee-migrate -t 172.29.0.214:5000/absee/$IMAGE_NAME-dbmigrate:$BITBUCKET_COMMIT
+  - stage:
+      name: Publish prod containers
+      trigger: manual
+      steps:
+      - step:
+          runs-on:
+          - 'self.hosted'
+          - 'linux'
+          image: tjsrowe/bb-dind-aws:latest
+          variables:
+            DOCKER_OPTS: '--insecure-registry=172.29.0.214:5000'
+          name: Tag image as prod
+          script:
+          - IMAGE_NAME=absee
+          - COMMIT_IMAGE=$IMAGE_NAME:$BITBUCKET_COMMIT
+          - REGISTRY_COMMIT=public.ecr.aws/$AWS_USER/$COMMIT_IMAGE
+          - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/$AWS_USER
+          - docker pull 172.29.0.214:5000/absee/$IMAGE_NAME:$BITBUCKET_COMMIT
+          - docker tag 172.29.0.214:5000/absee/$IMAGE_NAME:$BITBUCKET_COMMIT public.ecr.aws/$AWS_USER/$IMAGE_NAME:latest
+          - docker push public.ecr.aws/$AWS_USER/$IMAGE_NAME:latest
   
