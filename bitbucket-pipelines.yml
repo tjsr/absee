@@ -33,6 +33,10 @@ pipelines:
           environment:
             BITBUCKET_REPO_SLUG: $BITBUCKET_REPO_SLUG
             BITBUCKET_COMMIT: $BITBUCKET_COMMIT
+  - stage:
+      name: Deploy containers to dev
+      trigger: manual
+      steps:
       - step:
           runs-on:
           - 'self.hosted'
@@ -42,7 +46,6 @@ pipelines:
             DOCKER_OPTS: '--insecure-registry=172.29.0.214:5000'
           name: Deploy to dev
           deployment: test
-          trigger: manual  # Uncomment to make this a manual deployment.
           script:
           - IMAGE_NAME=absee
           - COMMIT_IMAGE=$IMAGE_NAME:$BITBUCKET_COMMIT
