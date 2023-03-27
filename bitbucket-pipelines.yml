@@ -35,7 +35,6 @@ pipelines:
             BITBUCKET_COMMIT: $BITBUCKET_COMMIT
   - stage:
       name: Publish dev containers
-      deployment: test
       steps:
       - step:
           runs-on:
