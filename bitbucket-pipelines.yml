@@ -56,6 +56,10 @@ pipelines:
           - docker tag 172.29.0.214:5000/absee/$IMAGE_NAME:$BITBUCKET_COMMIT public.ecr.aws/$AWS_USER/$IMAGE_NAME:latest-dev
           - docker push $REGISTRY_COMMIT
           - docker push public.ecr.aws/$AWS_USER/$IMAGE_NAME:latest-dev
+  - stage:
+      name: Deploy dev environment
+      deployment: test
+      steps:
       - step:
           runs-on:
           - 'self.hosted'
