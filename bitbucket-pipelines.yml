@@ -61,13 +61,36 @@ pipelines:
           runs-on:
           - 'self.hosted'
           - 'linux'
+          name: Pre-pull docket images
+          script:
+          - pipe: atlassian/ssh-run:0.4.1
+            variables:
+              SSH_USER: $DEPLOYMENT_USER
+              SERVER: $DEPLOYMENT_HOST
+              COMMAND: $DEPLOYMENT_PULL_COMMAND
+      - step:
+          runs-on:
+          - 'self.hosted'
+          - 'linux'
           name: Run database migration on dev
           image: tjsrowe/bb-dind-aws:latest
           variables:
             DOCKER_OPTS: '--insecure-registry=172.29.0.214:5000'
           script:
+          - IMAGE_NAME=absee
           - docker pull 172.29.0.214:5000/absee/$IMAGE_NAME-dbmigrate:$BITBUCKET_COMMIT
           - docker run -e PRISMA_DATABASE_URL=$PRISMA_DEV_DATABASE_URL --rm --name absee-migrate -t 172.29.0.214:5000/absee/$IMAGE_NAME-dbmigrate:$BITBUCKET_COMMIT
+      - step:
+          runs-on:
+          - 'self.hosted'
+          - 'linux'
+          name: Deploy container on dev
+          script:
+          - pipe: atlassian/ssh-run:0.4.1
+            variables:
+              SSH_USER: $DEPLOYMENT_USER
+              SERVER: $DEPLOYMENT_HOST
+              COMMAND: $DEPLOYMENT_COMMAND
   - stage:
       name: Publish prod containers
       deployment: production
