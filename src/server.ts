@@ -6,6 +6,7 @@ import { CollectionTypeLoader } from './datainfo';
 import { IPAddress } from './types';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import { debugHeaders } from './api/debugHeaders';
 import express from 'express';
 import { login } from './api/login';
 import { logout } from './api/logout';
@@ -60,6 +61,7 @@ export const startApp = <T, D>(loader: CollectionTypeLoader<T, D>) => {
   app.use(express.json());
 
   app.get('/session', session);
+  app.get('/debugHeaders', debugHeaders);
   app.post('/login', login);
   app.get('/logout', logout);
   app.get(
