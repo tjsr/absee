@@ -1,3 +1,5 @@
+import * as dotenv from 'dotenv';
+
 import { EmailAddress, SnowflakeType } from '../types';
 
 import { ComparisonRequestResponseBody } from '../types/datasource';
@@ -8,8 +10,8 @@ import { requireEnv } from '../utils';
 
 export type PoolConnection = mysql.PoolConnection;
 
-if (process.env.MYSQL_HOST === undefined) {
-}
+dotenv.config();
+
 const config: mysql.PoolConfig = {
   connectionLimit:
     process.env.MYSQL_CONNECTION_POOL_SIZE !== undefined ?

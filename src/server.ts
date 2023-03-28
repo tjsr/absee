@@ -2,7 +2,6 @@ import * as dotenv from 'dotenv';
 
 import { ABSeeRequest, getSession, useSessionId } from './session';
 
-import { CollectionTypeLoader } from './datainfo';
 import { IPAddress } from './types';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
@@ -20,9 +19,6 @@ dotenv.config();
 
 const morganLog = morgan('common');
 // process.env.PRODUCTION =='true' ? 'common' : 'dev'
-
-const HTTP_PORT: number =
-  process.env.HTTP_PORT !== undefined ? parseInt(process.env.HTTP_PORT!) : 8280;
 
 const corsOptions = {
   'Access-Control-Allow-Origin': '*',
@@ -48,8 +44,8 @@ export const getIp = (req: express.Request): IPAddress => {
   return (req as any).clientIp;
 };
 
-export const startApp = <T, D>(loader: CollectionTypeLoader<T, D>) => {
-  const app = express();
+export const startApp = (): express.Express => {
+  const app: express.Express = express();
   app.use(morganLog);
   app.use(cors(corsOptions));
   app.use(requestIp.mw());
@@ -79,10 +75,10 @@ export const startApp = <T, D>(loader: CollectionTypeLoader<T, D>) => {
   app.get('/logout', logout);
   app.get(
     '/collection/:collectionId',
-    (request: ABSeeRequest, response: express.Response) => {
+    async (request: ABSeeRequest, response: express.Response) => {
       const collectionId = request.params.collectionId;
       if (collectionId == '83fd0b3e-dd08-4707-8135-e5f138a43f00') {
-        serveComparison(loader, request, response);
+        await serveComparison(request, response, '83fd0b3e-dd08-4707-8135-e5f138a43f00');
       } else {
         response.status(401);
         response.end();
@@ -97,10 +93,6 @@ export const startApp = <T, D>(loader: CollectionTypeLoader<T, D>) => {
   });
 
   app.use(express.static('build'));
-
-  app.listen(HTTP_PORT, () => {
-    console.log(`Listening on port ${HTTP_PORT}`);
-  });
 
   return app;
 };

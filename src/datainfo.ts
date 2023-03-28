@@ -12,6 +12,7 @@ export const retrieveCollectionData = async <T, D>(
 ): Promise<D> => {
   return new Promise((resolve, reject) => {
     if (existingData == undefined) {
+      // TODO: Swap axios with fetch
       axios.get(url).then((data) => {
         try {
           resolve(datasourceConvertor(data.data));
