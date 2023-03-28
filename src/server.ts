@@ -25,13 +25,26 @@ const HTTP_PORT: number =
   process.env.HTTP_PORT !== undefined ? parseInt(process.env.HTTP_PORT!) : 8280;
 
 const corsOptions = {
+  'Access-Control-Allow-Origin': '*',
   'Access-Control-Expose-Headers': '*',
   'optionsSuccessStatus': 200,
   'origin': '*',
-  // 'Access-Control-Allow-Origin': 'http://localhost:3000',
 };
 
-export const getIp = (req: Express.Request): IPAddress => {
+export const getIp = (req: express.Request): IPAddress => {
+  try {
+    if (req.headers.forwarded) {
+      const forwardedForHeader: string|undefined = req.headers.forwarded
+        .split(';')
+        .find((header) => header.startsWith('for='));
+      const forParts: string[]|undefined = forwardedForHeader?.split('=');
+      if (forParts !== undefined && forParts.length == 2) {
+        return forParts[1];
+      }
+    }
+  } catch (err) {
+    console.warn('Got part of forwarded header, but couldn\'t parse it.');
+  }
   return (req as any).clientIp;
 };
 
