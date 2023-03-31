@@ -41,18 +41,7 @@ jobs:
       run: |
         docker tag $IMAGE_NAME $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG
         docker tag $IMAGE_NAME $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:latest-dev
-
-                
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v2
-      with: 
-          aws-access-key-id: ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_ECR_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-    - name: Push API image
-      run: |
-        docker push public.ecr.aws/tjsrowe/absee:${{ github.sha }}
-        docker push public.ecr.aws/tjsrowe/absee:latest-dev
-        
+        docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG
+        docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:latest-dev
 
 
