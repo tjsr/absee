@@ -49,8 +49,6 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_ECR_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
-    - name: Log in to public ECR
-      run: $(aws ecr get-login-password --region us-east-1) | docker login --username AWS --password-stdin public.ecr.aws
     - name: Push API image
       run: |
         docker push public.ecr.aws/tjsrowe/absee:${{ github.sha }}
