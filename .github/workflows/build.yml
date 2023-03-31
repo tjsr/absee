@@ -1,0 +1,40 @@
+name: Build A/B See
+run-name: ${{ github.actor }} Running A/B See build.
+on: [push]
+jobs:
+  build-absee:
+    runs-on: ubuntu-latest
+    env:
+      DB_IMAGE_NAME: tjsrowe/absee-dbmigrate:$GITHUB_SHA
+      IMAGE_NAME: tjsrowe/absee:$GITHUB_SHA
+      DOCKER_BUILDKIT: 1
+      BUILDKIT_PROGRESS: plain
+
+    steps:
+    - name: Check out repositofy code
+      uses: actions/checkout@v3
+    - name: Build dbmigrate docker image
+      run: |
+        docker build -f Dockerfile.dbmigrate -t $DB_IMAGE_NAME .
+        docker tag $DB_IMAGE_NAME absee-dbmigrate:$GITHUB_SHA
+    - name: Build API docker image
+      run: |
+        docker build -f Dockerfile -t $IMAGE_NAME .
+        docker tag $IMAGE_NAME absee:$GITHUB_SHA
+        docker tag $IMAGE_NAME public.ecr.aws/tjsrowe/absee:$GITHUB_SHA
+        docker tag $IMAGE_NAME public.ecr.aws/tjsrowe/absee:latest-dev
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with: 
+          aws-access-key-id: ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_ECR_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+    - name: Log in to public ECR
+      run: $(aws ecr get-login-password --region us-east-1) | docker login --username AWS --password-stdin public.ecr.aws
+    - name: Push API image
+      run: |
+        docker push public.ecr.aws/tjsrowe/absee:$GITHUB_SHA
+        docker push public.ecr.aws/tjsrowe/absee:latest-dev
+        
+
+
