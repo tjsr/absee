@@ -5,8 +5,8 @@ jobs:
   build-absee:
     runs-on: ubuntu-latest
     env:
-      DB_IMAGE_NAME: tjsrowe/absee-dbmigrate:$GITHUB_SHA
-      IMAGE_NAME: tjsrowe/absee:$GITHUB_SHA
+      DB_IMAGE_NAME: tjsrowe/absee-dbmigrate:${{ github.sha }}
+      IMAGE_NAME: tjsrowe/absee:${{ github.sha }}
       DOCKER_BUILDKIT: 1
       BUILDKIT_PROGRESS: plain
 
@@ -16,12 +16,12 @@ jobs:
     - name: Build dbmigrate docker image
       run: |
         docker build -f Dockerfile.dbmigrate -t $DB_IMAGE_NAME .
-        docker tag $DB_IMAGE_NAME absee-dbmigrate:$GITHUB_SHA
+        docker tag $DB_IMAGE_NAME absee-dbmigrate:${{ github.sha }}
     - name: Build API docker image
       run: |
         docker build -f Dockerfile -t $IMAGE_NAME .
-        docker tag $IMAGE_NAME absee:$GITHUB_SHA
-        docker tag $IMAGE_NAME public.ecr.aws/tjsrowe/absee:$GITHUB_SHA
+        docker tag $IMAGE_NAME absee:${{ github.sha }}
+        docker tag $IMAGE_NAME public.ecr.aws/tjsrowe/absee:${{ github.sha }}
         docker tag $IMAGE_NAME public.ecr.aws/tjsrowe/absee:latest-dev
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -33,7 +33,7 @@ jobs:
       run: $(aws ecr get-login-password --region us-east-1) | docker login --username AWS --password-stdin public.ecr.aws
     - name: Push API image
       run: |
-        docker push public.ecr.aws/tjsrowe/absee:$GITHUB_SHA
+        docker push public.ecr.aws/tjsrowe/absee:${{ github.sha }}
         docker push public.ecr.aws/tjsrowe/absee:latest-dev
         
 
