@@ -43,5 +43,27 @@ jobs:
         docker tag $IMAGE_NAME $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:latest-dev
         docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG
         docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:latest-dev
-
+  
+name: Deploy dev
+run-name: ${{ github.actor }} Deploy A/B See dev build.
+jobs:
+  deployment:
+  runs-on: ubuntu-latest
+    environment: dev
+    url: https://dev.pinpare.com
+    env:
+      DB_IMAGE_NAME: tjsrowe/absee-dbmigrate:${{ github.sha }}
+      IMAGE_NAME: tjsrowe/absee:${{ github.sha }}
+    steps:
+    - name: Add known host
+      run: ssh-keyscan -H ${{ secrets.DEPLOYMENT_HOST }} >> ~/.ssh/known_hosts
+    - name: Install SSH Key
+      uses: shimataro/ssh-key-action@v2
+      with:
+        key: ${{ secrets.DEPLOYMENT_SSH_KEY }}
+        known_hosts: 'placeholder'
+      name: Pull docker containers to dev server
+      run: |
+        ssh ${{ secrets.DEPLOYMENT_USER }}@${{ secrets.DEPLOYMENT_USER }} docker pull public.ecr.aws/$DB_IMAGE_NAME
+        ssh ${{ secrets.DEPLOYMENT_USER }}@${{ secrets.DEPLOYMENT_USER }} docker pull public.ecr.aws/$IMAGE_NAME
 
