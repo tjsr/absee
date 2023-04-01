@@ -1,6 +1,6 @@
 name: Deploy dev
 # run-name: ${{ github.actor }} Deploy A/B See dev build.
-on: [workflow_dispatch]
+on: [push]
 
 jobs:
   deployment:
