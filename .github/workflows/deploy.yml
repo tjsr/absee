@@ -12,15 +12,13 @@ jobs:
       DB_IMAGE_NAME: tjsrowe/absee-dbmigrate:${{ github.sha }}
       IMAGE_NAME: tjsrowe/absee:${{ github.sha }}
     steps:
-    - name: Add known host
-      run: ssh-keyscan -H ${{ secrets.DEPLOYMENT_HOST }} >> ~/.ssh/known_hosts
-    - name: Install SSH Key
-      uses: shimataro/ssh-key-action@v2
+    - name: Pull DB deploy image on remote.
+      uses: appleboy/ssh-action@v0.1.8
       with:
+        host: ${{ secret.DEPLOYMENT_HOST }}
+        username: ${{ secrets.DEPLOYMENT_USER }}
         key: ${{ secrets.DEPLOYMENT_SSH_KEY }}
-        known_hosts: 'placeholder'
-    - name: Pull docker containers to dev server
-      run: |
-        ssh ${{ secrets.DEPLOYMENT_USER }}@${{ secrets.DEPLOYMENT_USER }} docker pull public.ecr.aws/$DB_IMAGE_NAME
-        ssh ${{ secrets.DEPLOYMENT_USER }}@${{ secrets.DEPLOYMENT_USER }} docker pull public.ecr.aws/$IMAGE_NAME
+        script: |
+          docker pull public.ecr.aws/$DB_IMAGE_NAME
+          docker pull public.ecr.aws/$IMAGE_NAME
 
