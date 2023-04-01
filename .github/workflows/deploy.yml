@@ -1,0 +1,14 @@
+name: Deploy dev
+# run-name: ${{ github.actor }} Deploy A/B See dev build.
+on: [workflow_dispatch]
+
+jobs:
+  deployment:
+    runs-on: ubuntu-latest
+    environment: dev
+    env:
+      DB_IMAGE_NAME: tjsrowe/absee-dbmigrate:${{ github.sha }}
+      IMAGE_NAME: tjsrowe/absee:${{ github.sha }}
+    steps:
+    - name: Test step
+      run: echo Done
