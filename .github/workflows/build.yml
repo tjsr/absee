@@ -5,13 +5,14 @@ jobs:
   build-absee:
     runs-on: ubuntu-latest
     env:
-      DB_IMAGE_NAME: tjsrowe/absee-dbmigrate:${{ github.sha }}
-      IMAGE_NAME: tjsrowe/absee:${{ github.sha }}
+      IMAGE_TAG: ${{ github.sha }}
+      DB_IMAGE_TAG: dbmigrate-${{ github.sha }}
+      IMAGE_NAME: absee:${{ github.sha }}
+      DB_IMAGE_NAME: absee:dbmigrate-${{ github.sha }}
       DOCKER_BUILDKIT: 1
       BUILDKIT_PROGRESS: plain
       REGISTRY_ALIAS: tjsrowe
       REPOSITORY: absee
-      IMAGE_TAG: ${{ github.sha }}
 
     steps:
     - name: Check out repositofy code
@@ -43,4 +44,8 @@ jobs:
         docker tag $IMAGE_NAME $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:latest-dev
         docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG
         docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:latest-dev
+
+        docker tag $DB_IMAGE_NAME $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$DB_IMAGE_TAG
+        docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$DB_IMAGE_TAG
+
   
