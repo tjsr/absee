@@ -6,7 +6,7 @@ on:
 jobs:
   deployment:
     runs-on: ubuntu-latest
-    environment: 
+    environment:
       name: dev
       url: https://dev.pinpare.com
     env:
@@ -16,9 +16,10 @@ jobs:
     - name: Pull DB deploy image on remote.
       uses: appleboy/ssh-action@v0.1.8
       with:
-        host: '${{ secrets.DEPLOYMENT_HOST }}'
-        username: '${{ secrets.DEPLOYMENT_USER }}'
-        key: '${{ secrets.DEPLOYMENT_SSH_KEY }}'
+        host: ${{ secrets.DEPLOYMENT_HOST }}
+        username: ${{ secrets.DEPLOYMENT_USER }}
+        key: ${{ secrets.DEPLOYMENT_SSH_KEY }}
+        envs: DB_IMAGE_NAME,IMAGE_NAME
         script: |
           docker pull public.ecr.aws/$DB_IMAGE_NAME
           docker pull public.ecr.aws/$IMAGE_NAME
