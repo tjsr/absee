@@ -6,8 +6,9 @@ on:
 jobs:
   deployment:
     runs-on: ubuntu-latest
-    environment: dev
-#    url: https://dev.pinpare.com
+    environment: 
+      name: dev
+      url: https://dev.pinpare.com
     env:
       DB_IMAGE_NAME: tjsrowe/absee-dbmigrate:${{ github.sha }}
       IMAGE_NAME: tjsrowe/absee:${{ github.sha }}
