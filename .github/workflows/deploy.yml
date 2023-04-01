@@ -17,8 +17,8 @@ jobs:
       REGISTRY_ALIAS: tjsrowe
       REPOSITORY: absee
       PRISMA_DATABASE_URL: ${{ secrets.PRISMA_DATABASE_URL }}
-      CONTAINER_NAME: ${{ env.CONTAINER_NAME }}
-      API_PORT: ${{ env.API_PORT }}
+      CONTAINER_NAME: ${{ vars.CONTAINER_NAME }}
+      API_PORT: ${{ vars.API_PORT }}
     steps:
     - name: Pull DB deploy image on remote.
       uses: appleboy/ssh-action@v0.1.8
