@@ -15,7 +15,7 @@ jobs:
     - name: Pull DB deploy image on remote.
       uses: appleboy/ssh-action@v0.1.8
       with:
-        host: ${{ secret.DEPLOYMENT_HOST }}
+        host: ${{ secrets.DEPLOYMENT_HOST }}
         username: ${{ secrets.DEPLOYMENT_USER }}
         key: ${{ secrets.DEPLOYMENT_SSH_KEY }}
         script: |
