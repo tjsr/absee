@@ -5,8 +5,6 @@ on: [workflow_dispatch]
 jobs:
   deployment:
     runs-on: ubuntu-latest
-    permissions:
-      deployments: write
     environment: dev
 #    url: https://dev.pinpare.com
     env:
