@@ -23,7 +23,7 @@ jobs:
         host: ${{ secrets.DEPLOYMENT_HOST }}
         username: ${{ secrets.DEPLOYMENT_USER }}
         key: ${{ secrets.DEPLOYMENT_SSH_KEY }}
-        envs: DB_IMAGE_NAME,IMAGE_NAME
+        envs: DB_IMAGE_NAME,IMAGE_NAME,REGISTRY_ALIAS
         script: |
           docker pull public.ecr.aws/$REGISTRY_ALIAS/$DB_IMAGE_NAME
           docker pull public.ecr.aws/$REGISTRY_ALIAS/$IMAGE_NAME
