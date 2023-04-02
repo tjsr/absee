@@ -47,7 +47,20 @@ jobs:
         cache-from: type=local,src=/tmp/.buildx-cache
         cache-to: type=local,dest=/tmp/.buildx-cache-new
 
-    - name: Tag dbmigrate docker image for ECR public
+    - name: Login to Amazon ECR Public
+      id: login-ecr-public
+      uses: aws-actions/amazon-ecr-login@v1
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ECR_SECRET_ACCESS_KEY }}
+        AWS_REGION: us-east-1
+      with:
+        registry-type: public
+        aws-region: us-east-1
+
+    - name: Tag dbmigrate docker image for ECR public    
+      env:
+        REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
       run: |
         docker tag $DB_IMAGE_TAG $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$DB_IMAGE_TAG
 
@@ -61,23 +74,14 @@ jobs:
         tags: ${{ env.api_tag }}
         cache-from: type=local,src=/tmp/.buildx-cache
         cache-to: type=local,dest=/tmp/.buildx-cache-new
-  
-    - name: Tag API docker image for ECR public
+      
+    - name: Tag API docker image for ECR public    
+      env:
+        REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
       run: |
         docker tag $IMAGE_TAG $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG
         docker tag $IMAGE_TAG $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:latest-dev
-
-    - name: Login to Amazon ECR Public
-      id: login-ecr-public
-      uses: aws-actions/amazon-ecr-login@v1
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ECR_SECRET_ACCESS_KEY }}
-        AWS_REGION: us-east-1
-      with:
-        registry-type: public
-        aws-region: us-east-1
-
+    
     - name: Build, tag, and push docker image to Amazon ECR Public
       env:
         REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
