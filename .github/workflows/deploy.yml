@@ -61,6 +61,6 @@ jobs:
         username: ${{ secrets.DEPLOYMENT_USER }}
         key: ${{ secrets.DEPLOYMENT_SSH_KEY }}
         envs: IMAGE_NAME,CONTAINER_NAME,API_PORT
-        script: docker run --name $CONTAINER_NAME --restart=always -p $API_PORT:8280 --env-file=/home/ec2-user/absee/.env.dev -t $IMAGE_NAME
+        script: docker run --name $CONTAINER_NAME --restart=always -p $API_PORT:8280 --env-file=/home/ec2-user/absee/.env.dev -d -t $IMAGE_NAME
 
 
