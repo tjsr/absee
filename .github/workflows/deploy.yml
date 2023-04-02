@@ -35,6 +35,6 @@ jobs:
           docker stop $CONTAINER_NAME || true
           docker rm $CONTAINER_NAME || true
           docker run -e PRISMA_DATABASE_URL=$PRISMA_DATABASE_URL --rm --name absee-migrate -t $DB_IMAGE_NAME
-          docker run --name $CONTAINER_NAME --restart=always -p $API_PORT:8280 --env-file=/home/ec2-user/absee/.env.dev -d -t $IMAGE_NAME
+          docker run --name $CONTAINER_NAME --restart=always -p $API_PORT:8280 --env-file=/home/ec2-user/absee/.env.dev -t $IMAGE_NAME
 
 
