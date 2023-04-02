@@ -7,8 +7,8 @@ jobs:
     env:
       DOCKER_BUILDKIT: 1
       BUILDKIT_PROGRESS: plain
-      REGISTRY_ALIAS: tjsrowe
-      REPOSITORY: absee
+      DBMIGRATE_IMAGE: tjsrowe/absee:dbmigrate-${{ github.sha }}
+      API_IMAGE: tjsrowe/absee:${{ github.sha }}
 
     steps:
     - name: Check out repositofy code
@@ -26,18 +26,6 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-single-buildx
 
-    - name: Build dbmigrate image
-      uses: docker/build-push-action@v2
-      with:
-        context: .
-        builder: ${{ steps.buildx.outputs.name }}
-        file: Dockerfile.dbmigrate
-        push: false
-        output: type=docker
-        tags: dbmigrate
-        cache-from: type=local,src=/tmp/.buildx-cache
-        cache-to: type=local,dest=/tmp/.buildx-cache-new
-
     - name: Login to Amazon ECR Public
       id: login-ecr-public
       uses: aws-actions/amazon-ecr-login@v1
@@ -49,42 +37,24 @@ jobs:
         registry-type: public
         aws-region: us-east-1
 
-    - name: Tag dbmigrate docker image for ECR public
-      env:
-        REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
-      run: |
-        docker tag dbmigrate $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:dbmigrate-${{ github.sha }}
-
+    - name: Build dbmigrate image      
+      uses: docker/build-push-action@v3
+      with:
+        context: .
+        builder: ${{ steps.buildx.outputs.name }}
+        file: Dockerfile.dbmigrate
+        push: true
+        tags: ${{ steps.login-ecr-public.outputs.registry }}/$DBMIGRATE_IMAGE
+        cache-from: type=local,src=/tmp/.buildx-cache
+        cache-to: type=local,dest=/tmp/.buildx-cache-new
+    
     - name: Build API image
-      uses: docker/build-push-action@v2
+      uses: docker/build-push-action@v3
       with:
         context: .
         builder: ${{ steps.buildx.outputs.name }}
         file: Dockerfile
-        push: false
-        output: type=docker
-        tags: api
+        push: true
+        tags: ${{ steps.login-ecr-public.outputs.registry }}/$API_IMAGE
         cache-from: type=local,src=/tmp/.buildx-cache
         cache-to: type=local,dest=/tmp/.buildx-cache-new
-      
-    - name: Tag API docker image for ECR public    
-      env:
-        REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
-      run: |
-        docker tag api $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:${{ github.sha }}
-        docker tag api $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:latest-dev
-    
-    - name: Build, tag, and push docker DB Migration image to Amazon ECR Public
-      env:
-        REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
-      run: |
-        docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:dbmigrate-${{ github.sha }}
-
-    - name: Build, tag, and push docker image to Amazon ECR Public    
-      env:
-        REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
-      run: |  
-        docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:${{ github.sha }}
-        docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:latest-dev
-    
-  
