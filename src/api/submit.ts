@@ -44,10 +44,12 @@ export const submit = (request: ABSeeRequest, response: express.Response) => {
         })
         .catch((err) => {
           responseJson.success = false;
+          console.warn(`Error while saving comparison selection: ${err}`);
           response.status(401);
         });
     } catch (err) {
       responseJson.success = false;
+      console.warn(`Error while saving comparison selection: ${err}`);
       response.status(500);
     }
 

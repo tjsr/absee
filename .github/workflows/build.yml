@@ -1,0 +1,60 @@
+name: Build A/B See
+run-name: ${{ github.actor }} Running A/B See build.
+on: [push]
+jobs:
+  build-absee:
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_BUILDKIT: 1
+      BUILDKIT_PROGRESS: plain
+      DBMIGRATE_IMAGE: tjsrowe/absee:dbmigrate-${{ github.sha }}
+      API_IMAGE: tjsrowe/absee:${{ github.sha }}
+
+    steps:
+    - name: Check out repositofy code
+      uses: actions/checkout@v3
+
+    - name: Set up Docker Buildx
+      id: buildx
+      uses: docker/setup-buildx-action@master
+
+    - name: Cache Docker layers
+      uses: actions/cache@v3
+      with:
+        path: /tmp/.buildx-cache
+        key: ${{ runner.os }}-single-buildx-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-single-buildx
+
+    - name: Login to Amazon ECR Public
+      id: login-ecr-public
+      uses: aws-actions/amazon-ecr-login@v1
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ECR_SECRET_ACCESS_KEY }}
+        AWS_REGION: us-east-1
+      with:
+        registry-type: public
+        aws-region: us-east-1
+
+    - name: Build dbmigrate image      
+      uses: docker/build-push-action@v3
+      with:
+        context: .
+        builder: ${{ steps.buildx.outputs.name }}
+        file: Dockerfile.dbmigrate
+        push: true
+        tags: ${{ steps.login-ecr-public.outputs.registry }}/${{ env.DBMIGRATE_IMAGE}}
+        cache-from: type=local,src=/tmp/.buildx-cache
+        cache-to: type=local,dest=/tmp/.buildx-cache-new
+    
+    - name: Build API image
+      uses: docker/build-push-action@v3
+      with:
+        context: .
+        builder: ${{ steps.buildx.outputs.name }}
+        file: Dockerfile
+        push: true
+        tags: ${{ steps.login-ecr-public.outputs.registry }}/${{ env.API_IMAGE }}
+        cache-from: type=local,src=/tmp/.buildx-cache
+        cache-to: type=local,dest=/tmp/.buildx-cache-new

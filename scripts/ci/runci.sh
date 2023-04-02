@@ -8,6 +8,9 @@ COPY . build
 WORKDIR build
 EOF
 
+./scripts/containers/build-containers.sh
+./scripts/containers/push-containers.sh
+
 CONTAINER_ID=$(docker run --privileged --rm --env-file=.env.docker -d -t tmp)
 echo Pausing 10 seconds to allow container to start
 sleep 10
