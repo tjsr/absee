@@ -29,8 +29,9 @@ jobs:
         envs: DB_IMAGE_NAME,IMAGE_NAME,REGISTRY_ALIAS
         script: |
           docker pull public.ecr.aws/$REGISTRY_ALIAS/$DB_IMAGE_NAME
+          docker tag public.ecr.aws/$REGISTRY_ALIAS/$IMAGE_NAME $IMAGE_NAME
+
           docker pull public.ecr.aws/$REGISTRY_ALIAS/$IMAGE_NAME
-          docker tag public.ecr.aws/$REGISTRY_ALIAS/$DB_IMAGE_NAME $IMAGE_NAME
           docker tag public.ecr.aws/$REGISTRY_ALIAS/$DB_IMAGE_NAME $DB_IMAGE_NAME
           
     - name: Stop containers and apply DB migration script
