@@ -18,8 +18,8 @@ jobs:
     - name: Identify output images
       id: imgid
       run: |
-        echo "dbmigrate_image=$DB_IMAGE_NAME" >> $GITHUB_ENV
-        echo "api_image=$IMAGE_NAME" >> $GITHUB_ENV
+        echo "dbmigrate_tag=$DB_IMAGE_TAG" >> $GITHUB_ENV
+        echo "api_tag=$IMAGE_TAG" >> $GITHUB_ENV
 
     - name: Check out repositofy code
       uses: actions/checkout@v3
@@ -43,13 +43,13 @@ jobs:
         builder: ${{ steps.buildx.outputs.name }}
         file: Dockerfile.dbmigrate
         push: false
-        tags: ${{ env.dbmigrate_image }}
+        tags: ${{ env.dbmigrate_tag }}
         cache-from: type=local,src=/tmp/.buildx-cache
         cache-to: type=local,dest=/tmp/.buildx-cache-new
 
     - name: Tag dbmigrate docker image for ECR public
       run: |
-        docker tag $DB_IMAGE_NAME absee-dbmigrate:${{ github.sha }}
+        docker tag $DB_IMAGE_TAG $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$DB_IMAGE_TAG
 
     - name: Build API image
       uses: docker/build-push-action@v2
@@ -58,14 +58,15 @@ jobs:
         builder: ${{ steps.buildx.outputs.name }}
         file: Dockerfile
         push: false
-        tags: ${{ env.api_image }}
+        tags: ${{ env.api_tag }}
         cache-from: type=local,src=/tmp/.buildx-cache
         cache-to: type=local,dest=/tmp/.buildx-cache-new
   
     - name: Tag API docker image for ECR public
       run: |
-        docker tag $IMAGE_NAME absee:${{ github.sha }}
-  
+        docker tag $IMAGE_TAG $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG
+        docker tag $IMAGE_TAG $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:latest-dev
+
     - name: Login to Amazon ECR Public
       id: login-ecr-public
       uses: aws-actions/amazon-ecr-login@v1
@@ -81,8 +82,6 @@ jobs:
       env:
         REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
       run: |
-        docker tag $IMAGE_NAME $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG
-        docker tag $IMAGE_NAME $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:latest-dev
         docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG
         docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:latest-dev
 
@@ -90,7 +89,6 @@ jobs:
       env:
         REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
       run: |
-        docker tag $DB_IMAGE_NAME $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$DB_IMAGE_TAG
         docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$DB_IMAGE_TAG
 
   
