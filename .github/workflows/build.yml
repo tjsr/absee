@@ -15,6 +15,12 @@ jobs:
       REPOSITORY: absee
 
     steps:
+    - name: Identify output images
+      id: imgid
+      run: |
+        echo ::set-output name=dbmigrate_image::${DB_IMAGE_NAME}
+        echo ::set-output name=api_image::${IMAGE_NAME}
+
     - name: Check out repositofy code
       uses: actions/checkout@v3
 
@@ -37,7 +43,7 @@ jobs:
         builder: ${{ steps.buildx.outputs.name }}
         file: Dockerfile.dbmigrate
         push: false
-        tags: $DB_IMAGE_NAME
+        tags: ${{ steps.imgid.outputs.dbmigrate_image }}
         cache-from: type=local,src=/tmp/.buildx-cache
         cache-to: type=local,dest=/tmp/.buildx-cache-new
 
@@ -52,7 +58,7 @@ jobs:
         builder: ${{ steps.buildx.outputs.name }}
         file: Dockerfile
         push: false
-        tags: $IMAGE_NAME
+        tags: ${{ steps.imgid.outputs.api_image }}
         cache-from: type=local,src=/tmp/.buildx-cache
         cache-to: type=local,dest=/tmp/.buildx-cache-new
   
