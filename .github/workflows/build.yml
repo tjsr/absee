@@ -33,6 +33,7 @@ jobs:
         builder: ${{ steps.buildx.outputs.name }}
         file: Dockerfile.dbmigrate
         push: false
+        output: type=docker
         tags: dbmigrate
         cache-from: type=local,src=/tmp/.buildx-cache
         cache-to: type=local,dest=/tmp/.buildx-cache-new
@@ -61,6 +62,7 @@ jobs:
         builder: ${{ steps.buildx.outputs.name }}
         file: Dockerfile
         push: false
+        output: type=docker
         tags: api
         cache-from: type=local,src=/tmp/.buildx-cache
         cache-to: type=local,dest=/tmp/.buildx-cache-new
