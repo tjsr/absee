@@ -20,7 +20,7 @@ jobs:
       CONTAINER_NAME: ${{ vars.CONTAINER_NAME }}
       API_PORT: ${{ vars.API_PORT }}
     steps:
-    - name: Pull DB deploy image on remote.
+    - name: Pull DB migration deploy image on remote.
       uses: appleboy/ssh-action@v0.1.8
       with:
         host: ${{ secrets.DEPLOYMENT_HOST }}
@@ -29,10 +29,18 @@ jobs:
         envs: DB_IMAGE_NAME,IMAGE_NAME,REGISTRY_ALIAS
         script: |
           docker pull public.ecr.aws/$REGISTRY_ALIAS/$DB_IMAGE_NAME
-          docker tag public.ecr.aws/$REGISTRY_ALIAS/$IMAGE_NAME $IMAGE_NAME
-
-          docker pull public.ecr.aws/$REGISTRY_ALIAS/$IMAGE_NAME
           docker tag public.ecr.aws/$REGISTRY_ALIAS/$DB_IMAGE_NAME $DB_IMAGE_NAME
+
+    - name: Pull API image on remote.
+      uses: appleboy/ssh-action@v0.1.8
+      with:
+        host: ${{ secrets.DEPLOYMENT_HOST }}
+        username: ${{ secrets.DEPLOYMENT_USER }}
+        key: ${{ secrets.DEPLOYMENT_SSH_KEY }}
+        envs: DB_IMAGE_NAME,IMAGE_NAME,REGISTRY_ALIAS
+        script: |
+          docker pull public.ecr.aws/$REGISTRY_ALIAS/$IMAGE_NAME
+          docker tag public.ecr.aws/$REGISTRY_ALIAS/$IMAGE_NAME $IMAGE_NAME
           
     - name: Stop containers and apply DB migration script
       uses: appleboy/ssh-action@v0.1.8
