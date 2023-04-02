@@ -18,8 +18,8 @@ jobs:
     - name: Identify output images
       id: imgid
       run: |
-        echo ::set-output name=dbmigrate_image::${DB_IMAGE_NAME}
-        echo ::set-output name=api_image::${IMAGE_NAME}
+        echo "dbmigrate_image=$DB_IMAGE_NAME" >> $GITHUB_ENV
+        echo "api_image=$IMAGE_NAME" >> $GITHUB_ENV
 
     - name: Check out repositofy code
       uses: actions/checkout@v3
@@ -43,7 +43,7 @@ jobs:
         builder: ${{ steps.buildx.outputs.name }}
         file: Dockerfile.dbmigrate
         push: false
-        tags: ${{ steps.imgid.outputs.dbmigrate_image }}
+        tags: ${{ env.dbmigrate_image }}
         cache-from: type=local,src=/tmp/.buildx-cache
         cache-to: type=local,dest=/tmp/.buildx-cache-new
 
@@ -58,7 +58,7 @@ jobs:
         builder: ${{ steps.buildx.outputs.name }}
         file: Dockerfile
         push: false
-        tags: ${{ steps.imgid.outputs.api_image }}
+        tags: ${{ env.api_image }}
         cache-from: type=local,src=/tmp/.buildx-cache
         cache-to: type=local,dest=/tmp/.buildx-cache-new
   
