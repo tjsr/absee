@@ -5,22 +5,12 @@ jobs:
   build-absee:
     runs-on: ubuntu-latest
     env:
-      IMAGE_TAG: api:${{ github.sha }}
-      DB_IMAGE_TAG: dbmigrate:${{ github.sha }}
-      IMAGE_NAME: absee:${{ github.sha }}
-      DB_IMAGE_NAME: absee:dbmigrate-${{ github.sha }}
       DOCKER_BUILDKIT: 1
       BUILDKIT_PROGRESS: plain
       REGISTRY_ALIAS: tjsrowe
       REPOSITORY: absee
 
     steps:
-    - name: Identify output images
-      id: imgid
-      run: |
-        echo "dbmigrate_tag=$DB_IMAGE_TAG" >> $GITHUB_ENV
-        echo "api_tag=$IMAGE_TAG" >> $GITHUB_ENV
-
     - name: Check out repositofy code
       uses: actions/checkout@v3
 
@@ -43,7 +33,7 @@ jobs:
         builder: ${{ steps.buildx.outputs.name }}
         file: Dockerfile.dbmigrate
         push: false
-        tags: ${{ env.dbmigrate_tag }}
+        tags: dbmigrate
         cache-from: type=local,src=/tmp/.buildx-cache
         cache-to: type=local,dest=/tmp/.buildx-cache-new
 
@@ -62,7 +52,7 @@ jobs:
       env:
         REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
       run: |
-        docker tag $DB_IMAGE_TAG $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:dbmigrate-${{ github.sha }}
+        docker tag dbmigrate $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:dbmigrate-${{ github.sha }}
 
     - name: Build API image
       uses: docker/build-push-action@v2
@@ -71,7 +61,7 @@ jobs:
         builder: ${{ steps.buildx.outputs.name }}
         file: Dockerfile
         push: false
-        tags: ${{ env.api_tag }}
+        tags: api
         cache-from: type=local,src=/tmp/.buildx-cache
         cache-to: type=local,dest=/tmp/.buildx-cache-new
       
@@ -79,8 +69,8 @@ jobs:
       env:
         REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
       run: |
-        docker tag $IMAGE_TAG $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:${{ github.sha }}
-        docker tag $IMAGE_TAG $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:latest-dev
+        docker tag api $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:${{ github.sha }}
+        docker tag api $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:latest-dev
     
     - name: Build, tag, and push docker DB Migration image to Amazon ECR Public
       env:
