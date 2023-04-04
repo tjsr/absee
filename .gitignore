@@ -52,3 +52,6 @@ restdb.bat
 prisma/dev.db
 src/database/createdb.sql
 build/
+
+*.ppk
+*.key
