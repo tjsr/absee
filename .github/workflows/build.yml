@@ -22,7 +22,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: /tmp/.buildx-cache
-        key: ${{ runner.os }}-single-buildx-${{ github.sha }}
+        key: ${{ runner.os }}-single-buildx
         restore-keys: |
           ${{ runner.os }}-single-buildx
 
@@ -35,7 +35,6 @@ jobs:
         AWS_REGION: us-east-1
       with:
         registry-type: public
-        aws-region: us-east-1
 
     - name: Build dbmigrate image      
       uses: docker/build-push-action@v3
