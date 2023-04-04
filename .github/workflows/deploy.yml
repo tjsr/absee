@@ -2,12 +2,22 @@ name: Deploy dev
 # run-name: ${{ github.actor }} Deploy A/B See dev build.
 on:
   workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        description: 'Environment ID'
+        required: true
+        default: 'dev'
+        options:
+        - dev
+        - test
+        - prod
 
 jobs:
   deployment:
     runs-on: ubuntu-latest
     environment:
-      name: dev
+      name: ${{  github.events.inputs.environment }}
       url: https://dev.pinpare.com
     env:
       IMAGE_TAG: ${{ github.sha }}
@@ -15,7 +25,6 @@ jobs:
       IMAGE_NAME: absee:${{ github.sha }}
       DB_IMAGE_NAME: absee:dbmigrate-${{ github.sha }}
       REGISTRY_ALIAS: tjsrowe
-      REPOSITORY: absee
       PRISMA_DATABASE_URL: ${{ secrets.PRISMA_DATABASE_URL }}
       CONTAINER_NAME: ${{ vars.CONTAINER_NAME }}
       API_PORT: ${{ vars.API_PORT }}
