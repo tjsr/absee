@@ -44,7 +44,7 @@ jobs:
         builder: ${{ steps.buildx.outputs.name }}
         file: Dockerfile.dbmigrate
         push: ${{ github.actor != 'dependabot[bot]' }}
-        tags: ${{ steps.login-ecr-public.outputs.registry }}/${{ env.DBMIGRATE_IMAGE}}
+        tags: ${{ github.actor != 'dependabot[bot]' && format('{0}/', steps.login-ecr-public.outputs.registry) || ''}}${{ env.DBMIGRATE_IMAGE }}
         cache-from: type=local,src=/tmp/.buildx-cache
         cache-to: type=local,dest=/tmp/.buildx-cache-new
     
@@ -55,6 +55,6 @@ jobs:
         builder: ${{ steps.buildx.outputs.name }}
         file: Dockerfile
         push: ${{ github.actor != 'dependabot[bot]' }}
-        tags: ${{ steps.login-ecr-public.outputs.registry }}/${{ env.API_IMAGE }}
+        tags: ${{ github.actor != 'dependabot[bot]' && format('{0}/', steps.login-ecr-public.outputs.registry) || ''}}${{ env.API_IMAGE }}
         cache-from: type=local,src=/tmp/.buildx-cache
         cache-to: type=local,dest=/tmp/.buildx-cache-new
