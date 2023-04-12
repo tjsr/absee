@@ -1,9 +1,13 @@
-FROM node:18.13.0-alpine3.17 as absee-dbmigrate
+ARG NPM_VERSION=9.6.2
+ARG NODE_VERSION=18.13.0
+FROM node:${NODE_VERSION}-alpine3.17 as absee-dbmigrate
 
-RUN npm install -g npm@9.6.2
+RUN npm install -g npm@${NPM_VERSION}
 
 RUN mkdir /opt/absee
-COPY . /opt/absee
+COPY package.json /opt/absee
+COPY package-lock.json /opt/absee
+COPY prisma /opt/absee
 
 WORKDIR /opt/absee
 RUN npm i
