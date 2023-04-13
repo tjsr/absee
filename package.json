@@ -40,7 +40,7 @@
   },
   "homepage": "./",
   "devDependencies": {
-    "@babel/preset-env": "^7.20.2",
+    "@babel/preset-env": "^7.21.4",
     "@babel/preset-typescript": "^7.21.4",
     "@jest/globals": "^29.5.0",
     "@testing-library/jest-dom": "^5.16.5",
