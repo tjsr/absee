@@ -79,7 +79,7 @@
     "@prisma/client": "^4.12.0",
     "@react-spring/web": "^9.7.1",
     "@use-gesture/react": "^10.2.25",
-    "axios": "^1.3.4",
+    "axios": "^1.3.6",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "date-to-iso-8601-string": "^2.0.0",
