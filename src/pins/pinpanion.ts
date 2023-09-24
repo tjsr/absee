@@ -106,7 +106,7 @@ const getPinById = (
   sourceData: PinpanionData,
   id: string
 ): PinpanionPin | undefined => {
-  return sourceData.pins?.find((p: PinpanionPin) => p.id === id);
+  return sourceData.pins?.find((p: PinpanionPin) => p.id.toString() === id);
 };
 
 const getObjectForId = (sourceData: PinpanionData, id: string): Pin => {

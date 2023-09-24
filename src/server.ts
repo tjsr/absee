@@ -1,12 +1,13 @@
 import * as dotenv from 'dotenv';
 
-import { ABSeeRequest, getSession, useSessionId } from './session';
+import { ABSeeRequest, mysqlSessionStore } from './session';
 
 import { IPAddress } from './types';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import { debugHeaders } from './api/debugHeaders';
 import express from 'express';
+import { getSession } from './sessions/getSession';
 import { login } from './api/login';
 import { logout } from './api/logout';
 import morgan from 'morgan';
@@ -14,6 +15,7 @@ import requestIp from 'request-ip';
 import { serveComparison } from './api/serveComparison';
 import { session } from './api/session';
 import { submit } from './api/submit';
+import { useSessionId } from './sessions/useSessionId';
 
 dotenv.config();
 
@@ -57,7 +59,7 @@ export const startApp = (): express.Express => {
   });
 
   app.use(cookieParser());
-  app.use(getSession());
+  app.use(getSession(mysqlSessionStore));
   app.use(useSessionId);
 
   // initialisePassportToExpressApp(app);

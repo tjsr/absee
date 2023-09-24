@@ -1,0 +1,18 @@
+version: '3.3'
+
+services:
+  abseedb:
+    image: mysql:5.7.18
+    restart: always
+    environment:
+      MYSQL_DATABASE: absee_dev
+      MYSQL_USER: absee_dev_user
+      MYSQL_ROOT_USER: absee_dev_root
+      MYSQL_RANDOM_ROOT_PASSWORD: true
+    ports:
+    - 3136:3306
+    volumes:
+      - absee_db_data:/var/lib/mysql
+
+volumes:
+  absee_db_data:

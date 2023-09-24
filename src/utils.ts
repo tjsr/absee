@@ -1,7 +1,10 @@
 import * as EmailValidator from 'email-validator';
+import * as dotenv from 'dotenv';
 
 import { CollectionTypeLoader } from './datainfo';
 import { ISO8601Date } from './types';
+
+dotenv.config();
 
 export const iso8601Now = (): ISO8601Date => {
   // return (new Date()).toISOString();
@@ -87,6 +90,7 @@ export const requireEnv = (val: string): string => {
 export const validateEmailString = (email: string): boolean => {
   return EmailValidator.validate(email);
 };
+
 function getRandomObjectId<T>(loader: CollectionTypeLoader<T, any>) {
   const randomIndex: number = getRandomId(
     loader.getNumberOfElements(loader)

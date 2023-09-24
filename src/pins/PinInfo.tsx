@@ -35,7 +35,10 @@ export const PinInfo = ({ pin, style }: PinInfoPropTypes): JSX.Element => {
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
             backgroundSize: 'contain',
-            height: '200px',
+            maxHeight: '10rem',
+            maxWidth: '10rem',
+            minHeight: '8rem',
+            minWidth: '8rem',
           }}
         >
           <PinName maxWidth={12}>{pin.name}</PinName>

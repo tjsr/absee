@@ -6,6 +6,7 @@
   "configurations": [
     {
       "type": "node",
+      "envFile": "${workspaceFolder}/.env",
       "request": "launch",
       "name": "Launch backend server",
       "skipFiles": ["<node_internals>/**"],
@@ -13,7 +14,18 @@
       //"preLaunchTask": "tsc: build - tsconfig.json",
       "restart": true,
       "runtimeExecutable": "nodemon",
-      "console": "integratedTerminal"
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "node-terminal",
+      "envFile": "${workspaceFolder}/.env",
+      "request": "launch",
+      "name": "TSX backend server",
+      "skipFiles": ["<node_internals>/**"],
+      //"preLaunchTask": "tsc: build - tsconfig.json",
+      "command": "npm run start:dev",
+      "cwd": "${workspaceFolder}"
     },
     {
       "type": "chrome",

@@ -3,6 +3,10 @@
   margin: 2px;
   /* background-color: #e1e1e1; */
   /* border: 2px solid; */
+  max-width: 12rem;
+  min-width: 8rem;
+  max-height: 12rem;
+  min-height: 8rem;
  }
  
  div.pinInfoPadding {

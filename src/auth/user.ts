@@ -1,4 +1,4 @@
-import { EmailAddress, UserId, uuid, uuid5 } from '../types';
+import { EmailAddress, UserId, uuid5 } from '../types';
 
 import { ABSeeRequest } from '../session';
 import { getSnowflake } from '../snowflake';

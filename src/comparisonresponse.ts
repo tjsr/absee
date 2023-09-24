@@ -1,7 +1,5 @@
 import { SnowflakeType } from './types';
-import {
-  basicMySqlInsert
-} from './database/mysql';
+import { basicMySqlInsert } from './database/basicMysqlInsert';
 
 export const saveComparisonSelection = async (
   comparisonId: SnowflakeType,

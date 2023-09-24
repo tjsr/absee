@@ -4,13 +4,13 @@ import {
   SnowflakeType,
   UserId
 } from './types';
-import {
-  basicMySqlInsert,
-  retrieveComparisonRequest
-} from './database/mysql';
 
 import { ComparisonModel } from './types/model';
 import { ComparisonRequestResponseBody } from './types/datasource';
+import { basicMySqlInsert } from './database/basicMysqlInsert';
+import {
+  retrieveComparisonRequest
+} from './database/mysql';
 import { storeComparisonElements } from './comparisonelement';
 
 export const storeComparisonRequest = async <T>(

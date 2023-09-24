@@ -49,7 +49,7 @@ model ComparisonResponse {
 model session {
   session_id    String   @id @db.VarChar(128)
   sess   Json     @db.Json
-  expire DateTime @db.Timestamp(6)
+  expire Int @db.UnsignedInt
 
   @@index([expire], map: "IDX_session_expire")
 }
