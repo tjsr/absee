@@ -65,7 +65,7 @@
     "@types/request-ip": "^0.0.38",
     "@types/styled-components": "^5.1.26",
     "@types/uuid": "^9.0.1",
-    "@typescript-eslint/eslint-plugin": "^5.55.0",
+    "@typescript-eslint/eslint-plugin": "^6.7.2",
     "@vitejs/plugin-react": "^4.0.4",
     "cross-env": "^7.0.3",
     "eslint-config-google": "^0.14.0",
