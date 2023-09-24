@@ -1,5 +1,5 @@
-FROM node:18.13.0-alpine3.17 as absee-build-preflight
-RUN npm install -g npm@9.6.2
+FROM node:18.18.0-alpine3.18 as absee-build-preflight
+RUN npm install -g npm@9.8.1
 
 RUN mkdir /opt/absee
 
