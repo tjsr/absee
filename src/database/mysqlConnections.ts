@@ -5,13 +5,7 @@ import { requireEnv } from '../utils';
 
 export type PoolConnection = mysql.PoolConnection;
 
-const envOptions: dotenv.DotenvConfigOptions = {
-  path: './.env',
-};
-const configOutput: dotenv.DotenvConfigOutput = dotenv.config(envOptions);
-if (configOutput.error) {
-  console.error(`Failed reading .env file`, configOutput.error);
-}
+dotenv.config();
 
 const config: mysql.PoolConfig = {
   connectionLimit:
