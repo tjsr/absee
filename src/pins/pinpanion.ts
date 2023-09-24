@@ -106,7 +106,7 @@ const getPinById = (
   sourceData: PinpanionData,
   id: string
 ): PinpanionPin | undefined => {
-  return sourceData.pins?.find((p: PinpanionPin) => p.id.toString() === id);
+  return sourceData.pins?.find((p: PinpanionPin) => p.id.toString() === id?.toString());
 };
 
 const getObjectForId = (sourceData: PinpanionData, id: string): Pin => {
@@ -114,7 +114,7 @@ const getObjectForId = (sourceData: PinpanionData, id: string): Pin => {
   if (sourcePin) {
     return convertToDisplayPin(sourcePin);
   }
-  throw new Error(`Couldn't find pin for id ${id}`);
+  throw new Error(`Couldn't find pin for ${typeof id} id ${id}`);
 };
 
 const datasourceConvertor = <PinpanionData>(inputData: any): PinpanionData => {

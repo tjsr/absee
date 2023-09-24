@@ -28,9 +28,27 @@ export const createComparisonSelectionResponse = <T>(
   comparisonRequest: ComparisonModel,
   loader: CollectionTypeLoader<T, any>
 ): ComparisonSelectionResponse<T> => {
+  let a!: ComparableObjectResponse<T>;
+
+  let errorString: string|undefined = undefined;
+  try {
+    a = createComparableObjectResponse(comparisonRequest.a, loader);
+  } catch (err: any) {
+    errorString = `Failed while getting object a: ${err.message}\n`;
+  }
+
+  let b!: ComparableObjectResponse<T>;
+  try {
+    b = createComparableObjectResponse(comparisonRequest.b, loader);
+  } catch (err: any) {
+    errorString = (errorString ? errorString : '') + `Failed while getting object b: ${err.message}\n`;
+  }
+  if (errorString) {
+    throw new Error(errorString);
+  }
   return {
-    a: createComparableObjectResponse(comparisonRequest.a, loader),
-    b: createComparableObjectResponse(comparisonRequest.b, loader),
+    a: a,
+    b: b,
     id: comparisonRequest.id.toString(),
     userId: comparisonRequest.userId.toString(),
   };
