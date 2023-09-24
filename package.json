@@ -85,7 +85,7 @@
   },
   "dependencies": {
     "@prisma/client": "^4.16.2",
-    "@react-spring/web": "^9.7.1",
+    "@react-spring/web": "^9.7.3",
     "@use-gesture/react": "^10.2.27",
     "axios": "^1.4.0",
     "cookie-parser": "^1.4.6",
@@ -110,10 +110,10 @@
     "session": "^0.1.0",
     "snowflake-uuid": "^1.0.0",
     "styled-components": "^5.3.9",
-    "superjson": "^1.12.2",
+    "superjson": "^1.13.1",
     "title-case": "^3.0.3",
-    "uuid": "^9.0.0",
-    "web-vitals": "^3.3.0"
+    "uuid": "^9.0.1",
+    "web-vitals": "^3.4.0"
   },
   "browserslist": {
     "production": [
