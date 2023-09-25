@@ -62,12 +62,12 @@ export const countPinsInCollection = (
 };
 
 const convertPaxIdToPaxName = (paxId: number): string => {
-  const pax: PAX | undefined = paxs?.find((p) => p.id == paxId);
+  const pax: PAX | undefined = paxs?.find((p) => p.id.toString() === paxId?.toString());
   return pax ? pax.name : 'Unknown';
 };
 
 const getPinSetName = (setId: number): string | undefined => {
-  const set: PinSet | undefined = sets?.find((ps) => ps.id == setId);
+  const set: PinSet | undefined = sets?.find((ps) => ps.id?.toString() === setId?.toString());
   if (set) {
     return set.name;
   }
@@ -118,7 +118,7 @@ const getObjectForId = (sourceData: PinpanionData, id: string): Pin => {
 };
 
 const datasourceConvertor = <PinpanionData>(inputData: any): PinpanionData => {
-  paxs = inputData.paxs;
+  paxs = inputData.pax;
   sets = inputData.sets;
   return inputData;
 };
