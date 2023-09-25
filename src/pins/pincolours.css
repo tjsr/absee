@@ -86,3 +86,8 @@
 .pinSouth {
   border-color: var(--pax-colour-south)
 }
+
+.pax, .set {
+  height: 2rem;
+  width: 10rem;
+}
