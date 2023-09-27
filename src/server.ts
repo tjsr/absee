@@ -8,6 +8,7 @@ import cors from 'cors';
 import { debugHeaders } from './api/debugHeaders';
 import express from 'express';
 import { getSession } from './sessions/getSession';
+import { initialisePassportToExpressApp } from './auth/passport';
 import { login } from './api/login';
 import { logout } from './api/logout';
 import morgan from 'morgan';
@@ -62,7 +63,7 @@ export const startApp = (): express.Express => {
   app.use(getSession(mysqlSessionStore));
   app.use(useSessionId);
 
-  // initialisePassportToExpressApp(app);
+  initialisePassportToExpressApp(app);
 
   app.use(
     express.urlencoded({

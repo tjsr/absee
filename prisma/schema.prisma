@@ -14,6 +14,9 @@ datasource db {
 model User {
   id BigInt @id
   email String @unique
+
+  google_id String
+  display_name String @db.VarChar(255)
 }
 
 model Comparison {

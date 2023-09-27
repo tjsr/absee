@@ -6,6 +6,7 @@ import {
   EmailAddress,
   SnowflakeType
 } from '../types';
+import { CredentialResponse, GoogleLogin } from '@react-oauth/google';
 import React, { useEffect, useState } from 'react';
 import { fetchNewComparison, fetchNewSession, submitComparisonChoice } from './comparisonChoice';
 
@@ -13,7 +14,6 @@ import Cookies from 'js-cookie';
 import { DualSwiper } from './components';
 // import { DualSwiper } from '@tjsr/abswipe';
 import { FreeformEmailLoginBox } from './freeformEmailLogin';
-import { GoogleLoginBox } from './googleLogin';
 import { InfoBlurb } from './InfoBlurb';
 import { Pin } from '../pins/pinpanion';
 import { PinCollection } from '../pins/pincollection';
@@ -26,7 +26,7 @@ const Frontend = <T extends unknown>(): JSX.Element => {
   const [comparison, setComparison] = useState<ComparisonSelectionResponse<T> | undefined>(undefined);
   const [comparisonLoaded, setComparisonLoaded] = useState<boolean>(false);
   const [comparisonLoading, setComparisonLoading] = useState<boolean>(false);
-  const fakeEmails = true;
+  const fakeEmails = false;
   const collectionId = '83fd0b3e-dd08-4707-8135-e5f138a43f00';
   // const isMobile = (): boolean => {
 
@@ -91,7 +91,24 @@ const Frontend = <T extends unknown>(): JSX.Element => {
 
   return (
     <>
-      {fakeEmails ? <FreeformEmailLoginBox /> : <GoogleLoginBox />}
+      {isLoggedIn ? (
+        <div>
+          {/* Display content for logged in users */}
+          <p>You are logged in!</p>
+        </div>
+      ) : (
+        fakeEmails ? <FreeformEmailLoginBox /> : <GoogleLogin
+          onSuccess={(credentialResponse: CredentialResponse) => {
+            console.log(credentialResponse);
+            setEmail(credentialResponse.credential);
+            setLoggedIn(true);
+          }}
+          onError={() => {
+            setLoggedIn(false);
+            console.log('Login Failed');
+          }}
+        />
+      )}
       <div className="devOptions">
         <div>
           <label htmlFor="enableMobile">Enable swipe mode</label>
