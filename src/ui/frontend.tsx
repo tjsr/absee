@@ -38,12 +38,12 @@ const Frontend = <T extends unknown>(): JSX.Element => {
   const [email, setEmail] = useState<EmailAddress | undefined>(undefined);
 
   const selectElement = async (elementId: SnowflakeType): Promise<void> => {
-    console.log(`Selected element ${elementId} for comparison ${comparison?.id}`);
     const result: RestCallResult = await submitComparisonChoice(comparison!, elementId);
     if (result.success) {
       setComparisonLoaded(false);
-      console.log(`Successfully submitted choice of ${elementId} for comparison ${comparison!.id}`);
+      console.debug(`Successfully submitted choice of ${elementId} for comparison ${comparison!.id}`);
     } else {
+      console.warn(`Failed selecting element ${elementId} for comparison ${comparison?.id}`);
       throw new Error(`Failed with HTTP status ${result.status}`);
     }
   };

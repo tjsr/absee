@@ -1,6 +1,7 @@
 import { Strategy as GoogleStrategy, Profile } from 'passport-google-oauth20';
 import express, { Request, Response } from 'express';
 
+import { ABSeeRequest } from '../session';
 import { getConnectionPool } from '../database/mysqlConnections';
 import passport from 'passport';
 import { requireEnv } from '../utils';
@@ -85,10 +86,12 @@ export const initialisePassportToExpressApp = (app: express.Express) => {
   app.get(
     '/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/login' }),
-    (req: Request, res: Response) => {
+    (req: ABSeeRequest, res: Response) => {
       // User has been authenticated, store user data in session
       // req.session.userId = req.user.id;
       // req.session.username = req.user.displayName;
+      // req.session.accessToken
+      console.log(JSON.stringify(req.user));
 
       return res.redirect('/');
     }
