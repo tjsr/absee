@@ -98,6 +98,7 @@ const Frontend = <T extends unknown>(): JSX.Element => {
         </div>
       ) : (
         fakeEmails ? <FreeformEmailLoginBox /> : <GoogleLogin
+          ux_mode="redirect"
           onSuccess={(credentialResponse: CredentialResponse) => {
             console.log(credentialResponse);
             setEmail(credentialResponse.credential);
