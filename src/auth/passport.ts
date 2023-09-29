@@ -104,4 +104,9 @@ export const initialisePassportToExpressApp = (app: express.Express) => {
     function(req, res) {
       res.redirect('/');
     });
+
+  app.post('/', (request: ABSeeRequest, response: Response) => {
+    console.info(JSON.stringify(request));
+    response.redirect('/');
+  });
 };
