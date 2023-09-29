@@ -28,10 +28,12 @@ export const initialisePassportToExpressApp = (app: express.Express) => {
         profile: Profile,
         done: (error: Error | null, user?: object) => void
       ) => {
+        console.log(`Getting database connection...`);
         // This function is called when the user is authenticated
         // You can do additional validation or store user data here
         getConnectionPool().getConnection((err, conn) => {
           if (err) {
+            console.error(`Failed getting connection to check for existing user.`);
             return done(err);
           }
 
