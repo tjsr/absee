@@ -8,7 +8,7 @@ export const useSessionId = (
   res: express.Response,
   next: () => void
 ) => {
-  const sessionId = req.header('x-session-id');
+  const sessionId = req.header('x-session-id') || req.session.id;
   if (sessionId && sessionId !== 'undefined') {
     if (!req.sessionID) {
       req.sessionID = sessionId;
@@ -31,13 +31,13 @@ export const useSessionId = (
       next();
     });
   } else {
-    if (req.session.userId == undefined) {
-      const userId: uuid5 = createRandomUserId();
-      console.log(
-        `Assigned a new userId ${userId} to session ${req.session.id}`
-      );
-      req.session.userId = userId;
-    }
+    // if (req.session.userId == undefined) {
+    const userId: uuid5 = createRandomUserId();
+    console.log(
+      `Assigned a new userId ${userId} to session ${req.session.id}`
+    );
+    req.session.userId = userId;
+    // }
 
     next();
   }

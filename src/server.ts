@@ -1,12 +1,12 @@
 import * as dotenv from 'dotenv';
 
 import { ABSeeRequest, mysqlSessionStore } from './session';
+import express, { NextFunction } from 'express';
 
 import { IPAddress } from './types';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import { debugHeaders } from './api/debugHeaders';
-import express from 'express';
 import { getSession } from './sessions/getSession';
 import { initialisePassportToExpressApp } from './auth/passport';
 import { login } from './api/login';
@@ -19,6 +19,8 @@ import { submit } from './api/submit';
 import { useSessionId } from './sessions/useSessionId';
 
 dotenv.config();
+
+const PINNY_ARCADE_DEV_COLLECTION_ID ='83fd0b3e-dd08-4707-8135-e5f138a43f00';
 
 const morganLog = morgan('common');
 // process.env.PRODUCTION =='true' ? 'common' : 'dev'
@@ -80,8 +82,8 @@ export const startApp = (): express.Express => {
     '/collection/:collectionId',
     async (request: ABSeeRequest, response: express.Response) => {
       const collectionId = request.params.collectionId;
-      if (collectionId == '83fd0b3e-dd08-4707-8135-e5f138a43f00') {
-        await serveComparison(request, response, '83fd0b3e-dd08-4707-8135-e5f138a43f00');
+      if (collectionId == PINNY_ARCADE_DEV_COLLECTION_ID) {
+        await serveComparison(request, response, PINNY_ARCADE_DEV_COLLECTION_ID);
       } else {
         response.status(401);
         response.end();
@@ -90,8 +92,10 @@ export const startApp = (): express.Express => {
   );
   app.post('/submit', submit);
 
-  app.use((req, res, next) => {
-    res.set('Set-Cookie', `sessionId=${req.session.id}`);
+  app.use((req: ABSeeRequest, res: express.Response, next: NextFunction) => {
+    if (!res.headersSent) {
+      res.set('Set-Cookie', `sessionId=${req.session.id}`);
+    }
     next();
   });
 

@@ -6,7 +6,7 @@ import {
   EmailAddress,
   SnowflakeType
 } from '../types';
-import { CredentialResponse, GoogleLogin } from '@react-oauth/google';
+import { CredentialResponse, GoogleLogin, TokenResponse, useGoogleLogin } from '@react-oauth/google';
 import React, { useEffect, useState } from 'react';
 import { fetchNewComparison, fetchNewSession, submitComparisonChoice } from './comparisonChoice';
 
@@ -37,12 +37,19 @@ const Frontend = <T extends unknown>(): JSX.Element => {
   const [isLoggedIn, setLoggedIn] = useState<boolean>(false);
   const [email, setEmail] = useState<EmailAddress | undefined>(undefined);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const login = useGoogleLogin({
+    onSuccess: (tokenResponse: Omit<TokenResponse, 'error' | 'error_description' | 'error_uri'>) =>
+      console.log(`Google login success with token: ${tokenResponse}`),
+  });
+
   const selectElement = async (elementId: SnowflakeType): Promise<void> => {
     const result: RestCallResult = await submitComparisonChoice(comparison!, elementId);
     if (result.success) {
       setComparisonLoaded(false);
       console.debug(`Successfully submitted choice of ${elementId} for comparison ${comparison!.id}`);
     } else {
+      setComparisonLoaded(false);
       console.warn(`Failed selecting element ${elementId} for comparison ${comparison?.id}`);
       throw new Error(`Failed with HTTP status ${result.status}`);
     }
@@ -89,6 +96,17 @@ const Frontend = <T extends unknown>(): JSX.Element => {
     }
   };
 
+  // const googleSuccess = (resp: CredentialResponse) => {
+  //   let decoded = jwt_decode(resp?.credential);
+  //   const email = decoded?.email;
+  //   const name = decoded?.name;
+  //   const token = resp?.tokenId;
+  //   const googleId = resp?.googleId;
+  //   const result = { email, name, token, googleId };
+  //   dispatch(googleLogin({ result, navigate, toast }));
+  //   console.log(result);
+  // };
+
   return (
     <>
       {isLoggedIn ? (
@@ -103,6 +121,7 @@ const Frontend = <T extends unknown>(): JSX.Element => {
             console.log(credentialResponse);
             setEmail(credentialResponse.credential);
             setLoggedIn(true);
+            // googleSuccess(credentialResponse);
           }}
           onError={() => {
             setLoggedIn(false);

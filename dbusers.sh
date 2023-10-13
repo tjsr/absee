@@ -5,18 +5,10 @@ if [ "$1" = "" ]; then
 else
   OUTPUT_FILE=$1
 fi
-TMP_FILE=$OUTPUT_FILE.tmp
 
-PRISMA_PASSWORD=$(head -c 18 /dev/urandom | base64)
-MYSQL_PASSWORD=$(head -c 18 /dev/urandom | base64)
+source $OUTPUT_FILE
 
-rm -f $TMP_FILE
-mv $OUTPUT_FILE $TMP_FILE
-cat $TMP_FILE | sed "s/^MYSQL_PASSWORD=/#MYSQL_PASSWORD=/g" | sed "s/^PRISMA_PASSWORD=/#PRISMA_PASSWORD=/g" >$OUTPUT_FILE
-rm $TMP_FILE
-
-echo "PRISMA_PASSWORD=$PRISMA_PASSWORD" >>$OUTPUT_FILE
-echo "MYSQL_PASSWORD=$MYSQL_PASSWORD" >>$OUTPUT_FILE
+echo From environment file $OUTPUT_FILE
 
 export $(cat $OUTPUT_FILE | grep -v '^#' | xargs) && envsubst <scripts/privs.api.template
 export $(cat $OUTPUT_FILE | grep -v '^#' | xargs) && envsubst <scripts/privs.prisma.template

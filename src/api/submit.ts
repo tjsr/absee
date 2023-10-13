@@ -1,14 +1,14 @@
 import { IPAddress, UserId } from '../types';
+import express, { NextFunction } from 'express';
 
 import { ABSeeRequest } from '../session';
-import express from 'express';
 import { getIp } from '../server';
 import { getUserId } from '../auth/user';
 import { isSnowflake } from '../validate';
 import { saveComparisonSelection } from '../comparisonresponse';
 import { verifyComparisonOwner } from '../comparison';
 
-export const submit = (request: ABSeeRequest, response: express.Response) => {
+export const submit = (request: ABSeeRequest, response: express.Response, next: NextFunction) => {
   try {
     // const comparisonId = request.params.comparisonId;
     const userId: UserId = getUserId(request);
@@ -57,8 +57,10 @@ export const submit = (request: ABSeeRequest, response: express.Response) => {
     // getComparisonData(comparisonId);
     // verify that this comparison has the correct owner
     // verify that it comes from the same IP
+    next();
   } catch (err) {
     console.error(`Failure in POST /submit`, err);
+    next();
   } finally {
     response.end();
   }

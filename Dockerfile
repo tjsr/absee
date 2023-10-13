@@ -9,27 +9,29 @@ WORKDIR /opt/absee
 
 FROM absee-build-preflight as absee-build
 
-COPY src/ /opt/absee/src
-COPY public/ /opt/absee/public
 COPY package*.json /opt/absee
-COPY index.ts /opt/absee
-COPY .eslintrc.json /opt/absee
+COPY .npmrc /opt/absee
+RUN npm i
+
 COPY babel.config.js /opt/absee
 COPY tsconfig.json /opt/absee
-COPY .npmrc /opt/absee
-
-RUN npm i && npm run build
+COPY .eslintrc.json /opt/absee
+COPY public/ /opt/absee/public
+COPY index.ts /opt/absee
+COPY src/ /opt/absee/src
+RUN npm run build
 
 FROM absee-build-preflight as absee
 
 COPY package*.json /opt/absee
 COPY .npmrc /opt/absee
 
-RUN npm i --production
+RUN npm i --production && npm i source-map-support
 COPY --from=absee-build /opt/absee/dist /opt/absee/dist
 COPY --from=absee-build /opt/absee/build /opt/absee/dist/build
 WORKDIR /opt/absee/dist
+RUN mkdir /opt/certs
 
 EXPOSE 8280
 
-CMD ["node", "index.js"]
+CMD ["node", "-r", "source-map-support/register", "index.js"]

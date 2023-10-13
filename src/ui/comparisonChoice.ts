@@ -58,13 +58,14 @@ export const submitComparisonChoice = async <T>(
   elementId: SnowflakeType
 ): Promise<RestCallResult> => {
   let httpStatus = 0;
+  const submitUrl = `${getServerHost()}/submit`;
   try {
     const sessionId = Cookies.get('sessionId');
     const postBody: ComparisonSubmissionRequestBody = {
       comparisonId: comparison.id,
       selectedElementId: elementId,
     };
-    const response = await fetch(`${getServerHost()}/submit`, {
+    const response = await fetch(submitUrl, {
       body: JSON.stringify(postBody),
       headers: {
         // 'Accept': 'application/json',
@@ -77,7 +78,7 @@ export const submitComparisonChoice = async <T>(
     const json = await response.json();
     return { data: json, status: httpStatus, success: true };
   } catch (error) {
-    console.log(error);
+    console.log(`Failed while fetching ${submitUrl}`, error);
     return { status: httpStatus, success: false };
   }
 };

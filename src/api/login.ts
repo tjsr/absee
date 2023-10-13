@@ -30,6 +30,7 @@ export const login = async (req: ABSeeRequest, res: express.Response) => {
       });
 
       res.statusCode = 403;
+      console.error(`User tried to log in with invalid email ${email}`);
       return res.send({ message: 'Invalid email' });
     }
 
@@ -52,9 +53,11 @@ export const login = async (req: ABSeeRequest, res: express.Response) => {
       }
     });
 
+    console.log(`Logged in user ${email} and sent HTTP 200 status with result body.`);
     res.status(200);
     res.send(result);
   } catch (e) {
+    console.warn(`Failed logging in user and sent HTTP 500 status with empty body`);
     res.status(500);
     console.log(e);
     res.send();
