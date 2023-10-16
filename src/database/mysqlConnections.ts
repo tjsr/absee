@@ -36,6 +36,7 @@ export const getConnection = async (): Promise<PoolConnection> => {
   return new Promise((resolve, reject) => {
     connectionPool.getConnection((err, connection) => {
       if (err) {
+        connection.release();
         reject(err);
       } else {
         resolve(connection);

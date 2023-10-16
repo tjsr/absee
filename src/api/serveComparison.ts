@@ -1,5 +1,6 @@
 import { CollectionIdType, ComparisonSelectionResponse, SnowflakeType, UserId } from '../types';
 import { ComparableObjectModel, ComparisonModel } from '../types/model';
+import { getUserId, getUserIdentificationString } from '../auth/user';
 
 import { CollectionTypeLoader } from '../datainfo';
 import SuperJSON from 'superjson';
@@ -11,7 +12,6 @@ import express from 'express';
 import { getIp } from '../server';
 import { getLoader } from '../loaders';
 import { getSnowflake } from '../snowflake';
-import { getUserId } from '../auth/user';
 import { storeComparisonRequest } from '../comparison';
 
 export const serveComparison = async <T, D>(
@@ -21,9 +21,10 @@ export const serveComparison = async <T, D>(
 ) => {
   try {
     const userId: UserId = getUserId(request);
+    const idString: string = getUserIdentificationString(request);
     const ipAddress = getIp(request);
     const comparisonId: SnowflakeType = getSnowflake();
-    console.log(`Serving comparison request to userId ${userId}`);
+    console.log(`Serving comparison request to userId ${userId} (${idString})`);
 
     const loader: CollectionTypeLoader<T, D> = await getLoader(loaderId);
 

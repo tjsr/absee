@@ -1,8 +1,7 @@
+import { ABSeeRequest, ABSeeSessionData } from '../session';
 import { Strategy as GoogleStrategy, Profile } from 'passport-google-oauth20';
-import express, { NextFunction, Request, Response } from 'express';
+import express, { NextFunction, Response } from 'express';
 
-import { ABSeeRequest } from '../session';
-import { User } from '@prisma/client';
 import { getConnectionPool } from '../database/mysqlConnections';
 import passport from 'passport';
 import { requireEnv } from '../utils';
@@ -20,6 +19,37 @@ const cachedGoogleUsers: Map<string, any> = new Map<string, any>();
 const cacheGoogleUser = (user: any): void => {
   const googleId = user.google_id;
   cachedGoogleUsers.set(googleId, user);
+};
+
+const createUserIdFromEmail = (profile: Profile, id: string): Promise<any> => {
+  const displayName = getDisplayNameFromProfile(profile);
+  const newUser = {
+    display_name: displayName,
+    email: profile.emails && profile.emails.length > 0 ? profile.emails[0].value : null,
+    google_id: id,
+  };
+
+  const promise = new Promise<any>((resolve, reject) => {
+    getConnectionPool().getConnection((err, conn) => {
+      if (err) {
+        console.error(`Failed getting connection to check for existing user.`);
+        conn.release();
+        return reject(err);
+      }
+      conn.query('INSERT INTO User SET ?', newUser, (err) => {
+        if (err) {
+          console.error(`User profile was ${JSON.stringify(newUser)}`);
+          conn.release();
+          return reject(err);
+        }
+
+        // User has been created, pass the user object to Passport
+        conn.release();
+        return resolve(newUser);
+      });
+    });
+  });
+  return promise;
 };
 
 export const initialisePassportToExpressApp = (app: express.Express) => {
@@ -40,50 +70,26 @@ export const initialisePassportToExpressApp = (app: express.Express) => {
         profile: Profile,
         done: (error: Error | null, user?: object) => void
       ) => {
-        console.log(`Getting database connection...`);
-        // This function is called when the user is authenticated
-        // You can do additional validation or store user data here
-        getConnectionPool().getConnection((err, conn) => {
-          if (err) {
-            console.error(`Failed getting connection to check for existing user.`);
-            conn.release();
-            return done(err);
-          }
-
-          const googleId: string = profile.id;
-
-          conn.query('SELECT * FROM User WHERE google_id = ?', [googleId], (_err, rows) => {
-            if (rows.length > 0) {
-              console.log(`Found user for googleId=${googleId} in passport.use, caching`);
-              cacheGoogleUser(rows[0]);
-              // User exists, pass the user object to Passport
-              conn.release();
-              return done(null, rows[0]);
-            } else {
-              // User does not exist, create a new user in the database
-              const displayName = getDisplayNameFromProfile(profile);
-              const newUser = {
-                display_name: displayName,
-                email: profile.emails && profile.emails.length > 0 ? profile.emails[0].value : null,
-                google_id: googleId,
-              };
-
-              conn.query('INSERT INTO User SET ?', newUser, (err) => {
-                if (err) {
-                  console.error(`User profile was ${JSON.stringify(profile)}`);
-                  conn.release();
-                  return done(err);
-                }
-
-                // User has been created, pass the user object to Passport
-                conn.release();
-                return done(null, newUser);
-              });
+        if (cachedGoogleUsers.has(profile.id)) {
+          console.log(`Got cached google user for googleId=${profile.id} in GoogleStrategy`);
+          return done(null, cachedGoogleUsers.get(profile.id));
+        } else {
+          console.log(`Getting database connection...`);
+          // This function is called when the user is authenticated
+          // You can do additional validation or store user data here
+          const id: string = profile.id;
+          retrieveUserByGenericId(id).then((user: Profile) => {
+            if (user !== null) {
+              return done(null, user);
             }
-          });
-        });
+            // User does not exist, create a new user in the database
 
-        return done(null, profile);
+            createUserIdFromEmail(profile, id).then((newUser: any) => {
+              return done(null, newUser);
+            });
+          });
+          return done(null, profile);
+        }
       }
     )
   );
@@ -94,56 +100,75 @@ export const initialisePassportToExpressApp = (app: express.Express) => {
     done(null, user.id);
   });
 
-  passport.deserializeUser((googleId: string, done: (error: Error | null, user?: Profile) => void) => {
-    // Look up user by id
-    try {
-      if (cachedGoogleUsers.has(googleId)) {
-        console.log(`Got user id ${googleId} from cache`);
-        done(null, cachedGoogleUsers.get(googleId));
-      } else {
-        let idtype = 'googleId';
-        let id:number|string|undefined = undefined;
-        if ((typeof googleId === 'number' && googleId < 100000) || googleId?.length < 6) {
-          idtype = 'id';
-          id = googleId;
+  const retrieveUserById = (id: string): Promise<Profile> => {
+    const promise = new Promise<any>((resolve, reject) => {
+      getConnectionPool().getConnection((err, conn) => {
+        if (err) {
+          console.error(`Failed getting connection to check for existing user.`);
+          conn.release();
+          return reject(err);
         }
 
-        console.log(`Looking up user for ${idtype}=${googleId} from database during deserialize`);
-        // const userProfile: any = { displayName: 'Alice', id: id }; // Replace with actual user data lookup
-        getConnectionPool().getConnection((err, conn) => {
-          if (err) {
-            console.error(`Failed getting connection to check for existing user.`);
-            return done(err);
-          }
-
-          const processResult = (field: string, id: string|number, _err: any, rows: User[]): void => {
-            if (rows.length > 0) {
-              // User exists, pass the user object to Passport
-              console.log(`Found user for ${field}=${id} when deserializing`);
-              cacheGoogleUser(rows[0]);
-              const profile: Profile|any = { ...rows[0] };
+        conn.query('SELECT id, email, display_name, google_id FROM User WHERE id = ?',
+          [id], (_err, rows) => {
+            if (rows.length === 0) {
               conn.release();
-              return done(null, profile);
-            } else {
-              const errMessage = `Failed to find user for ${field}=${id}`;
-              console.log(errMessage);
-              conn.release();
-              done(new Error(errMessage), undefined);
+              return resolve(null);
             }
-          };
-          if (idtype === 'id') {
-            // id a userId in the User table is not a google id.
-            conn.query('SELECT id, email, display_name, google_id FROM User WHERE id = ?',
-              [id!], (_err, rows) => processResult('id', id!, _err, rows));
-          } else {
-            conn.query('SELECT id, email, display_name, google_id FROM User WHERE google_id = ?',
-              [googleId], (_err, rows) => processResult('googleId', googleId, _err, rows));
-          }
-          // done(null, userProfile);
-        });
-      }
-    } catch (err: any) {
-      done(err);
+            cacheGoogleUser(rows[0]);
+            const profile: Profile|any = { ...rows[0] };
+            console.log(`Found user ${profile.email} for id=${id} when deserializing`);
+            conn.release();
+            return resolve(profile);
+          });
+      });
+    });
+    return promise;
+  };
+
+  const retrieveUserByGoogleId = (googleId: string): Promise<Profile> => {
+    const promise = new Promise<any>((resolve, reject) => {
+      getConnectionPool().getConnection((err, conn) => {
+        if (err) {
+          console.error(`Failed getting connection to check for existing user.`);
+          conn.release();
+          return reject(err);
+        }
+
+        conn.query('SELECT id, email, display_name, google_id FROM User WHERE google_id = ?',
+          [googleId], (_err, rows) => {
+            cacheGoogleUser(rows[0]);
+            const profile: Profile|any = { ...rows[0] };
+            console.log(`Found user ${profile.email} for googleId=${googleId} when deserializing`);
+            conn.release();
+            return resolve(profile);
+          });
+      });
+    });
+    return promise;
+  };
+
+  const isGoogleId = (id: string): boolean => {
+    return (typeof id === 'number' && id >= 100000) || id?.length > 6;
+  };
+
+  const retrieveUserByGenericId = (id: string): Promise<Profile> => {
+    return isGoogleId(id) ?
+      retrieveUserByGoogleId(id) : retrieveUserById(id);
+  };
+
+  passport.deserializeUser((googleId: string, done: (error: Error | null, user?: Profile) => void) => {
+    // Look up user by id
+    if (cachedGoogleUsers.has(googleId)) {
+      console.log(`Got user googleId=${googleId} from cache`);
+      done(null, cachedGoogleUsers.get(googleId));
+    } else {
+      retrieveUserByGenericId(googleId).then((user: Profile) => {
+        done(null, user);
+      }).catch((err) => {
+        console.error(`Failed to find user for googleId=${googleId}`);
+        done(err);
+      });
     }
   });
 
@@ -157,12 +182,19 @@ export const initialisePassportToExpressApp = (app: express.Express) => {
   app.get(
     '/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/login' }),
-    (req: ABSeeRequest, res: Response, _next ): void => {
+    (req: ABSeeRequest, res: Response, _next: NextFunction ): void => {
       // User has been authenticated, store user data in session
-      // (req as any).session.passport.user;
-      (req as any).session.userId = (req as any).user?.id;
-      (req as any).session.username = (req as any).user.displayName;
-      (req as any).session.accessToken = (req as any).user?.accessToken;
+      // (req as any).session.passport.user
+      const user: Express.User|undefined = req.user;
+      const session: ABSeeSessionData = req.session as ABSeeSessionData;
+      // user.displayName;
+      if (user) {
+        const userId: string = (user as any).id;
+        session.userId = userId;
+        session.username = (user as any).displayName;
+        session.accessToken = (user as any).accessToken;
+        console.log(`Setting userId in callback to ${userId} for session=${req.session.id}`);
+      }
       console.log('User info in /auth/google/callback:' + JSON.stringify(req.user));
 
       return res.redirect(SERVER_PREFIX + '/');
@@ -200,7 +232,7 @@ export const initialisePassportToExpressApp = (app: express.Express) => {
         query: req.query,
         url: req.url,
       });
-      console.info(reqData);
+      console.info('Got authentication request, redirecting to /', reqData);
       response.redirect(SERVER_PREFIX + '/');
     });
 

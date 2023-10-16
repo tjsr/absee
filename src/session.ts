@@ -5,15 +5,19 @@ import { EmailAddress, UserId } from './types';
 import { Session, SessionData } from 'express-session';
 import mySQLStore, { MySQLStore } from 'express-mysql-session';
 
+import { Profile } from 'passport';
 import { getConnectionPool } from './database/mysqlConnections';
 
 export interface ABSeeSessionData extends SessionData {
   userId: UserId;
   email: EmailAddress;
+  username: string;
+  accessToken: string;
 }
 
 export interface ABSeeRequest extends Express.Request {
   session: Session & Partial<ABSeeSessionData>;
+  // user?: Profile;
 }
 
 const sessionStoreOptions: mySQLStore.Options = {

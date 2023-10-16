@@ -32,8 +32,8 @@ export const getSession = (useSessionStore: expressSession.Store = memoryStore) 
       ) {
         return sessionIdHeader;
       }
-      if (req.sessionID) {
-        return req.sessionID;
+      if (req.session?.id) {
+        return req.session.id;
       }
       const cookieValue = req.cookies?.sessionId;
       if (cookieValue !== undefined && cookieValue !== 'undefined') {

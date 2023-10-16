@@ -22,8 +22,26 @@ export const getUserId = (request: ABSeeRequest): UserId => {
   } else if (!request.session) {
     throw new Error('No session');
   } else {
-    request.session.userId = createRandomUserId();
+    const userId: UserId = createRandomUserId();
+    console.log(`Generated new userId ${userId}`);
+    request.session.userId = userId;
     request.session.save();
+    return request.session.userId;
+  }
+};
+
+export const getUserIdentificationString = (request: ABSeeRequest): string => {
+  if (request.session && (request.user as any)?.displayName) {
+    return (request.user as any).displayName;
+    // console.log('Got a session for current call');
+    // return request.session.userId;
+  } else if (!request.session) {
+    throw new Error('No session');
+  } else {
+    if (request.session.userId === undefined) {
+      request.session.userId = createRandomUserId();
+      request.session.save();
+    }
     return request.session.userId;
   }
 };

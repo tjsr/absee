@@ -10,9 +10,9 @@ export const useSessionId = (
 ) => {
   const sessionId = req.header('x-session-id') || req.session.id;
   if (sessionId && sessionId !== 'undefined') {
-    if (!req.sessionID) {
-      req.sessionID = sessionId;
-    }
+    // if (!req.sessionID) {
+    //   req.session.id = sessionId;
+    // }
     // retrieve session from session store using sessionId
     req.sessionStore.get(sessionId, (err, sessionData) => {
       if (!err) {

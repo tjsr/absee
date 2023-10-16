@@ -66,7 +66,7 @@ export const verifyComparisonOwner = async (
         if (response.userId != userId) {
           reject(
             new Error(
-              'Response came from a different user than comparison was issued for'
+              `Response came from a different user (${response.userId}) than comparison was issued for (${userId})`
             )
           );
         }

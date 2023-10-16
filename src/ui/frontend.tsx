@@ -20,6 +20,7 @@ import { PinCollection } from '../pins/pincollection';
 import { RestCallResult } from '../types/apicalls';
 import SuperJSON from 'superjson';
 import { isMobile } from 'react-device-detect';
+import jwt_decode from 'jwt-decode';
 
 // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-constraint
 const Frontend = <T extends unknown>(): JSX.Element => {
@@ -38,9 +39,11 @@ const Frontend = <T extends unknown>(): JSX.Element => {
   const [email, setEmail] = useState<EmailAddress | undefined>(undefined);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const login = useGoogleLogin({
-    onSuccess: (tokenResponse: Omit<TokenResponse, 'error' | 'error_description' | 'error_uri'>) =>
-      console.log(`Google login success with token: ${tokenResponse}`),
+  useGoogleLogin({
+    onSuccess: (tokenResponse: Omit<TokenResponse, 'error' | 'error_description' | 'error_uri'>) => {
+      const decodedJwt = jwt_decode(tokenResponse.access_token);
+      console.log(`Google login success with token: ${tokenResponse}`);
+    },
   });
 
   const selectElement = async (elementId: SnowflakeType): Promise<void> => {
@@ -118,7 +121,7 @@ const Frontend = <T extends unknown>(): JSX.Element => {
         fakeEmails ? <FreeformEmailLoginBox /> : <GoogleLogin
           ux_mode="redirect"
           onSuccess={(credentialResponse: CredentialResponse) => {
-            console.log(credentialResponse);
+            console.log('Logged in to google with credential: ', credentialResponse);
             setEmail(credentialResponse.credential);
             setLoggedIn(true);
             // googleSuccess(credentialResponse);
