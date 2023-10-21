@@ -132,5 +132,5 @@ export const loader: CollectionTypeLoader<Pin, PinpanionData> = {
   getObjectByIndex: getObjectForIndex,
   getObjectForId: getObjectForId,
   getObjectId: getObjectId,
-  maxElementsPerComparison: 1,
+  maxElementsPerComparison: 3,
 };
