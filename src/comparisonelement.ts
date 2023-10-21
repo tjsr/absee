@@ -15,7 +15,8 @@ export const storeComparisonElement = async (
   };
   return basicMySqlInsert(
     'ComparisonElement',
-    ['id', 'comparisonId', 'elementId', 'objectId'],
+    // ['id', 'comparisonId', 'elementId', 'objectId'],
+    ['comparisonId', 'elementId', 'id', 'objectId'],
     postRequest
   );
 };
