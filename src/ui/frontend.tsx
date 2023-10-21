@@ -6,13 +6,12 @@ import {
   EmailAddress,
   SnowflakeType
 } from '../types';
-import { CredentialResponse, GoogleLogin, TokenResponse, useGoogleLogin } from '@react-oauth/google';
+import { CredentialResponse, GoogleLogin, TokenResponse, googleLogout, useGoogleLogin } from '@react-oauth/google';
 import React, { useEffect, useState } from 'react';
 import { fetchNewComparison, fetchNewSession, submitComparisonChoice } from './comparisonChoice';
 
 import Cookies from 'js-cookie';
 import { DualSwiper } from './components';
-// import { DualSwiper } from '@tjsr/abswipe';
 import { FreeformEmailLoginBox } from './freeformEmailLogin';
 import { InfoBlurb } from './InfoBlurb';
 import { Pin } from '../pins/pinpanion';
@@ -21,6 +20,16 @@ import { RestCallResult } from '../types/apicalls';
 import SuperJSON from 'superjson';
 import { isMobile } from 'react-device-detect';
 import jwt_decode from 'jwt-decode';
+
+const getCookieUserId = (): string | undefined => {
+  const userIdValue: string|undefined = Cookies.get('user_id');
+  if (userIdValue === 'undefined') {
+    return undefined;
+  }
+  return userIdValue;
+};
+
+// import { DualSwiper } from '@tjsr/abswipe';
 
 // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-constraint
 const Frontend = <T extends unknown>(): JSX.Element => {
@@ -66,12 +75,16 @@ const Frontend = <T extends unknown>(): JSX.Element => {
         await fetchNewSession();
       }
 
-      const isLoggedIn = Cookies.get('isLoggedIn');
-      const cookieEmail = Cookies.get('email');
-      if (isLoggedIn === 'true' && cookieEmail !== undefined) {
+      const userId = getCookieUserId();
+      console.log(`User ID: ${userId}`);
+      if (userId) {
         setLoggedIn(true);
-        setEmail(cookieEmail);
       }
+
+      const cookieEmail = Cookies.get('email') || Cookies.get('displayName');
+      console.log(`Email: ${cookieEmail} (as cookie: ${Cookies.get('displayName')})`);
+      setEmail(cookieEmail);
+
       if (!comparisonLoading && !comparisonLoaded) {
         setComparisonLoading(true);
         setComparisonLoaded(false);
@@ -115,7 +128,15 @@ const Frontend = <T extends unknown>(): JSX.Element => {
       {isLoggedIn ? (
         <div>
           {/* Display content for logged in users */}
-          <p>You are logged in!</p>
+          <p>You are logged in as {email}!&nbsp;
+            <a href="#" onClick={() => {
+              Cookies.remove('isLoggedIn');
+              Cookies.remove('user_id');
+              Cookies.remove('email');
+              setLoggedIn(false);
+              googleLogout();
+            }}>Log out</a>
+          </p>
         </div>
       ) : (
         fakeEmails ? <FreeformEmailLoginBox /> : <GoogleLogin

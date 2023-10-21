@@ -24,7 +24,7 @@ export const serveComparison = async <T, D>(
     const idString: string = getUserIdentificationString(request);
     const ipAddress = getIp(request);
     const comparisonId: SnowflakeType = getSnowflake();
-    console.log(`Serving comparison request to userId ${userId} (${idString})`);
+    console.debug(`Serving comparison request ${comparisonId} to userId ${userId} (${idString})`);
 
     const loader: CollectionTypeLoader<T, D> = await getLoader(loaderId);
 

@@ -5,6 +5,7 @@ import express, { NextFunction, Response } from 'express';
 import { getConnectionPool } from '../database/mysqlConnections';
 import passport from 'passport';
 import { requireEnv } from '../utils';
+import { setUserCookies } from '../sessions/getSession';
 
 // Configure Google authentication strategy
 const GOOGLE_CLIENT_ID = requireEnv('GOOGLE_CLIENT_ID');
@@ -117,7 +118,6 @@ export const initialisePassportToExpressApp = (app: express.Express) => {
             }
             cacheGoogleUser(rows[0]);
             const profile: Profile|any = { ...rows[0] };
-            console.log(`Found user ${profile.email} for id=${id} when deserializing`);
             conn.release();
             return resolve(profile);
           });
@@ -139,7 +139,6 @@ export const initialisePassportToExpressApp = (app: express.Express) => {
           [googleId], (_err, rows) => {
             cacheGoogleUser(rows[0]);
             const profile: Profile|any = { ...rows[0] };
-            console.log(`Found user ${profile.email} for googleId=${googleId} when deserializing`);
             conn.release();
             return resolve(profile);
           });
@@ -178,26 +177,37 @@ export const initialisePassportToExpressApp = (app: express.Express) => {
     passport.authenticate('google', { scope: ['profile', 'email'] })
   );
 
+  const sendRedirectPage = (response: Response): void => {
+    response.contentType('text/html');
+    response.status(200);
+    response.send(`<!DOCTYPE html>
+    <html>
+    <head><meta http-equiv="refresh" content="0; url='${SERVER_PREFIX}/'"></head>
+    <body></body>
+    </html>`);
+    response.end();
+    // return res.redirect(SERVER_PREFIX + '/');
+  };
+
   // Set up callback route for Google authentication
   app.get(
     '/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/login' }),
-    (req: ABSeeRequest, res: Response, _next: NextFunction ): void => {
+    (request: ABSeeRequest, response: Response, next: NextFunction ): void => {
       // User has been authenticated, store user data in session
       // (req as any).session.passport.user
-      const user: Express.User|undefined = req.user;
-      const session: ABSeeSessionData = req.session as ABSeeSessionData;
+      const user: Express.User|undefined = request.user;
+      const session: ABSeeSessionData = request.session as ABSeeSessionData;
       // user.displayName;
       if (user) {
         const userId: string = (user as any).id;
         session.userId = userId;
-        session.username = (user as any).displayName;
+        session.username = (user as any).display_name;
         session.accessToken = (user as any).accessToken;
-        console.log(`Setting userId in callback to ${userId} for session=${req.session.id}`);
       }
-      console.log('User info in /auth/google/callback:' + JSON.stringify(req.user));
-
-      return res.redirect(SERVER_PREFIX + '/');
+      console.log('User info in /auth/google/callback:' + JSON.stringify(request.user));
+      setUserCookies(session.id, session.userId, session.username, response);
+      sendRedirectPage(response);
       // next();
     }
   );
@@ -216,24 +226,30 @@ export const initialisePassportToExpressApp = (app: express.Express) => {
       failureMessage: true,
       failureRedirect: '/loginFailed',
       scope: 'https://www.googleapis.com/auth/userinfo.email' }),
-    (req: ABSeeRequest, response: Response) => {
+    (request: ABSeeRequest, response: Response, next: NextFunction) => {
       const reqData = JSON.stringify({
-        body: req.body,
-        cookies: req.cookies,
-        headers: req.headers,
-        hostname: req.hostname,
-        httpVersion: req.httpVersion,
-        ip: req.ip,
-        method: req.method,
-        originalUrl: req.originalUrl,
-        params: req.params,
-        path: req.path,
-        protocol: req.protocol,
-        query: req.query,
-        url: req.url,
+        body: request.body,
+        cookies: request.cookies,
+        headers: request.headers,
+        hostname: request.hostname,
+        httpVersion: request.httpVersion,
+        ip: request.ip,
+        method: request.method,
+        originalUrl: request.originalUrl,
+        params: request.params,
+        path: request.path,
+        protocol: request.protocol,
+        query: request.query,
+        url: request.url,
       });
+      const session = request.session;
+
+      setUserCookies(session.id, session.userId, session.username, response);
+
+      // response.set('Set-Cookie', `user_id=${req.session.userId}`);
       console.info('Got authentication request, redirecting to /', reqData);
-      response.redirect(SERVER_PREFIX + '/');
+      sendRedirectPage(response);
+      // next();
     });
 
   app.use((err: any,

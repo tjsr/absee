@@ -2,12 +2,12 @@ import * as dotenv from 'dotenv';
 
 import { ABSeeRequest, mysqlSessionStore } from './session';
 import express, { NextFunction } from 'express';
+import { getSession, setUserCookies } from './sessions/getSession';
 
 import { IPAddress } from './types';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import { debugHeaders } from './api/debugHeaders';
-import { getSession } from './sessions/getSession';
 import { initialisePassportToExpressApp } from './auth/passport';
 import { login } from './api/login';
 import { logout } from './api/logout';
@@ -92,9 +92,14 @@ export const startApp = (): express.Express => {
   );
   app.post('/submit', submit);
 
-  app.use((req: ABSeeRequest, res: express.Response, next: NextFunction) => {
-    if (!res.headersSent) {
-      res.set('Set-Cookie', `sessionId=${req.session.id}`);
+  app.use((request: ABSeeRequest, response: express.Response, next: NextFunction) => {
+    if (!response.headersSent) {
+      const session = request.session;
+      setUserCookies(session.id, session.userId, session.username, response);
+
+      // response.set('Set-Cookie', `sessionId=${request.session.id}; user_id=${request.session.userId}; ` +
+      //   `displayName=${request.session.username}; Path=/;`);
+      // // res.set('Set-Cookie', `user_id=${req.session.userId}`);
     }
     next();
   });

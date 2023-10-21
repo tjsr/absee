@@ -35,6 +35,8 @@ export const getUserIdentificationString = (request: ABSeeRequest): string => {
     return (request.user as any).displayName;
     // console.log('Got a session for current call');
     // return request.session.userId;
+  } else if (request.session && request.session?.username) {
+    return request.session.username;
   } else if (!request.session) {
     throw new Error('No session');
   } else {
