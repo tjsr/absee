@@ -1,6 +1,6 @@
 'use strict';
 
-import { DualSwiper } from '@tjsr/abswipe';
+import { DualSwiper } from '@tjsrowe/abswipe';
 import React from 'react';
 
 export const TestFrontend = (): JSX.Element => {

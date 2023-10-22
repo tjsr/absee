@@ -11,7 +11,7 @@ import React, { useEffect, useState } from 'react';
 import { fetchNewComparison, fetchNewSession, submitComparisonChoice } from './comparisonChoice';
 
 import Cookies from 'js-cookie';
-import { DualSwiper } from '@tjsr/abswipe';
+import { DualSwiper } from '@tjsrowe/abswipe';
 import { FreeformEmailLoginBox } from './freeformEmailLogin';
 import { InfoBlurb } from './InfoBlurb';
 import { Pin } from '../pins/pinpanion';
