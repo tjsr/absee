@@ -91,7 +91,7 @@
     "@react-spring/web": "^9.7.3",
     "@tjsrowe/abswipe": "^0.1.8",
     "@use-gesture/react": "^10.2.27",
-    "axios": "^1.5.1",
+    "axios": "^1.6.1",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "date-to-iso-8601-string": "^2.0.0",
