@@ -59,7 +59,7 @@
     "@types/js-cookie": "^3.0.5",
     "@types/morgan": "^1.9.7",
     "@types/mysql": "^2.15.23",
-    "@types/node": "^18.17.19",
+    "@types/node": "^20.9.5",
     "@types/passport": "^1.0.14",
     "@types/passport-google-oauth20": "^2.0.13",
     "@types/request-ip": "^0.0.40",
