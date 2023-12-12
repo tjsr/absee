@@ -22,12 +22,12 @@ const cacheGoogleUser = (user: any): void => {
   cachedGoogleUsers.set(googleId, user);
 };
 
-const createUserIdFromEmail = (profile: Profile, id: string): Promise<any> => {
+const createUserIdFromEmail = (profile: Profile, googleId: string): Promise<any> => {
   const displayName = getDisplayNameFromProfile(profile);
   const newUser = {
     display_name: displayName,
     email: profile.emails && profile.emails.length > 0 ? profile.emails[0].value : null,
-    google_id: id,
+    google_id: googleId,
   };
 
   const promise = new Promise<any>((resolve, reject) => {
@@ -243,13 +243,18 @@ export const initialisePassportToExpressApp = (app: express.Express) => {
         url: request.url,
       });
       const session = request.session;
-
-      setUserCookies(session.id, session.userId, session.username, response);
+      if (session.userId === undefined) {
+        console.warn(`Session ${session.id} had no userId when posting to /`);
+      }
+      if (session.username === undefined) {
+        console.warn(`Session ${session.id} had no username when posting to /`);
+      }
+      setUserCookies(session.id, session.userId!, session.username!, response);
 
       // response.set('Set-Cookie', `user_id=${req.session.userId}`);
       console.info('Got authentication request, redirecting to /', reqData);
       sendRedirectPage(response);
-      // next();
+      next();
     });
 
   app.use((err: any,

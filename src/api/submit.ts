@@ -1,9 +1,9 @@
 import { IPAddress, UserId } from '../types';
 import express, { NextFunction } from 'express';
+import { getUserId, getUserIdentificationString } from '../auth/user';
 
 import { ABSeeRequest } from '../session';
 import { getIp } from '../server';
-import { getUserId } from '../auth/user';
 import { isSnowflake } from '../validate';
 import { saveComparisonSelection } from '../comparisonresponse';
 import { verifyComparisonOwner } from '../comparison';
@@ -36,8 +36,10 @@ export const submit = (request: ABSeeRequest, response: express.Response, next: 
       verifyComparisonOwner(comparisonId, userId, ipAddress)
         .then(() => {
           saveComparisonSelection(comparisonId, elementId);
+          const idString: string = getUserIdentificationString(request);
+
           console.debug(
-            `Saved response: ${elementId} for ${comparisonId} by ${userId}.`
+            `Saved response: ${elementId} for ${comparisonId} by ${userId} (${idString}).`
           );
           // Now write the user selected element to the DB.
           response.status(200);

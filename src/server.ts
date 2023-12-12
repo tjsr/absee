@@ -93,8 +93,8 @@ export const startApp = (): express.Express => {
   app.post('/submit', submit);
 
   app.use((request: ABSeeRequest, response: express.Response, next: NextFunction) => {
-    if (!response.headersSent) {
-      const session = request.session;
+    const session = request.session;
+    if (!response.headersSent && session.userId && session.username) {
       setUserCookies(session.id, session.userId, session.username, response);
 
       // response.set('Set-Cookie', `sessionId=${request.session.id}; user_id=${request.session.userId}; ` +

@@ -1,16 +1,14 @@
 div.comparisonContainer {
-  height: 100%;
+  max-height: 80%;
   width: 100%;
   text-align: center;
   align-items: center;
   justify-content: center;
-  min-height: 95vh;
-  vertical-align: middle;
+  min-height: 75vh;
+  vertical-align: top;
 }
 
 div.comparisonText {
-  padding-top: 50%;
-  padding-bottom: 50%;
   padding-left: 1vw;
   padding-right: 1vw;
   text-align: center;

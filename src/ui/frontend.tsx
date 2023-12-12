@@ -6,20 +6,21 @@ import {
   EmailAddress,
   SnowflakeType
 } from '../types';
-import { CredentialResponse, GoogleLogin, TokenResponse, googleLogout, useGoogleLogin } from '@react-oauth/google';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { TokenResponse, useGoogleLogin } from '@react-oauth/google';
 import { fetchNewComparison, fetchNewSession, submitComparisonChoice } from './comparisonChoice';
 
 import Cookies from 'js-cookie';
-import { DualSwiper } from '@tjsrowe/abswipe';
-import { FreeformEmailLoginBox } from './freeformEmailLogin';
+import { ElementPicker } from './simplePicker';
 import { InfoBlurb } from './InfoBlurb';
+import { LoginControl } from './auth/LoginControl';
 import { Pin } from '../pins/pinpanion';
-import { PinCollection } from '../pins/pincollection';
 import { RestCallResult } from '../types/apicalls';
 import SuperJSON from 'superjson';
-import { isMobile } from 'react-device-detect';
 import jwt_decode from 'jwt-decode';
+
+// import { DualSwiper, StaticDualSwiper } from '@tjsrowe/abswipe';
+
 
 const getCookieUserId = (): string | undefined => {
   const userIdValue: string|undefined = Cookies.get('user_id');
@@ -29,21 +30,20 @@ const getCookieUserId = (): string | undefined => {
   return userIdValue;
 };
 
+type FrontendProps = {
+  collectionId: string;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-constraint
-const Frontend = <T extends unknown>(): JSX.Element => {
+const Frontend = <T extends unknown>({ collectionId } : FrontendProps): JSX.Element => {
   const [comparison, setComparison] = useState<ComparisonSelectionResponse<T> | undefined>(undefined);
   const [comparisonLoaded, setComparisonLoaded] = useState<boolean>(false);
   const [comparisonLoading, setComparisonLoading] = useState<boolean>(false);
   const fakeEmails = false;
-  const collectionId = '83fd0b3e-dd08-4707-8135-e5f138a43f00';
-  // const isMobile = (): boolean => {
-
-  // }
-  const [isSwiperEnabled, setSwiperEnabled] = useState<boolean>(isMobile);
-  const [tapToSelect, enableTapToSelect] = useState<boolean>(!isMobile);
 
   const [isLoggedIn, setLoggedIn] = useState<boolean>(false);
   const [email, setEmail] = useState<EmailAddress | undefined>(undefined);
+  const dropRef: React.MutableRefObject<HTMLDivElement | null> = useRef<HTMLDivElement|null>(null);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   useGoogleLogin({
@@ -74,14 +74,13 @@ const Frontend = <T extends unknown>(): JSX.Element => {
       }
 
       const userId = getCookieUserId();
-      console.log(`User ID: ${userId}`);
-      if (userId) {
-        setLoggedIn(true);
-      }
-
       const cookieEmail = Cookies.get('email') || Cookies.get('displayName');
-      console.log(`Email: ${cookieEmail} (as cookie: ${Cookies.get('displayName')})`);
-      setEmail(cookieEmail);
+      console.log(`User ID: ${userId}`);
+      if (userId && cookieEmail) {
+        setLoggedIn(true);
+        setEmail(cookieEmail);
+        console.log(`Email: ${cookieEmail} (as cookie: ${Cookies.get('displayName')})`);
+      }
 
       if (!comparisonLoading && !comparisonLoaded) {
         setComparisonLoading(true);
@@ -97,10 +96,6 @@ const Frontend = <T extends unknown>(): JSX.Element => {
       }
     })();
   }, [comparisonLoaded]);
-
-  const onTapSelect = async (elementId: SnowflakeType): Promise<void> => {
-    if (tapToSelect) selectElement(elementId);
-  };
 
   const itemSelected = (side: number) => {
     if (side == 0) {
@@ -123,86 +118,19 @@ const Frontend = <T extends unknown>(): JSX.Element => {
 
   return (
     <>
-      {isLoggedIn ? (
-        <div>
-          {/* Display content for logged in users */}
-          <p>You are logged in as {email}!&nbsp;
-            <a href="#" onClick={() => {
-              Cookies.remove('isLoggedIn');
-              Cookies.remove('user_id');
-              Cookies.remove('email');
-              setLoggedIn(false);
-              googleLogout();
-            }}>Log out</a>
-          </p>
-        </div>
-      ) : (
-        fakeEmails ? <FreeformEmailLoginBox /> : <GoogleLogin
-          ux_mode="redirect"
-          onSuccess={(credentialResponse: CredentialResponse) => {
-            console.log('Logged in to google with credential: ', credentialResponse);
-            setEmail(credentialResponse.credential);
-            setLoggedIn(true);
-            // googleSuccess(credentialResponse);
-          }}
-          onError={() => {
-            setLoggedIn(false);
-            console.log('Login Failed');
-          }}
-        />
-      )}
-      <div className="devOptions">
-        <div>
-          <label htmlFor="enableMobile">Enable swipe mode</label>
-          <input
-            type="checkbox"
-            checked={isSwiperEnabled}
-            name="enableMobile"
-            onChange={() => setSwiperEnabled(!isSwiperEnabled)}
-          />
-        </div>
-        <div>
-          <label htmlFor="enableTapToSelect">Immediately select when touching an option</label>
-          <input
-            type="checkbox"
-            checked={tapToSelect}
-            name="enableTapToSelect"
-            onChange={() => enableTapToSelect(!tapToSelect)}
-          />
-        </div>
-      </div>
+      <LoginControl
+        isLoggedIn={isLoggedIn}
+        fakeEmails={fakeEmails}
+        setLoggedIn={setLoggedIn} setEmail={setEmail} email={email} />
       <div>
         {comparisonLoaded ? (
           <>
-            <h3 className="comparisonHelp">Select the pin(s) you would prefer to have</h3>
-            {isSwiperEnabled ? (
-              <div className="comparisonContainer">
-                <DualSwiper
-                  boxMinHeight={8}
-                  boxMinWidth={8}
-                  itemSelected={itemSelected}
-                  leftContent={
-                    <PinCollection
-                      element={comparison!.a as ComparableObjectResponse<Pin>}
-                      selectElement={onTapSelect}
-                    />
-                  }
-                  rightContent={
-                    <PinCollection
-                      element={comparison!.b as ComparableObjectResponse<Pin>}
-                      selectElement={onTapSelect}
-                    />
-                  }
-                >
-                  <div className="comparisonText">Swipe your selection towards the centre.</div>
-                </DualSwiper>
-              </div>
-            ) : (
-              <div className="comparisonContainer desktopSelector">
-                <PinCollection element={comparison!.a as ComparableObjectResponse<Pin>} selectElement={selectElement} />
-                <PinCollection element={comparison!.b as ComparableObjectResponse<Pin>} selectElement={selectElement} />
-              </div>
-            )}
+            <ElementPicker
+              selectElement={selectElement}
+              itemSelected={itemSelected}
+              dropRef={dropRef}
+              leftElement={comparison!.a as ComparableObjectResponse<Pin>}
+              rightElement={comparison!.b as ComparableObjectResponse<Pin>} />
             <InfoBlurb />
           </>
         ) : (

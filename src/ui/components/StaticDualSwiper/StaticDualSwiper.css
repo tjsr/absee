@@ -1,0 +1,13 @@
+div.StaticSwiperContent {
+  border: 1px solid #000;
+  display: block;
+  float: none;
+  width: 100%;
+  text-align: center;
+}
+
+div.StaticSwiperSelectionBox {
+  display: block;
+  float: none;
+  width: 100%;
+}

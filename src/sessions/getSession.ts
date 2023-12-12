@@ -15,21 +15,13 @@ const IN_PROD = process.env.NODE_ENV === 'production';
 const TWO_HOURS = 1000 * 60 * 60 * 2;
 const TWENTYFOUR_HOURS = 1000 * 60 * 60 * 24;
 
-export const setUserCookies = (sessionId: string, userId: string|undefined,
-  displayName: string|undefined, response: Response): void => {
-  console.log(`Setting user_id=${userId} in callback for session=${sessionId}`);
+export const setUserCookies = (sessionId: string, userId: string,
+  displayName: string, response: Response): void => {
+  console.log(`Setting user_id=${userId},displayName=${displayName} in callback for session=${sessionId}`);
   const cookies: Map<string, string> = new Map<string, string>();
   response.header('access-control-expose-headers', 'Set-Cookie');
-  if (userId) {
-    console.log(`Setting user_id cookie to ${userId}`);
-    cookies.set('user_id', userId);
-    // response.set('Set-Cookie', `user_id=${userId}; Path=/;`);
-  }
-  if (displayName) {
-    console.log(`Setting displayName cookie to ${displayName}`);
-    cookies.set('displayName', displayName);
-    // response.set('Set-Cookie', `displayName=${displayName}; Path=/;`);
-  }
+  cookies.set('user_id', userId);
+  cookies.set('displayName', displayName);
 
   cookies.set('sessionId', sessionId);
   const cookieArr: string[] = [];
