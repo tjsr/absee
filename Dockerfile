@@ -17,7 +17,8 @@ COPY babel.config.js /opt/absee
 COPY tsconfig.json /opt/absee
 COPY .eslintrc.json /opt/absee
 COPY public/ /opt/absee/public
-COPY index.ts /opt/absee
+COPY server.ts /opt/absee
+COPY index.html /opt/absee
 COPY src/ /opt/absee/src
 RUN npm run build
 
@@ -28,7 +29,6 @@ COPY .npmrc /opt/absee
 
 RUN npm i --production && npm i source-map-support
 COPY --from=absee-build /opt/absee/dist /opt/absee/dist
-COPY --from=absee-build /opt/absee/build /opt/absee/dist/build
 WORKDIR /opt/absee/dist
 RUN mkdir /opt/certs
 
