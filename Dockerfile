@@ -31,7 +31,8 @@ RUN npm i --production && npm i source-map-support
 COPY --from=absee-build /opt/absee/dist /opt/absee/dist
 WORKDIR /opt/absee/dist
 RUN mkdir /opt/certs
+ENV STATIC_CONTENT=/opt/absee/dist
 
 EXPOSE 8280
 
-CMD ["node", "-r", "source-map-support/register", "index.js"]
+CMD ["node", "-r", "source-map-support/register", "--experimental-specifier-resolution=node", "server.js"]

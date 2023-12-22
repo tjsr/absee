@@ -115,9 +115,12 @@ export const startApp = (): express.Express => {
     target: frontendData,
   };
 
-  app.use(createProxyMiddleware(proxyOptions));
-
-  app.use(express.static(ASSET_BUILD_DIR));
+  if (process.env.STATIC_CONTENT) {
+    console.log(`Serving static content from ${process.env.STATIC_CONTENT}`);
+    app.use(express.static(process.env.STATIC_CONTENT));
+  } else {
+    app.use(createProxyMiddleware(proxyOptions));
+  }
 
   return app;
 };
