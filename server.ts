@@ -28,10 +28,10 @@ if (fs.existsSync(SSL_CERT) && fs.existsSync(SSL_KEY)) {
     cert: fs.readFileSync(SSL_CERT),
     key: fs.readFileSync(SSL_KEY),
   }, app).listen(HTTP_PORT, () => {
-    console.log(`Listening on port ${HTTP_PORT}`);
+    console.log(`Listening using HTTPS on port ${HTTP_PORT}`);
   });
 } else {
   app.listen(HTTP_PORT, () => {
-    console.log(`Listening on port ${HTTP_PORT}`);
+    console.log(`Listening using HTTP on port ${HTTP_PORT}`);
   });
 }

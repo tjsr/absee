@@ -10,12 +10,15 @@ import SuperJSON from 'superjson';
 export type CollectionPropTypes<T> = {
   element: ComparableObjectResponse<T>;
   selectElement?: (elementId: SnowflakeType) => void;
+  isSelected?: boolean;
 };
 
 export type ICollectionPropTypes<T> = {
   element: ComparableObjectResponse<T>;
   selectElement?: (elementId: SnowflakeType) => void;
   getCollectionItem: (data: T) => JSX.Element;
+  usePreselect?: boolean;
+  isSelected?: boolean;
 };
 
 export const Collection = (props: ICollectionPropTypes<Pin>): JSX.Element => {
@@ -30,6 +33,7 @@ export const Collection = (props: ICollectionPropTypes<Pin>): JSX.Element => {
       <ComparisonElement
         paddingLeft={0}
         paddingRight={0}
+        isHighlighted={props.isSelected}
         onClick={() => {
           if (props.selectElement) {
             props.selectElement(props.element.elementId);

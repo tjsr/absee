@@ -14,7 +14,63 @@ interface ElementPickerProps extends React.HTMLProps<HTMLDivElement> {
   leftElement: ComparableObjectResponse<Pin>;
   rightElement: ComparableObjectResponse<Pin>;
   dropRef?: React.MutableRefObject<HTMLDivElement | null>;
+  devmode?: boolean;
 }
+
+interface SwipeComparisonContainer extends React.HTMLProps<HTMLDivElement> {
+  itemSelected: (side: SwipeDirection, action: SelectionAction) => void;
+  leftElement: ComparableObjectResponse<Pin>;
+  rightElement: ComparableObjectResponse<Pin>;
+  selectElement: (elementId: SnowflakeType) => Promise<void>;
+  externalDropRef: React.MutableRefObject<HTMLDivElement | null>;
+}
+
+const SwipeComparisonContainer = ({
+  externalDropRef,
+  itemSelected,
+  leftElement,
+  rightElement,
+  selectElement }: SwipeComparisonContainer): JSX.Element => {
+  const [currentSelectedElement, setCurrentSelectedElement] = useState<SnowflakeType | undefined>(undefined);
+
+  const elementSelect = (elementId: SnowflakeType, side: SwipeDirection, action: SelectionAction): void => {
+    if (action == SelectionAction.SWIPE || currentSelectedElement === elementId) {
+      selectElement(elementId);
+      setCurrentSelectedElement(undefined);
+    } else {
+      console.log(`Set currently selected element to ${elementId}`);
+      setCurrentSelectedElement(elementId);
+    }
+  };
+
+  return (
+    <div className="comparisonContainer">
+      <DualSwiper
+        boxMinHeight={8}
+        boxMinWidth={8}
+        itemSelected={(side: SwipeDirection, action: SelectionAction) => {
+          elementSelect(leftElement.elementId, side, action);
+        }}
+        leftContent={
+          <PinCollection
+            element={leftElement}
+            selectElement={selectElement}
+            isSelected={currentSelectedElement == leftElement.elementId}
+          />
+        }
+        rightContent={
+          <PinCollection
+            element={rightElement}
+            selectElement={selectElement}
+            isSelected={currentSelectedElement == rightElement.elementId}
+          />
+        }
+        refDiv={externalDropRef}>
+        <div className="comparisonText">Swipe your selection towards the centre.</div>
+      </DualSwiper>
+    </div>
+  );
+};
 
 export const ElementPicker = (props: ElementPickerProps): JSX.Element => {
   const [displayMode, setDisplayMode] = useState<SelectionTypeOptions>('click');
@@ -29,8 +85,9 @@ export const ElementPicker = (props: ElementPickerProps): JSX.Element => {
   };
 
   return <>
+    {props.devmode &&
     <div className="devOptions">
-      <div>
+      <div className="devContent">
         <select onChange={(e: React.SyntheticEvent<HTMLSelectElement, Event>) => {
           if (['click', 'swipe', 'static'].includes(e.currentTarget.value)) {
             console.log(`Switching to ${e.currentTarget.value} mode`);
@@ -51,7 +108,7 @@ export const ElementPicker = (props: ElementPickerProps): JSX.Element => {
           onChange={() => setSwiperEnabled(!isSwiperEnabled)}
         />
       </div>
-      <div>
+      <div className="selectDelayOptions">
         <label htmlFor="enableTapToSelect">Immediately select when touching an option</label>
         <input
           type="checkbox"
@@ -60,31 +117,17 @@ export const ElementPicker = (props: ElementPickerProps): JSX.Element => {
           onChange={() => enableTapToSelect(!tapToSelect)}
         />
       </div>
-    </div>
+    </div>}
 
     <h3 className="comparisonHelp">Select the pin(s) you would prefer to have</h3>
     {displayMode === 'swipe' ? (
-      <div className="comparisonContainer">
-        <DualSwiper
-          boxMinHeight={8}
-          boxMinWidth={8}
-          itemSelected={itemSelected}
-          leftContent={
-            <PinCollection
-              element={leftElement}
-              selectElement={selectElement}
-            />
-          }
-          rightContent={
-            <PinCollection
-              element={rightElement}
-              selectElement={selectElement}
-            />
-          }
-          refDiv={externalDropRef}>
-          <div className="comparisonText">Swipe your selection towards the centre.</div>
-        </DualSwiper>
-      </div>
+      <SwipeComparisonContainer
+        externalDropRef={externalDropRef}
+        itemSelected={itemSelected}
+        leftElement={leftElement}
+        rightElement={rightElement}
+        selectElement={selectElement}
+      />
     ) : <div className="comparisonContainer">
       <StaticDualSwiper
         boxMinHeight={8}

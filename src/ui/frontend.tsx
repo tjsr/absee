@@ -75,7 +75,7 @@ const Frontend = <T extends unknown>({ collectionId } : FrontendProps): JSX.Elem
 
       const userId = getCookieUserId();
       const cookieEmail = Cookies.get('email') || Cookies.get('displayName');
-      console.log(`User ID: ${userId}`);
+      console.log(`User ID: ${userId}  Email: ${cookieEmail}`);
       if (userId && cookieEmail) {
         setLoggedIn(true);
         setEmail(cookieEmail);
@@ -122,7 +122,7 @@ const Frontend = <T extends unknown>({ collectionId } : FrontendProps): JSX.Elem
         isLoggedIn={isLoggedIn}
         fakeEmails={fakeEmails}
         setLoggedIn={setLoggedIn} setEmail={setEmail} email={email} />
-      <div>
+      <div className="elementPickerContent">
         {comparisonLoaded ? (
           <>
             <ElementPicker

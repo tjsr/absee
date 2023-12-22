@@ -7,6 +7,7 @@ import { getSession, setUserCookies } from './sessions/getSession';
 import { IPAddress } from './types';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import { createProxyMiddleware } from 'http-proxy-middleware';
 import { debugHeaders } from './api/debugHeaders';
 import { initialisePassportToExpressApp } from './auth/passport';
 import { login } from './api/login';
@@ -18,6 +19,7 @@ import { session } from './api/session';
 import { submit } from './api/submit';
 import { useSessionId } from './sessions/useSessionId';
 
+const ASSET_BUILD_DIR = 'dist';
 dotenv.config();
 
 const PINNY_ARCADE_DEV_COLLECTION_ID ='83fd0b3e-dd08-4707-8135-e5f138a43f00';
@@ -104,7 +106,18 @@ export const startApp = (): express.Express => {
     next();
   });
 
-  app.use(express.static('build'));
+  const PROXY_PORT = 5173;
+  const PROXY_HOST = 'localhost';
+  const frontendData = `http://${PROXY_HOST}:${PROXY_PORT}`;
+
+  const proxyOptions = {
+    changeOrigin: true,
+    target: frontendData,
+  };
+
+  app.use(createProxyMiddleware(proxyOptions));
+
+  app.use(express.static(ASSET_BUILD_DIR));
 
   return app;
 };

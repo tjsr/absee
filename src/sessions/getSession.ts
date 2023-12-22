@@ -24,13 +24,13 @@ export const setUserCookies = (sessionId: string, userId: string,
   cookies.set('displayName', displayName);
 
   cookies.set('sessionId', sessionId);
-  const cookieArr: string[] = [];
+  // const cookieArr: string[] = [];
   cookies.forEach((value, key) => {
-    cookieArr.push(`${key}=${value}`);
+    // const cookieString = cookieArr.join('; ') + '; Path=/; SameSite=Lax';
+    // const cookieString = `${key}=${value}; Path=/; SameSite=Lax`;
+    response.cookie(key, value);
+    // cookieArr.push(`${key}=${value}`);
   });
-
-  const cookieString = cookieArr.join('; ') + '; Path=/; SameSite=Lax';
-  response.set('Set-Cookie', cookieString);
 };
 
 export const getSession = (useSessionStore: expressSession.Store = memoryStore) => {
