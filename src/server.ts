@@ -13,6 +13,7 @@ import { initialisePassportToExpressApp } from './auth/passport';
 import { login } from './api/login';
 import { logout } from './api/logout';
 import morgan from 'morgan';
+import { recent } from './api/recent';
 import requestIp from 'request-ip';
 import { serveComparison } from './api/serveComparison';
 import { session } from './api/session';
@@ -80,6 +81,7 @@ export const startApp = (): express.Express => {
   app.get('/debugHeaders', debugHeaders);
   app.post('/login', login);
   app.get('/logout', logout);
+  app.get('/api/recent(/:collection)?', recent);
   app.get(
     '/collection/:collectionId',
     async (request: ABSeeRequest, response: express.Response) => {

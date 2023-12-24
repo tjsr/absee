@@ -1,17 +1,7 @@
 import * as dotenv from 'dotenv';
 
 import { CollectionTypeLoader } from '../datainfo';
-import { createRequire } from 'node:module';
 
-const require = createRequire(import.meta.url);
-
-type Event = {
-  id: number;
-  name: string;
-  cssClass: string;
-};
-
-// const events: Event[] = require('./eventnames.json');
 import events from './eventnames.json' assert { type: 'json' };
 
 dotenv.config();

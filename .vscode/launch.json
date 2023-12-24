@@ -24,7 +24,7 @@
       "name": "TSX backend server",
       "skipFiles": ["<node_internals>/**"],
       //"preLaunchTask": "tsc: build - tsconfig.json",
-      "command": "npm run start:dev",
+      "command": "npm run start:server",
       "cwd": "${workspaceFolder}"
     },
     {

@@ -8,7 +8,7 @@ export type IPAddress = string;
 export type ComparisonRequestPutBody = {
   id: SnowflakeType;
   collectionId: CollectionIdType;
-  userId: uuid;
+  userId: UserId;
   requestTime: ISO8601Date;
   requestIp: IPAddress;
 };
@@ -34,9 +34,25 @@ export type ComparableObjectResponse<T> = {
 
 export type ComparisonSelectionResponse<T> = {
   id: SnowflakeType;
+  responseTime: ISO8601Date;
   userId: UserId;
   a: ComparableObjectResponse<T>;
   b: ComparableObjectResponse<T>;
+};
+
+export type ComparisonElement<T> = {
+  elementId: SnowflakeType;
+  data: T[];
+}
+
+export type ComparisonResult<T> = {
+  id: SnowflakeType;
+  userId: UserId;
+  elements: ComparisonElement<T>[];
+  // a: ComparisonElement<T>;
+  // b: ComparisonElement<T>;
+  winner: SnowflakeType;
+  requestTime: ISO8601Date;
 };
 
 export type { ISO8601Date, SnowflakeType };

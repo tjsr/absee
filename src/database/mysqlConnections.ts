@@ -8,6 +8,7 @@ export type PoolConnection = mysql.PoolConnection;
 dotenv.config();
 
 const config: mysql.PoolConfig = {
+  bigNumberStrings: true,
   connectionLimit:
     process.env.MYSQL_CONNECTION_POOL_SIZE !== undefined ?
       parseInt(process.env.MYSQL_CONNECTION_POOL_SIZE) :
@@ -17,6 +18,7 @@ const config: mysql.PoolConfig = {
   host: requireEnv('MYSQL_HOST'),
   password: requireEnv('MYSQL_PASSWORD'),
   port: process.env['MYSQL_PORT'] ? parseInt(process.env['MYSQL_PORT']) : 3306,
+  supportBigNumbers: true,
   user: requireEnv('MYSQL_USER'),
 };
 
