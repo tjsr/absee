@@ -34,7 +34,7 @@ export type ComparableObjectResponse<T> = {
 
 export type ComparisonSelectionResponse<T> = {
   id: SnowflakeType;
-  responseTime: ISO8601Date;
+  responseTime?: ISO8601Date;
   userId: UserId;
   a: ComparableObjectResponse<T>;
   b: ComparableObjectResponse<T>;

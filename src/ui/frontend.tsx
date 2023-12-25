@@ -41,7 +41,7 @@ export const fetchRecentComparisons = async (collectionId: string) => {
   }
 };
 
-const RecentComparisons = async (): JSX.Element => {
+const RecentComparisons = (): JSX.Element => {
   const collectionId = '83fd0b3e-dd08-4707-8135-e5f138a43f00';
   const [recentLoading, setRecentLoading] = useState<boolean>(false);
   const [recentLoaded, setRecentLoaded] = useState<boolean>(false);
