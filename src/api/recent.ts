@@ -1,17 +1,20 @@
-import { ComparisonResult, UserId } from '../types';
-import express, { NextFunction } from 'express';
+import { CollectionIdType, ComparisonResult, UserId } from '../types';
 import { getUserId, getUserIdentificationString } from '../auth/user';
 
 import { ABSeeRequest } from '../session';
-import { Pin } from '../pins/pinpanion';
+import { CollectionTypeLoader } from '../datainfo';
+import { createComparisonResultResponse } from '../restresponse';
+import express from 'express';
 import { getIp } from '../server';
+import { getLoader } from '../loaders';
 import { retrieveComparisonResults } from '../database/mysql';
 
-const retrieveComparisonsForUser = async <T>(userId: UserId): Promise<ComparisonResult<T>[]> => {
-  return retrieveComparisonResults();
+const retrieveComparisonsForUser = async <T>(
+  userId: UserId): Promise<ComparisonResult[]> => {
+  return retrieveComparisonResults(userId);
 };
 
-export const recent = (request: ABSeeRequest, response: express.Response, next: NextFunction) => {
+export const recent = async <T, D>(request: ABSeeRequest, response: express.Response, loaderId: CollectionIdType) => {
   // = async <T, D>(
   // request: express.Request,
   // response: express.Response,
@@ -21,17 +24,17 @@ export const recent = (request: ABSeeRequest, response: express.Response, next: 
     const userId: UserId = getUserId(request);
     const idString: string = getUserIdentificationString(request);
     const ipAddress = getIp(request);
+    const loader: CollectionTypeLoader<T, D> = await getLoader(loaderId);
 
-    retrieveComparisonsForUser<Pin>(userId).then((comparisons: ComparisonResult<Pin>[]) => {
+    retrieveComparisonsForUser<T>(userId).then((comparisons: ComparisonResult[]) => {
       response.contentType('application/json');
-      response.send(comparisons);
-      // response.end();
-      next();
+      const responseJson = createComparisonResultResponse<T>(comparisons, loader);
+      response.send(responseJson);
+      response.end();
     }).catch((err: Error) => {
       response.status(500);
       response.send({ message: err.message });
       response.end();
-      // next();
     });
   } catch (err) {
     response.status(500);

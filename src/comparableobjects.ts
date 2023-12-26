@@ -2,7 +2,7 @@ import { ComparableObjectModel } from './types/model';
 import { SnowflakeType } from './types';
 import { getSnowflake } from './snowflake';
 
-const createComparableObject = (
+export const createComparableObject = (
   objectId: string,
   elementId: SnowflakeType
 ): ComparableObjectModel => {

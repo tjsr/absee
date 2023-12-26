@@ -13,6 +13,7 @@ import { fetchNewComparison, fetchNewSession, submitComparisonChoice } from './c
 import Cookies from 'js-cookie';
 import { ElementPicker } from './simplePicker';
 import { InfoBlurb } from './InfoBlurb';
+import { Link } from 'react-router-dom';
 import { LoginControl } from './auth/LoginControl';
 import { Pin } from '../pins/pinpanion';
 import { RestCallResult } from '../types/apicalls';
@@ -128,6 +129,7 @@ const CompareScreen = <T extends unknown>({ collectionId } : CompareScreenProps)
               leftElement={comparison!.a as ComparableObjectResponse<Pin>}
               rightElement={comparison!.b as ComparableObjectResponse<Pin>} />
             <InfoBlurb />
+            <Link to="/recent">Recent comparisons</Link>
           </>
         ) : (
           <div>Loading...</div>

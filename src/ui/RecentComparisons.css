@@ -1,0 +1,14 @@
+div.comparisonGroup {
+  border-width: 0.1rem;
+  border-style: solid;
+  border-color: #000;
+  margin: 0.2rem;
+  display: inline-block;
+  text-align: center;
+}
+
+h3.recentComparisons {
+  font-size: 1.0rem;
+  text-align: center;
+  font-family: "Roboto", sans-serif;
+}

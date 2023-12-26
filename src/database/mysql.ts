@@ -1,9 +1,9 @@
-import { ComparisonResult, EmailAddress, SnowflakeType } from '../types';
+import { ComparableObjectModel, UserModel } from '../types/model';
+import { ComparisonResult, EmailAddress, SnowflakeType, UserId } from '../types';
 import { PoolConnection, getConnection } from './mysqlConnections';
 
 import { ComparisonRequestResponseBody } from '../types/datasource';
 import { RowDataPacket } from 'mysql2';
-import { UserModel } from '../types/model';
 import { createUserIdFromEmail } from '../auth/user';
 
 export type { PoolConnection };
@@ -21,11 +21,11 @@ export const getDbUserByEmail = (email: EmailAddress): UserModel => {
 
 // const retrieve
 
-const populateElementsFromDatabase = async <T>(
+const populateElementsFromDatabase = async (
   conn: PoolConnection,
-  comparisonResults: ComparisonResult<T>[]
-): Promise<ComparisonResult<T>[]> => {
-  const resultMap: Map<SnowflakeType, ComparisonResult<T>> = new Map();
+  comparisonResults: ComparisonResult[]
+): Promise<ComparisonResult[]> => {
+  const resultMap: Map<SnowflakeType, ComparisonResult> = new Map();
   comparisonResults.forEach((cr) => {
     resultMap.set(cr.id, cr);
   });
@@ -46,18 +46,25 @@ const populateElementsFromDatabase = async <T>(
         }
         // : {comparisonId: BigInt, objectId: string, elementId: BigInt}
         elementResults.forEach((elementRow: RowDataPacket, index, arrayValues) => {
-          const cr: ComparisonResult<T> | undefined = resultMap.get(elementRow.comparisonId);
+          const cr: ComparisonResult | undefined = resultMap.get(elementRow.comparisonId);
           if (cr) {
             if (!cr.elements) {
               cr.elements = [];
             }
             const element = cr?.elements.find((element) => element.elementId == elementRow.elementId);
+            // const comparableObject: ComparableObjectModel = {
+            //   elementId: elementRow.elementId,
+            //   id: elementRow.comparisonElementId,
+            //   objectId: elementRow.objectId,
+            // };
             if (element) {
-              element.data.push(elementRow.objectId);
+              // element.data.push(comparableObject);
+              element.objects.push(elementRow.objectId);
             } else {
               cr?.elements.push({
-                data: [elementRow.objectId],
+                // data: [comparableObject],
                 elementId: elementRow.elementId,
+                objects: [elementRow.objectId],
               });
             }
           }
@@ -67,11 +74,13 @@ const populateElementsFromDatabase = async <T>(
   });
 };
 
-export const retrieveComparisonResults = async <T>(): Promise<ComparisonResult<T>[]> => {
+export const retrieveComparisonResults = async (userId?: UserId): Promise<ComparisonResult[]> => {
   const conn = await getConnection();
 
-  return new Promise<ComparisonResult<T>[]>((resolve, reject) => {
+  return new Promise<ComparisonResult[]>((resolve, reject) => {
     try {
+//          ${userId ? 'AND C.userId = ?' : ''}
+//         [userId ? userId : undefined],
       conn.query(
         `select C.id as comparisonId, C.collectionId, C.userId, C.requestTime, CR.selectedComparisonElementId
          FROM Comparison C 
@@ -90,7 +99,7 @@ export const retrieveComparisonResults = async <T>(): Promise<ComparisonResult<T
               )
             );
           } else {
-            const outputResults: ComparisonResult<T>[] = comparisonResults.map((result: any) => {
+            const outputResults: ComparisonResult[] = comparisonResults.map((result: any) => {
               return {
                 id: result.comparisonId,
                 requestTime: result.requestTime,

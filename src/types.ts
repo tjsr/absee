@@ -34,23 +34,35 @@ export type ComparableObjectResponse<T> = {
 
 export type ComparisonSelectionResponse<T> = {
   id: SnowflakeType;
-  responseTime?: ISO8601Date;
+  responseTime: ISO8601Date;
   userId: UserId;
   a: ComparableObjectResponse<T>;
   b: ComparableObjectResponse<T>;
 };
 
-export type ComparisonElement<T> = {
+export type ComparisonElementResponse<T> = {
   elementId: SnowflakeType;
   data: T[];
 }
 
-export type ComparisonResult<T> = {
+
+export type ComparisonElement = {
+  elementId: SnowflakeType;
+  objects: string[];
+}
+
+export type ComparisonResult = {
   id: SnowflakeType;
   userId: UserId;
-  elements: ComparisonElement<T>[];
-  // a: ComparisonElement<T>;
-  // b: ComparisonElement<T>;
+  elements: ComparisonElement[];
+  winner: SnowflakeType;
+  requestTime: ISO8601Date;
+};
+
+export type ComparisonResultResponse<T> = {
+  id: SnowflakeType;
+  userId: UserId;
+  elements: ComparisonElementResponse<T>[];
   winner: SnowflakeType;
   requestTime: ISO8601Date;
 };

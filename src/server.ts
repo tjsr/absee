@@ -81,7 +81,16 @@ export const startApp = (): express.Express => {
   app.get('/debugHeaders', debugHeaders);
   app.post('/login', login);
   app.get('/logout', logout);
-  app.get('/api/recent(/:collection)?', recent);
+  app.get('/api/recent(/:collectionId)?',
+    async (request: ABSeeRequest, response: express.Response) => {
+      const collectionId = request.params.collectionId;
+      if (collectionId == PINNY_ARCADE_DEV_COLLECTION_ID) {
+        await recent(request, response, PINNY_ARCADE_DEV_COLLECTION_ID);
+      } else {
+        response.status(401);
+        response.end();
+      }
+    });
   app.get(
     '/collection/:collectionId',
     async (request: ABSeeRequest, response: express.Response) => {
