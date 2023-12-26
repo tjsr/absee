@@ -25,6 +25,10 @@ const Frontend = ({ collectionId } : FrontendProps): JSX.Element => {
       path: '/',
     },
     {
+      element: <CompareScreen collectionId={collectionId}/>,
+      path: '/compare/(?<group1>)/(?<group2>)',
+    },
+    {
       element: <RecentComparisons collectionId={DEFAULT_COLLECTION} currentUser={true}/>,
       path: 'recent/me',
     },

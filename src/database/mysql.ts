@@ -38,14 +38,14 @@ const populateElementsFromDatabase = async (
       `SELECT CE.comparisonId, CE.objectId, CE.elementId, CE.id as comparisonElementId 
        FROM ComparisonElement CE
        WHERE CE.comparisonId IN (${ids})`,
-      (elementErr: any, elementResults: any[], elementFields) => {
+      (elementErr: any, elementResults: any[]) => {
         // console.log(`elementFields: ${JSON.stringify(elementFields)}`);
         console.log(`Got ${JSON.stringify(elementResults)} elements for IDs ${comparisonIds}`);
         if (elementErr) {
           return reject(elementErr);
         }
         // : {comparisonId: BigInt, objectId: string, elementId: BigInt}
-        elementResults.forEach((elementRow: RowDataPacket, index, arrayValues) => {
+        elementResults.forEach((elementRow: RowDataPacket) => {
           const cr: ComparisonResult | undefined = resultMap.get(elementRow.comparisonId);
           if (cr) {
             if (!cr.elements) {
@@ -79,8 +79,8 @@ export const retrieveComparisonResults = async (userId?: UserId): Promise<Compar
 
   return new Promise<ComparisonResult[]>((resolve, reject) => {
     try {
-//          ${userId ? 'AND C.userId = ?' : ''}
-//         [userId ? userId : undefined],
+      //          ${userId ? 'AND C.userId = ?' : ''}
+      //         [userId ? userId : undefined],
       conn.query(
         `select C.id as comparisonId, C.collectionId, C.userId, C.requestTime, CR.selectedComparisonElementId
          FROM Comparison C 

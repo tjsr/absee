@@ -24,22 +24,35 @@ export const serveComparison = async <T, D>(
     const idString: string = getUserIdentificationString(request);
     const ipAddress = getIp(request);
     const comparisonId: SnowflakeType = getSnowflake();
-    console.debug(`Serving comparison request ${comparisonId} to userId ${userId} (${idString})`);
+    const objectsQueryString = request.query.objects as string;
+    const queryStringGroups:string[] = objectsQueryString?.split('|');
+    let leftElements: string[]|undefined = undefined;
+    let rightElements: string[]|undefined = undefined;
 
     const loader: CollectionTypeLoader<T, D> = await getLoader(loaderId);
+    if (queryStringGroups?.length == 2) {
+      leftElements = queryStringGroups[0].split(',');
+      rightElements = queryStringGroups[1].split(',');
+      console.debug(`Serving comparison request ${comparisonId} to userId ${userId} (${idString}) 
+        with predefined set ${leftElements} vs ${rightElements}}`);
+    } else {
+      console.debug(`Serving comparison request ${comparisonId} to userId ${userId} (${idString})`);
 
-    const candidateElements: [string[], string[]] = createCandidateElementList(
-      loader,
-      loader.getNumberOfElements(loader),
-      loader.maxElementsPerComparison,
-      loader.maxElementsPerComparison
-    );
+      const candidateElements: [string[], string[]] = createCandidateElementList(
+        loader,
+        loader.getNumberOfElements(loader),
+        loader.maxElementsPerComparison,
+        loader.maxElementsPerComparison
+      );
+      leftElements = candidateElements[0];
+      rightElements = candidateElements[1];
+    }
 
     const left: ComparableObjectModel[] = createComparableObjectList(
-      candidateElements[0]
+      leftElements
     );
     const right: ComparableObjectModel[] = createComparableObjectList(
-      candidateElements[1]
+      rightElements
     );
     const comparisonRequest: ComparisonModel = createComparisonSelection(
       loader.collectionId,

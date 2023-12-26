@@ -18,6 +18,7 @@ import { LoginControl } from './auth/LoginControl';
 import { Pin } from '../pins/pinpanion';
 import { RestCallResult } from '../types/apicalls';
 import SuperJSON from 'superjson';
+import { useSearchParams } from 'react-router-dom';
 
 type CompareScreenProps = {
   collectionId: string;
@@ -36,11 +37,25 @@ const CompareScreen = <T extends unknown>({ collectionId } : CompareScreenProps)
   const [comparison, setComparison] = useState<ComparisonSelectionResponse<T> | undefined>(undefined);
   const [comparisonLoaded, setComparisonLoaded] = useState<boolean>(false);
   const [comparisonLoading, setComparisonLoading] = useState<boolean>(false);
+  const [searchParams, setSearchParams] = useSearchParams();
   const fakeEmails = false;
 
   const [isLoggedIn, setLoggedIn] = useState<boolean>(false);
   const [email, setEmail] = useState<EmailAddress | undefined>(undefined);
   const dropRef: React.MutableRefObject<HTMLDivElement | null> = useRef<HTMLDivElement|null>(null);
+
+  const queryString = new URLSearchParams(window.location.search);
+  const preselectedObjects = queryString.get('objects'); // searchParams.get('options'); // queryString.get('objects');
+  let preselectedObjectArr: string[][]|undefined = undefined;
+  if (preselectedObjects) {
+    preselectedObjectArr = preselectedObjects.split('|').map(
+      (objectList: string) => objectList.split(','));
+    console.log(`Got a preselected list of ${preselectedObjectArr.join('|')}`);
+  }
+  // const params = useParams<{ group1: string, group2: string }>();
+  // if (params.group1 && params.group2) {
+
+  // }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   useGoogleLogin({
@@ -52,10 +67,13 @@ const CompareScreen = <T extends unknown>({ collectionId } : CompareScreenProps)
 
   const selectElement = async (elementId: SnowflakeType): Promise<void> => {
     const result: RestCallResult = await submitComparisonChoice(comparison!, elementId);
+    const optionsParam = `?${new URLSearchParams({ })}`;
     if (result.success) {
+      setSearchParams(optionsParam);
       setComparisonLoaded(false);
       console.debug(`Successfully submitted choice of ${elementId} for comparison ${comparison!.id}`);
     } else {
+      setSearchParams(optionsParam);
       setComparisonLoaded(false);
       console.warn(`Failed selecting element ${elementId} for comparison ${comparison?.id}`);
       throw new Error(`Failed with HTTP status ${result.status}`);
@@ -82,7 +100,7 @@ const CompareScreen = <T extends unknown>({ collectionId } : CompareScreenProps)
       if (!comparisonLoading && !comparisonLoaded) {
         setComparisonLoading(true);
         setComparisonLoaded(false);
-        const res = await fetchNewComparison(collectionId);
+        const res = await fetchNewComparison(collectionId, preselectedObjectArr);
         if (res.success) {
           console.log(`Loaded ${SuperJSON.stringify(res.data)}`);
           const comparisonRequest: ComparisonSelectionResponse<T> = res.data.json;
