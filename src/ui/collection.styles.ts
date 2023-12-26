@@ -3,7 +3,7 @@ import styled from 'styled-components';
 export const ComparisonElement = styled.div<
   {paddingLeft?: number, paddingRight?: number, isHighlighted?: boolean, selectGlowColor?: string }
 >`
-display: flex;
+display: -webkit-inline-box;
 flex-wrap: wrap;
 max-width: 36rem;
 border: 1px solid #000;
