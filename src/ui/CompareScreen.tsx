@@ -11,6 +11,7 @@ import { TokenResponse, useGoogleLogin } from '@react-oauth/google';
 import { fetchNewComparison, fetchNewSession, submitComparisonChoice } from './comparisonChoice';
 
 import Cookies from 'js-cookie';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { ElementPicker } from './simplePicker';
 import { InfoBlurb } from './InfoBlurb';
 import { Link } from 'react-router-dom';
@@ -30,6 +31,23 @@ const getCookieUserId = (): string | undefined => {
     return undefined;
   }
   return userIdValue;
+};
+
+type ComparisonLinkProps<T> = {
+  comparison: ComparisonSelectionResponse<T> | undefined;
+}
+
+const ComparisonLink = ({ comparison }: ComparisonLinkProps<Pin>): JSX.Element => {
+  if (!comparison) {
+    return <div>No comparison loaded</div>;
+  }
+  const linkString = `${location.protocol}//${location.host}/?objects=` +
+    comparison.a.objects.join(',') + '|' + comparison.b.objects.join(',');
+  return (
+    <CopyToClipboard text={linkString}>
+      <button>Copy link clipboard</button>
+    </CopyToClipboard>
+  );
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-constraint
@@ -146,6 +164,7 @@ const CompareScreen = <T extends unknown>({ collectionId } : CompareScreenProps)
               dropRef={dropRef}
               leftElement={comparison!.a as ComparableObjectResponse<Pin>}
               rightElement={comparison!.b as ComparableObjectResponse<Pin>} />
+            <ComparisonLink comparison={comparison as ComparisonSelectionResponse<Pin>}/>
             <InfoBlurb />
             <Link to="/recent">Recent comparisons</Link>
           </>
