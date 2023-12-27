@@ -36,7 +36,7 @@ const createNewUniqueElementArray = <T>(loader: CollectionTypeLoader<T, any>,
 
   let listSize = randomlySelectNumberOfElements(max == undefined ? 4 : max);
   while (listSize > 0) {
-    const randomObjectId: string = getRandomObjectId<T>(loader);
+    const randomObjectId: string = getPrioritizedOrRandomObjectId<T>(loader);
     if (randomObjectId == '0') {
       continue;
     }
@@ -91,7 +91,7 @@ export const validateEmailString = (email: string): boolean => {
   return EmailValidator.validate(email);
 };
 
-function getRandomObjectId<T>(loader: CollectionTypeLoader<T, any>) {
+const getRandomObjectId = <T>(loader: CollectionTypeLoader<T, any>): string => {
   const randomIndex: number = getRandomId(
     loader.getNumberOfElements(loader)
   );
@@ -99,5 +99,13 @@ function getRandomObjectId<T>(loader: CollectionTypeLoader<T, any>) {
   const objectForIndex: T = loader.getObjectByIndex(loader.collectionData, randomIndex);
   const randomObjectId: string = loader.getObjectId(objectForIndex);
   return randomObjectId;
-}
+};
+
+const getPrioritizedOrRandomObjectId = <T>(loader: CollectionTypeLoader<T, any>): string => {
+  const id = loader.prioritizedObjectIdList?.pop();
+  if (id) {
+    return id;
+  }
+  return getRandomObjectId(loader);
+};
 

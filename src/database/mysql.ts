@@ -1,9 +1,9 @@
-import { ComparableObjectModel, UserModel } from '../types/model';
 import { ComparisonResult, EmailAddress, SnowflakeType, UserId } from '../types';
 import { PoolConnection, getConnection } from './mysqlConnections';
 
 import { ComparisonRequestResponseBody } from '../types/datasource';
 import { RowDataPacket } from 'mysql2';
+import { UserModel } from '../types/model';
 import { createUserIdFromEmail } from '../auth/user';
 
 export type { PoolConnection };
@@ -74,7 +74,7 @@ const populateElementsFromDatabase = async (
   });
 };
 
-export const retrieveComparisonResults = async (userId?: UserId): Promise<ComparisonResult[]> => {
+export const retrieveComparisonResults = async (collectionId: string, userId?: UserId): Promise<ComparisonResult[]> => {
   const conn = await getConnection();
 
   return new Promise<ComparisonResult[]>((resolve, reject) => {
@@ -87,8 +87,10 @@ export const retrieveComparisonResults = async (userId?: UserId): Promise<Compar
          LEFT JOIN ComparisonResponse CR ON C.id = CR.id 
          LEFT JOIN User U ON U.id = C.userId
          WHERE CR.selectedComparisonElementId IS NOT NULL
+          AND C.collectionId = ?
          ORDER BY C.requestTime DESC
          LIMIT 10`,
+        [collectionId],
         (comparisonErr, comparisonResults, fields) => {
           console.log(`Fields: ${JSON.stringify(fields)}`);
           if (comparisonResults == undefined) {

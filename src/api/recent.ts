@@ -10,8 +10,9 @@ import { getLoader } from '../loaders';
 import { retrieveComparisonResults } from '../database/mysql';
 
 const retrieveComparisonsForUser = async <T>(
+  collectionId: string,
   userId: UserId): Promise<ComparisonResult[]> => {
-  return retrieveComparisonResults(userId);
+  return retrieveComparisonResults(collectionId, userId);
 };
 
 export const recent = async <T, D>(request: ABSeeRequest, response: express.Response, loaderId: CollectionIdType) => {
@@ -26,7 +27,7 @@ export const recent = async <T, D>(request: ABSeeRequest, response: express.Resp
     const ipAddress = getIp(request);
     const loader: CollectionTypeLoader<T, D> = await getLoader(loaderId);
 
-    retrieveComparisonsForUser<T>(userId).then((comparisons: ComparisonResult[]) => {
+    retrieveComparisonsForUser<T>(collection, userId).then((comparisons: ComparisonResult[]) => {
       response.contentType('application/json');
       const responseJson = createComparisonResultResponse<T>(comparisons, loader);
       response.send(responseJson);

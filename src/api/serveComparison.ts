@@ -12,7 +12,10 @@ import express from 'express';
 import { getIp } from '../server';
 import { getLoader } from '../loaders';
 import { getSnowflake } from '../snowflake';
+import { populatePrioritizedObjectList } from '../populatePrioritizedObjectList';
 import { storeComparisonRequest } from '../comparison';
+
+const MINIMUM_PRIORITIZED_OBJECTS = 100;
 
 export const serveComparison = async <T, D>(
   request: express.Request,
@@ -37,6 +40,11 @@ export const serveComparison = async <T, D>(
         with predefined set ${leftElements} vs ${rightElements}}`);
     } else {
       console.debug(`Serving comparison request ${comparisonId} to userId ${userId} (${idString})`);
+
+      if (loader.prioritizedObjectIdList === undefined ||
+        loader.prioritizedObjectIdList.length <= MINIMUM_PRIORITIZED_OBJECTS) {
+        await populatePrioritizedObjectList(loader);
+      }
 
       const candidateElements: [string[], string[]] = createCandidateElementList(
         loader,

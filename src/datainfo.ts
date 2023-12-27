@@ -38,6 +38,7 @@ export type CollectionTypeLoader<T, D> = {
   getObjectForId: (collectionData: D, id: IdType) => T;
   getObjectByIndex: (collectionData: D, index: number) => T;
   getObjectId: (object: T) => string;
+  prioritizedObjectIdList?: string[];
 };
 
 export const initializeLoader = async <T, D>(
