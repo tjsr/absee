@@ -13,6 +13,7 @@ import { fetchNewComparison, fetchNewSession, submitComparisonChoice } from './c
 import Cookies from 'js-cookie';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { ElementPicker } from './simplePicker';
+import { FaRegCopy } from "react-icons/fa";
 import { InfoBlurb } from './InfoBlurb';
 import { Link } from 'react-router-dom';
 import { LoginControl } from './auth/LoginControl';
@@ -44,9 +45,11 @@ const ComparisonLink = ({ comparison }: ComparisonLinkProps<Pin>): JSX.Element =
   const linkString = `${location.protocol}//${location.host}/?objects=` +
     comparison.a.objects.join(',') + '|' + comparison.b.objects.join(',');
   return (
-    <CopyToClipboard text={linkString}>
-      <button>Copy link clipboard</button>
-    </CopyToClipboard>
+    <div className="copyToClipboard">
+      Copy link clipboard <CopyToClipboard text={linkString}>
+        <FaRegCopy />
+      </CopyToClipboard>
+    </div>
   );
 };
 
