@@ -21,13 +21,12 @@ export const recent = async <T, D>(request: ABSeeRequest, response: express.Resp
   // response: express.Response,
   // loaderId: CollectionIdType
   try {
-    const collection: string = request.params.collection;
     const userId: UserId = getUserId(request);
     const idString: string = getUserIdentificationString(request);
     const ipAddress = getIp(request);
     const loader: CollectionTypeLoader<T, D> = await getLoader(loaderId);
 
-    retrieveComparisonsForUser<T>(collection, userId).then((comparisons: ComparisonResult[]) => {
+    retrieveComparisonsForUser<T>(loader.collectionId, userId).then((comparisons: ComparisonResult[]) => {
       response.contentType('application/json');
       const responseJson = createComparisonResultResponse<T>(comparisons, loader);
       response.send(responseJson);

@@ -25,6 +25,12 @@ const populateElementsFromDatabase = async (
   conn: PoolConnection,
   comparisonResults: ComparisonResult[]
 ): Promise<ComparisonResult[]> => {
+  if (comparisonResults.length == 0) {
+    const errMessage = `comparisonResult in populateElementsFromDatabase was empty`;
+    console.trace(errMessage);
+    throw Error(errMessage);
+  }
+
   const resultMap: Map<SnowflakeType, ComparisonResult> = new Map();
   comparisonResults.forEach((cr) => {
     resultMap.set(cr.id, cr);
@@ -32,13 +38,16 @@ const populateElementsFromDatabase = async (
 
   const comparisonIds: BigInt[] = comparisonResults.map((cr) => snowflakeToSqlId(cr.id));
   return new Promise((resolve, reject) => {
-    // console.log(`Selecting ${JSON.stringify(comparisonIds)}`);
     const ids: string = comparisonIds.join(',');
     conn.query(
       `SELECT CE.comparisonId, CE.objectId, CE.elementId, CE.id as comparisonElementId 
        FROM ComparisonElement CE
        WHERE CE.comparisonId IN (${ids})`,
       (elementErr: any, elementResults: any[]) => {
+        if (elementErr) {
+          console.error(`Error while retrieving elements for comparison IDs ${comparisonIds}`, elementErr);
+          return reject(elementErr);
+        }
         // console.log(`elementFields: ${JSON.stringify(elementFields)}`);
         console.log(`Got ${JSON.stringify(elementResults)} elements for IDs ${comparisonIds}`);
         if (elementErr) {
@@ -75,6 +84,9 @@ const populateElementsFromDatabase = async (
 };
 
 export const retrieveComparisonResults = async (collectionId: string, userId?: UserId): Promise<ComparisonResult[]> => {
+  if (collectionId === undefined) {
+    throw Error(`Can't call retrieveComparisonResults when collectionId is undefined`);
+  }
   const conn = await getConnection();
 
   return new Promise<ComparisonResult[]>((resolve, reject) => {
@@ -92,6 +104,11 @@ export const retrieveComparisonResults = async (collectionId: string, userId?: U
          LIMIT 10`,
         [collectionId],
         (comparisonErr, comparisonResults, fields) => {
+          if (comparisonErr) {
+            conn.release();
+            console.error(`Failed while retrieving comparison results for collection ${collectionId}`, comparisonErr);
+            return reject(comparisonErr);
+          }
           console.log(`Fields: ${JSON.stringify(fields)}`);
           if (comparisonResults == undefined) {
             conn.release();
@@ -99,6 +116,13 @@ export const retrieveComparisonResults = async (collectionId: string, userId?: U
               new Error(
                 `Retrieving comparison results was undefined.`
               )
+            );
+          } else if (comparisonResults.length == 0) {
+            conn.release();
+            const errorMessage = `No comparison results were returned for collection ${collectionId}.`;
+            console.error(errorMessage);
+            return reject(
+              new Error(errorMessage)
             );
           } else {
             const outputResults: ComparisonResult[] = comparisonResults.map((result: any) => {
