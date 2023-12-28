@@ -10,18 +10,19 @@ import { PinInfo } from '../pins/PinInfo';
 import SuperJSON from 'superjson';
 import { getServerHost } from './utils';
 
-export const fetchRecentComparisons = async (collectionId: string, currentUser = false) => {
+export const fetchRecentComparisons = async (collectionId: string, currentUser = false, maxComparisons?: number) => {
   try {
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
     };
     const sessionId = Cookies.get('sessionId');
+    const maxString = maxComparisons !== undefined && maxComparisons > 0 ? `?max=${maxComparisons}` : '';
     if (sessionId !== undefined && sessionId !== 'undefined') {
       headers['x-session-id'] = sessionId;
     }
 
     const response = await fetch(
-      `${getServerHost()}/api/recent/${collectionId}${currentUser ? '/me' : ''}`,
+      `${getServerHost()}/api/recent/${collectionId}${currentUser ? '/me' : ''}${maxString}`,
       {
         headers,
         method: 'GET',
@@ -39,9 +40,15 @@ export const fetchRecentComparisons = async (collectionId: string, currentUser =
 type RecentComparisonsProps = {
   collectionId: string;
   currentUser?: boolean;
+  maxComparisons?: number;
 }
 
-export const RecentComparisons = ({ currentUser = false, collectionId } : RecentComparisonsProps): JSX.Element => {
+export const RecentComparisons = (
+  {
+    currentUser = false,
+    collectionId,
+    maxComparisons,
+  } : RecentComparisonsProps): JSX.Element => {
   // const collectionId = '83fd0b3e-dd08-4707-8135-e5f138a43f00';
   const [recentLoading, setRecentLoading] = useState<boolean>(false);
   const [recentLoaded, setRecentLoaded] = useState<boolean>(false);
@@ -51,7 +58,7 @@ export const RecentComparisons = ({ currentUser = false, collectionId } : Recent
       if (!recentLoading && !recentLoaded) {
         setRecentLoading(true);
         setRecentLoaded(false);
-        const res = await fetchRecentComparisons(collectionId, currentUser);
+        const res = await fetchRecentComparisons(collectionId, currentUser, maxComparisons);
         if (res.success) {
           console.log(`Loaded ${SuperJSON.stringify(res.data)}`);
           console.log(`As json: ${res.data}`);
