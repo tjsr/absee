@@ -6,7 +6,7 @@ import { EmailAddress } from '../types';
 
 export const FreeformEmailLoginBox = (): JSX.Element => {
   const [loggedIn, setLoggedIn] = useState<boolean>(false);
-  const [email, setEmail] = useState<EmailAddress>('');
+  const [email, setEmail] = useState<EmailAddress|undefined>(undefined);
 
   useEffect(() => {
     // Check if the 'isLoggedIn' cookie exists and is set to 'true'
@@ -19,23 +19,29 @@ export const FreeformEmailLoginBox = (): JSX.Element => {
   }, []);
 
   const login = () => {
-    submitLogin(email)
-      .then((response) => {
-        setLoggedIn(response.success);
-      })
-      .catch((err) => {
-        setLoggedIn(false);
-        console.error(err);
-      });
+    if (email !== undefined && email.trim() !== '') {
+      submitLogin(email)
+        .then((response) => {
+          setLoggedIn(response.success);
+          setEmail(email);
+        })
+        .catch((err) => {
+          setLoggedIn(false);
+          setEmail(undefined);
+          console.error(err);
+        });
+    }
   };
 
   const logout = () => {
     submitLogout()
       .then(() => {
         setLoggedIn(false);
+        setEmail(undefined);
       })
       .catch((err) => {
         setLoggedIn(false);
+        setEmail(undefined);
         console.error(err);
       });
   };

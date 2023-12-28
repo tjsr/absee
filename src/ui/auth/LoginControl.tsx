@@ -4,32 +4,42 @@ import Cookies from 'js-cookie';
 import { EmailAddress } from '../../types';
 import { FreeformEmailLoginBox } from '../freeformEmailLogin';
 import React from 'react';
+import { submitLogout } from './apicalls';
 
 interface LoginControlProps {
   isLoggedIn: boolean;
   setLoggedIn: (isLoggedIn: boolean) => void;
   fakeEmails?: boolean;
   email: EmailAddress | undefined;
-  setEmail: (email: string) => void;
+  setEmail: (email: EmailAddress|undefined) => void;
 }
 
-const doGoogleLogout = (setLoggedIn: (loggedIn: boolean) => void): void => {
+export const doGoogleLogout = (
+  setLoggedIn: (loggedIn: boolean) => void,
+  setEmail: (email: EmailAddress|undefined) => void
+): void => {
   Cookies.remove('isLoggedIn');
   Cookies.remove('user_id');
   Cookies.remove('email');
   setLoggedIn(false);
+  setEmail(undefined);
+  submitLogout();
   googleLogout();
 };
 
 export const LoginControl = (
   { isLoggedIn, fakeEmails, setLoggedIn, email, setEmail } : LoginControlProps): JSX.Element => {
+  const showLogoutText = false;
   if (isLoggedIn) {
+    if (!showLogoutText) {
+      return <></>;
+    }
     return (
       <div>
         {/* Display content for logged in users */}
         <p>You are logged in as {email}!&nbsp;
           <a href="#" onClick={() => {
-            doGoogleLogout(setLoggedIn);
+            doGoogleLogout(setLoggedIn, setEmail);
           }}>Log out</a>
         </p>
       </div>
@@ -40,7 +50,7 @@ export const LoginControl = (
     return <FreeformEmailLoginBox />;
   }
 
-  return (<GoogleLogin
+  return (<span style={{float: 'right' }}><GoogleLogin
     ux_mode="redirect"
     onSuccess={(credentialResponse: CredentialResponse) => {
       if (credentialResponse.credential === undefined) {
@@ -55,6 +65,6 @@ export const LoginControl = (
       setLoggedIn(false);
       console.log('Login Failed');
     }}
-  />
+  /></span>
   );
 };
