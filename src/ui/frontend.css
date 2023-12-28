@@ -1,0 +1,194 @@
+/* Position and sizing of burger button */
+.bm-burger-button {
+  position: fixed;
+  width: 36px;
+  height: 30px;
+  left: 36px;
+  top: 36px;
+}
+
+.bm-overlay {
+  left: 0;
+  top: 0;
+}
+
+/* Color/shape of burger icon bars */
+.bm-burger-bars {
+  background: #373a47;
+}
+
+/* Color/shape of burger icon bars on hover*/
+.bm-burger-bars-hover {
+  background: #a90000;
+}
+
+/* Position and sizing of clickable cross button */
+.bm-cross-button {
+  height: 24px;
+  width: 24px;
+}
+
+/* Color/shape of close button cross */
+.bm-cross {
+  background: #bdc3c7;
+}
+
+/*
+Sidebar wrapper styles
+Note: Beware of modifying this element as it can break the animations - you should not need to touch it in most cases
+*/
+.bm-menu-wrap {
+  position: fixed;
+  height: 100%;
+}
+
+/* General sidebar styles */
+.bm-menu {
+  background: #373a47;
+  font-size: 1.15em;
+}
+
+/* Morph shape necessary with bubble or elastic */
+.bm-morph-shape {
+  fill: #373a47;
+}
+
+/* Wrapper for item list */
+.bm-item-list {
+  color: #b8b7ad;
+}
+
+/* Individual item */
+.bm-item {
+  display: inline-block;
+}
+
+/* Styling of overlay */
+.bm-overlay {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+html {
+  height: 100%;
+}
+
+#app {
+  height: 100%;
+}
+
+main a {
+  color: #4e4a46;
+  text-decoration: none;
+
+  &:hover,
+  &:focus {
+    color: #c94e50;
+  }
+}
+
+main {
+  color: #080802;
+  height: 100%;
+  text-align: center;
+  background: #d0d4e2;
+  overflow: auto;
+}
+
+body, div#outer-container {
+  background: #d0d4e2;
+}
+
+h1 {
+  font-weight: 800;
+  font-size: 3.75em;
+}
+
+.description {
+  max-width: 20em;
+  margin: 1.2em auto 1em;
+  line-height: 1.3em;
+  font-weight: 400;
+}
+
+@media screen and (max-width: 40em) {
+  main {
+    font-size: 80%;
+  }
+
+  h1 {
+    padding-top: 1em;
+    font-size: 2.5em;
+  }
+
+  .demo-buttons {
+    max-width: 900px;
+    padding: 0 2em;
+  }
+}
+
+.bm-burger-button button:focus {
+  outline: 2px solid #c94e50;
+  outline-offset: 8px;
+}
+
+.bm-burger-button {
+  button:focus + span {
+    span.bm-burger-bars {
+      background-color: #c94e50;
+    }
+  }
+}
+
+.right .bm-burger-button {
+  left: initial;
+  right: 36px;
+}
+
+.bm-burger-bars {
+  background: #373a47;
+}
+
+.bm-morph-shape {
+  fill: #373a47;
+}
+
+.bm-menu {
+  background: #373a47;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+  a {
+    color: #b8b7ad;
+
+    &:hover,
+    &:focus {
+      color: #c94e50;
+    }
+  }
+  
+  span {
+    margin-left: 10px;
+    font-weight: 700;
+    padding-top: 1rem;
+  }
+}
+
+.bm-item-list a {
+  padding: 0.8em;
+
+  span {
+    margin-left: 10px;
+    font-weight: 700;
+  }
+}
+
+.bm-item:focus {
+  outline: none;
+}
+
+@media screen and (max-width: 80em) {
+}
+
+body, div#root, div#outer-container {
+  margin: 0;
+  padding: 0;
+}

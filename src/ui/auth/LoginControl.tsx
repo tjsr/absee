@@ -13,6 +13,14 @@ interface LoginControlProps {
   setEmail: (email: string) => void;
 }
 
+const doGoogleLogout = (setLoggedIn: (loggedIn: boolean) => void): void => {
+  Cookies.remove('isLoggedIn');
+  Cookies.remove('user_id');
+  Cookies.remove('email');
+  setLoggedIn(false);
+  googleLogout();
+};
+
 export const LoginControl = (
   { isLoggedIn, fakeEmails, setLoggedIn, email, setEmail } : LoginControlProps): JSX.Element => {
   if (isLoggedIn) {
@@ -21,11 +29,7 @@ export const LoginControl = (
         {/* Display content for logged in users */}
         <p>You are logged in as {email}!&nbsp;
           <a href="#" onClick={() => {
-            Cookies.remove('isLoggedIn');
-            Cookies.remove('user_id');
-            Cookies.remove('email');
-            setLoggedIn(false);
-            googleLogout();
+            doGoogleLogout(setLoggedIn);
           }}>Log out</a>
         </p>
       </div>
