@@ -192,3 +192,10 @@ body, div#root, div#outer-container {
   margin: 0;
   padding: 0;
 }
+
+span.loggedIn {
+  font-size: 1.0rem;
+  padding-top: 0.5rem;
+  padding-right: 0.2rem;
+  font-weight: 500;
+}

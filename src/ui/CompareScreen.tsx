@@ -9,15 +9,13 @@ import {
 import { QUERYSTRING_ARRAY_DELIMETER, QUERYSTRING_ELEMENT_DELIMETER } from './utils';
 import React, { useEffect, useRef, useState } from 'react';
 import { TokenResponse, useGoogleLogin } from '@react-oauth/google';
-import { fetchNewComparison, fetchNewSession, submitComparisonChoice } from './comparisonChoice';
+import { fetchNewComparison, submitComparisonChoice } from './comparisonChoice';
 
-import Cookies from 'js-cookie';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { ElementPicker } from './simplePicker';
 import { FaRegCopy } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { LoginControl } from './auth/LoginControl';
-import { slide as Menu } from 'react-burger-menu';
 import { Pin } from '../pins/pinpanion';
 import { RestCallResult } from '../types/apicalls';
 import SuperJSON from 'superjson';
@@ -28,15 +26,11 @@ const HIDE_MESSAGE_TIMEOUT = 3000;
 
 type CompareScreenProps = {
   collectionId: string;
+  setEmail: (email: EmailAddress|undefined) => void;
+  email: EmailAddress | undefined;
+  isLoggedIn: boolean;
+  setLoggedIn: (loggedIn: boolean) => void;
 }
-
-const getCookieUserId = (): string | undefined => {
-  const userIdValue: string|undefined = Cookies.get('user_id');
-  if (userIdValue === 'undefined') {
-    return undefined;
-  }
-  return userIdValue;
-};
 
 type ComparisonLinkProps<T> = {
   comparison: ComparisonSelectionResponse<T> | undefined;
@@ -80,15 +74,19 @@ const ComparisonLink = ({ comparison }: ComparisonLinkProps<Pin>): JSX.Element =
 //         className={`copyMessage ${copyMessageState ? 'fadeOut' : ''}`}
 
 // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-constraint
-const CompareScreen = <T extends unknown>({ collectionId } : CompareScreenProps): JSX.Element => {
+const CompareScreen = <T extends unknown>({
+  collectionId,
+  setEmail,
+  email,
+  isLoggedIn,
+  setLoggedIn,
+} : CompareScreenProps): JSX.Element => {
   const [comparison, setComparison] = useState<ComparisonSelectionResponse<T> | undefined>(undefined);
   const [comparisonLoaded, setComparisonLoaded] = useState<boolean>(false);
   const [comparisonLoading, setComparisonLoading] = useState<boolean>(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const fakeEmails = false;
 
-  const [isLoggedIn, setLoggedIn] = useState<boolean>(false);
-  const [email, setEmail] = useState<EmailAddress | undefined>(undefined);
   const dropRef: React.MutableRefObject<HTMLDivElement | null> = useRef<HTMLDivElement|null>(null);
 
   const queryString = new URLSearchParams(window.location.search);
@@ -128,22 +126,7 @@ const CompareScreen = <T extends unknown>({ collectionId } : CompareScreenProps)
   };
 
   useEffect(() => {
-    const sessionId = Cookies.get('sessionId');
-
     (async () => {
-      if (sessionId === undefined || sessionId == 'undefined') {
-        await fetchNewSession();
-      }
-
-      const userId = getCookieUserId();
-      const cookieEmail = Cookies.get('email') || Cookies.get('displayName');
-      console.log(`User ID: ${userId}  Email: ${cookieEmail}`);
-      if (userId && cookieEmail) {
-        setLoggedIn(true);
-        setEmail(cookieEmail);
-        console.log(`Email: ${cookieEmail} (as cookie: ${Cookies.get('displayName')})`);
-      }
-
       if (!comparisonLoading && !comparisonLoaded) {
         setComparisonLoading(true);
         setComparisonLoaded(false);
@@ -166,17 +149,6 @@ const CompareScreen = <T extends unknown>({ collectionId } : CompareScreenProps)
       selectElement(comparison!.b.elementId);
     }
   };
-
-  // const googleSuccess = (resp: CredentialResponse) => {
-  //   let decoded = jwt_decode(resp?.credential);
-  //   const email = decoded?.email;
-  //   const name = decoded?.name;
-  //   const token = resp?.tokenId;
-  //   const googleId = resp?.googleId;
-  //   const result = { email, name, token, googleId };
-  //   dispatch(googleLogin({ result, navigate, toast }));
-  //   console.log(result);
-  // };
 
   return (
     <>
