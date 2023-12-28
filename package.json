@@ -87,7 +87,7 @@
     "tsx": "^4.7.0",
     "typescript": "^5.3.3",
     "vite": "^5.0.10",
-    "web-vitals": "^3.5.0"
+    "web-vitals": "^3.5.1"
   },
   "dependencies": {
     "@prisma/client": "^5.4.2",
