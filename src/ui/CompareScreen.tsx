@@ -21,7 +21,10 @@ import { slide as Menu } from 'react-burger-menu';
 import { Pin } from '../pins/pinpanion';
 import { RestCallResult } from '../types/apicalls';
 import SuperJSON from 'superjson';
+import { styled } from 'styled-components';
 import { useSearchParams } from 'react-router-dom';
+
+const HIDE_MESSAGE_TIMEOUT = 3000;
 
 type CompareScreenProps = {
   collectionId: string;
@@ -39,7 +42,22 @@ type ComparisonLinkProps<T> = {
   comparison: ComparisonSelectionResponse<T> | undefined;
 }
 
+const Snackbar = styled.span<{showPopup: boolean, backgroundColor?: string}>`
+  transition: opacity 3s ease-out 0s;
+  padding: 0.8rem;
+  font-size: 12pt;
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
+  font-family: sans-serif;
+  background-color: ${({ backgroundColor }) => `${backgroundColor ? backgroundColor : '#000'}`};
+  color: #fff;
+  opacity: ${({ showPopup }) => (showPopup ? '1' : '0')};
+`;
+
 const ComparisonLink = ({ comparison }: ComparisonLinkProps<Pin>): JSX.Element => {
+  const [copyMessageState, setCopyMessageState] = useState<boolean>(false);
+
   if (!comparison) {
     return <div>No comparison loaded</div>;
   }
@@ -49,12 +67,17 @@ const ComparisonLink = ({ comparison }: ComparisonLinkProps<Pin>): JSX.Element =
       comparison.b.objects.join(QUERYSTRING_ELEMENT_DELIMETER);
   return (
     <div className="copyToClipboard">
-      Copy link clipboard <CopyToClipboard text={linkString}>
+      Copy link clipboard <CopyToClipboard text={linkString} onCopy={() => setCopyMessageState(true)}>
         <FaRegCopy style={{ cursor: 'pointer' }} />
       </CopyToClipboard>
+      <Snackbar
+        showPopup={copyMessageState}
+        onTransitionEnd={() => setCopyMessageState(false)}
+      >Link copied to clipboard!</Snackbar>
     </div>
   );
 };
+//         className={`copyMessage ${copyMessageState ? 'fadeOut' : ''}`}
 
 // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-constraint
 const CompareScreen = <T extends unknown>({ collectionId } : CompareScreenProps): JSX.Element => {
