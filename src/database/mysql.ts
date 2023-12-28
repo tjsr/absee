@@ -83,7 +83,11 @@ const populateElementsFromDatabase = async (
   });
 };
 
-export const retrieveComparisonResults = async (collectionId: string, userId?: UserId): Promise<ComparisonResult[]> => {
+export const retrieveComparisonResults = async (
+  collectionId: string,
+  userId?: UserId,
+  maxComparisons = 50
+): Promise<ComparisonResult[]> => {
   if (collectionId === undefined) {
     throw Error(`Can't call retrieveComparisonResults when collectionId is undefined`);
   }
@@ -101,7 +105,7 @@ export const retrieveComparisonResults = async (collectionId: string, userId?: U
          WHERE CR.selectedComparisonElementId IS NOT NULL
           AND C.collectionId = ?
          ORDER BY C.requestTime DESC
-         LIMIT 10`,
+         LIMIT ${maxComparisons}`,
         [collectionId],
         (comparisonErr, comparisonResults, fields) => {
           if (comparisonErr) {

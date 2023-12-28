@@ -11,7 +11,8 @@ import { retrieveComparisonResults } from '../database/mysql';
 
 const retrieveComparisonsForUser = async <T>(
   collectionId: string,
-  userId: UserId): Promise<ComparisonResult[]> => {
+  userId: UserId,
+  maxComparisons?: number): Promise<ComparisonResult[]> => {
   return retrieveComparisonResults(collectionId, userId);
 };
 
@@ -26,7 +27,25 @@ export const recent = async <T, D>(request: ABSeeRequest, response: express.Resp
     const ipAddress = getIp(request);
     const loader: CollectionTypeLoader<T, D> = await getLoader(loaderId);
 
-    retrieveComparisonsForUser<T>(loader.collectionId, userId).then((comparisons: ComparisonResult[]) => {
+    let maxComparisons: number|undefined;
+
+    if (request.params.max != undefined) {
+      try {
+        const parsedMax = parseInt(request.params.max);
+        if (parsedMax < 0) {
+          return response.status(400).send({ message: 'max must be a number' });
+        }
+        maxComparisons = parsedMax;
+      } catch (err) {
+        return response.status(400).send({ message: 'max must be a number' });
+      }
+    }
+
+    retrieveComparisonsForUser<T>(
+      loader.collectionId,
+      userId,
+      maxComparisons
+    ).then((comparisons: ComparisonResult[]) => {
       response.contentType('application/json');
       const responseJson = createComparisonResultResponse<T>(comparisons, loader);
       response.send(responseJson);
