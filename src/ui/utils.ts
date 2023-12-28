@@ -5,3 +5,6 @@ export const getServerHost = (): string => {
   }
   return `http://${window.location.hostname}:8280`;
 };
+
+export const QUERYSTRING_ARRAY_DELIMETER = '~';
+export const QUERYSTRING_ELEMENT_DELIMETER = ',';

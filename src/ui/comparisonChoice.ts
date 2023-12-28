@@ -6,9 +6,9 @@ import {
   ComparisonSubmissionRequestBody,
   RestCallResult
 } from '../types/apicalls';
+import { QUERYSTRING_ARRAY_DELIMETER, QUERYSTRING_ELEMENT_DELIMETER, getServerHost } from './utils';
 
 import Cookies from 'js-cookie';
-import { getServerHost } from './utils';
 
 export const fetchNewSession = async () => {
   try {
@@ -38,7 +38,8 @@ export const fetchNewComparison = async (collectionId: string, comparisonObjects
     }
 
     const comparisonParams = comparisonObjects?.length == 2 ?
-      `?objects=${comparisonObjects[0].join(',')}|${comparisonObjects[1].join(',')}` : '';
+      `?objects=${comparisonObjects[0].join(QUERYSTRING_ELEMENT_DELIMETER)}`+
+        `${QUERYSTRING_ARRAY_DELIMETER}${comparisonObjects[1].join(QUERYSTRING_ELEMENT_DELIMETER)}` : '';
 
     const response = await fetch(
       `${getServerHost()}/collection/${collectionId}${comparisonParams}`,

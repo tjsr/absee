@@ -1,5 +1,6 @@
 import { CollectionIdType, ComparisonSelectionResponse, SnowflakeType, UserId } from '../types';
 import { ComparableObjectModel, ComparisonModel } from '../types/model';
+import { QUERYSTRING_ARRAY_DELIMETER, QUERYSTRING_ELEMENT_DELIMETER } from '../ui/utils';
 import { getUserId, getUserIdentificationString } from '../auth/user';
 
 import { CollectionTypeLoader } from '../datainfo';
@@ -28,14 +29,14 @@ export const serveComparison = async <T, D>(
     const ipAddress = getIp(request);
     const comparisonId: SnowflakeType = getSnowflake();
     const objectsQueryString = request.query.objects as string;
-    const queryStringGroups:string[] = objectsQueryString?.split('|');
+    const queryStringGroups:string[] = objectsQueryString?.split(QUERYSTRING_ARRAY_DELIMETER);
     let leftElements: string[]|undefined = undefined;
     let rightElements: string[]|undefined = undefined;
 
     const loader: CollectionTypeLoader<T, D> = await getLoader(loaderId);
     if (queryStringGroups?.length == 2) {
-      leftElements = queryStringGroups[0].split(',');
-      rightElements = queryStringGroups[1].split(',');
+      leftElements = queryStringGroups[0].split(QUERYSTRING_ELEMENT_DELIMETER);
+      rightElements = queryStringGroups[1].split(QUERYSTRING_ELEMENT_DELIMETER);
       console.debug(`Serving comparison request ${comparisonId} to userId ${userId} (${idString}) 
         with predefined set ${leftElements} vs ${rightElements}}`);
     } else {

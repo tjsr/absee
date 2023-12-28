@@ -6,6 +6,7 @@ import {
   EmailAddress,
   SnowflakeType
 } from '../types';
+import { QUERYSTRING_ARRAY_DELIMETER, QUERYSTRING_ELEMENT_DELIMETER } from './utils';
 import React, { useEffect, useRef, useState } from 'react';
 import { TokenResponse, useGoogleLogin } from '@react-oauth/google';
 import { fetchNewComparison, fetchNewSession, submitComparisonChoice } from './comparisonChoice';
@@ -43,7 +44,9 @@ const ComparisonLink = ({ comparison }: ComparisonLinkProps<Pin>): JSX.Element =
     return <div>No comparison loaded</div>;
   }
   const linkString = `${location.protocol}//${location.host}/?objects=` +
-    comparison.a.objects.join(',') + '|' + comparison.b.objects.join(',');
+    comparison.a.objects.join(QUERYSTRING_ELEMENT_DELIMETER) +
+      QUERYSTRING_ARRAY_DELIMETER +
+      comparison.b.objects.join(QUERYSTRING_ELEMENT_DELIMETER);
   return (
     <div className="copyToClipboard">
       Copy link clipboard <CopyToClipboard text={linkString}>
@@ -69,9 +72,9 @@ const CompareScreen = <T extends unknown>({ collectionId } : CompareScreenProps)
   const preselectedObjects = queryString.get('objects'); // searchParams.get('options'); // queryString.get('objects');
   let preselectedObjectArr: string[][]|undefined = undefined;
   if (preselectedObjects) {
-    preselectedObjectArr = preselectedObjects.split('|').map(
-      (objectList: string) => objectList.split(','));
-    console.log(`Got a preselected list of ${preselectedObjectArr.join('|')}`);
+    preselectedObjectArr = preselectedObjects.split(QUERYSTRING_ARRAY_DELIMETER).map(
+      (objectList: string) => objectList.split(QUERYSTRING_ELEMENT_DELIMETER));
+    console.log(`Got a preselected list of ${preselectedObjectArr.join(QUERYSTRING_ARRAY_DELIMETER)}`);
   }
   // const params = useParams<{ group1: string, group2: string }>();
   // if (params.group1 && params.group2) {
