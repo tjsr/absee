@@ -50,7 +50,7 @@ export const LoginControl = (
     return <FreeformEmailLoginBox />;
   }
 
-  return (<span style={{float: 'right' }}><GoogleLogin
+  return (<span style={ { float: 'right' } }><GoogleLogin
     ux_mode="redirect"
     onSuccess={(credentialResponse: CredentialResponse) => {
       if (credentialResponse.credential === undefined) {
