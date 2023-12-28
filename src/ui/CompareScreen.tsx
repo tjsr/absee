@@ -47,7 +47,7 @@ const ComparisonLink = ({ comparison }: ComparisonLinkProps<Pin>): JSX.Element =
   return (
     <div className="copyToClipboard">
       Copy link clipboard <CopyToClipboard text={linkString}>
-        <FaRegCopy />
+        <FaRegCopy style={{ cursor: 'pointer' }} />
       </CopyToClipboard>
     </div>
   );
