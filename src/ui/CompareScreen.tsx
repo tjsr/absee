@@ -13,10 +13,10 @@ import { fetchNewComparison, fetchNewSession, submitComparisonChoice } from './c
 import Cookies from 'js-cookie';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { ElementPicker } from './simplePicker';
-import { FaRegCopy } from "react-icons/fa";
-import { InfoBlurb } from './InfoBlurb';
+import { FaRegCopy } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { LoginControl } from './auth/LoginControl';
+import { slide as Menu } from 'react-burger-menu';
 import { Pin } from '../pins/pinpanion';
 import { RestCallResult } from '../types/apicalls';
 import SuperJSON from 'superjson';
@@ -168,7 +168,6 @@ const CompareScreen = <T extends unknown>({ collectionId } : CompareScreenProps)
               leftElement={comparison!.a as ComparableObjectResponse<Pin>}
               rightElement={comparison!.b as ComparableObjectResponse<Pin>} />
             <ComparisonLink comparison={comparison as ComparisonSelectionResponse<Pin>}/>
-            <InfoBlurb />
             <Link to="/recent">Recent comparisons</Link>
           </>
         ) : (
