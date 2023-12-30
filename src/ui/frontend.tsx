@@ -96,8 +96,8 @@ const Frontend = ({ collectionId } : FrontendProps): JSX.Element => {
     <>
       <div id="outer-container">
         <Menu pageWrapId="page-wrap" outerContainerId="outer-container">
-          { email && (<><span className="loggedIn">Logged in as {email}</span>
-            <a id="logout" className="menu-item" onClick={() => {
+          { email && (<><div className="loggedIn">Logged in as {email}</div>
+            <a id="logout" href="#" className="bm-item menu-item" onClick={() => {
               doGoogleLogout(setLoggedIn, setEmail);
               submitLogout();
             }}>Logout</a></>) }
