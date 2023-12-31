@@ -17,7 +17,7 @@ const TWENTYFOUR_HOURS = 1000 * 60 * 60 * 24;
 
 export const setUserCookies = (sessionId: string, userId: string,
   displayName: string, response: Response): void => {
-  console.log(`Setting user_id=${userId},displayName=${displayName} in callback for session=${sessionId}`);
+  // console.log(`Setting user_id=${userId},displayName=${displayName} in callback for session=${sessionId}`);
   const cookies: Map<string, string> = new Map<string, string>();
   response.header('access-control-expose-headers', 'Set-Cookie');
   cookies.set('user_id', userId);

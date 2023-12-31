@@ -13,7 +13,7 @@ const retrieveComparisonsForUser = async <T>(
   collectionId: string,
   userId: UserId,
   maxComparisons?: number): Promise<ComparisonResult[]> => {
-  return retrieveComparisonResults(collectionId, userId);
+  return retrieveComparisonResults(collectionId, userId, maxComparisons);
 };
 
 export const recent = async <T, D>(request: ABSeeRequest, response: express.Response, loaderId: CollectionIdType) => {
@@ -29,9 +29,9 @@ export const recent = async <T, D>(request: ABSeeRequest, response: express.Resp
 
     let maxComparisons: number|undefined;
 
-    if (request.params.max != undefined) {
+    if (request.query.max != undefined) {
       try {
-        const parsedMax = parseInt(request.params.max);
+        const parsedMax = parseInt(request.query?.max as string);
         if (parsedMax < 0) {
           return response.status(400).send({ message: 'max must be a number' });
         }

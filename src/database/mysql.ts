@@ -1,6 +1,7 @@
-import { ComparisonResult, EmailAddress, SnowflakeType, UserId } from '../types';
+import { ComparisonResult, EmailAddress, SnowflakeType, UserId, uuid5 } from '../types';
 import { PoolConnection, getConnection } from './mysqlConnections';
 
+import { CollectionTypeLoader } from '../datainfo';
 import { ComparisonRequestResponseBody } from '../types/datasource';
 import { RowDataPacket } from 'mysql2';
 import { UserModel } from '../types/model';
@@ -49,7 +50,7 @@ const populateElementsFromDatabase = async (
           return reject(elementErr);
         }
         // console.log(`elementFields: ${JSON.stringify(elementFields)}`);
-        console.log(`Got ${JSON.stringify(elementResults)} elements for IDs ${comparisonIds}`);
+        // console.log(`Got ${JSON.stringify(elementResults)} elements for IDs ${comparisonIds}`);
         if (elementErr) {
           return reject(elementErr);
         }
@@ -196,6 +197,60 @@ export const retrieveComparisonRequest = async (
           };
           resolve(data);
           conn.release();
+        }
+      );
+    } catch (err) {
+      reject(err);
+    }
+  });
+};
+
+export type CollectionTypeData = {
+  collectionId: uuid5;
+  name: string,
+  datasource: string;
+  description: string;
+  cachedData: string;
+  lastUpdateTime: Date;
+  maxElementsPerComparison: number;
+}
+
+export const retrieveCollections = async():
+  Promise<CollectionTypeData[]> => {
+  const conn = await getConnection();
+
+  return new Promise((resolve, reject) => {
+    try {
+      conn.query(
+        `SELECT collectionId, name, datasource, description, cachedData, lastUpdateTime, maxElementsPerComparison
+        FROM Collection`,
+        (err, results, fields) => {
+          if (err) {
+            conn.release();
+            return reject(err);
+          }
+          if (results == undefined || results.length <= 0) {
+            conn.release();
+            return reject(
+              new Error(
+                `No Collections were present in config table.`
+              )
+            );
+          }
+          const collectionConfigs: CollectionTypeData[] =
+            results.map((result: any) => {
+              return {
+                cachedData: result.cachedData,
+                collectionId: result.collectionId,
+                datasource: result.datasource,
+                description: result.description,
+                lastUpdatedTime: result.lastUpdatedTime,
+                maxElementsPerComparison: result.maxElementsPerComparison,
+                name: result.name,
+              };
+            });
+          conn.release();
+          resolve(collectionConfigs);
         }
       );
     } catch (err) {

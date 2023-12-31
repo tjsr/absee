@@ -124,7 +124,7 @@ const datasourceConvertor = <PinpanionData>(inputData: any): PinpanionData => {
   return inputData;
 };
 
-export const loader: CollectionTypeLoader<Pin, PinpanionData> = {
+export const defaultDevPinLoader: CollectionTypeLoader<Pin, PinpanionData> = {
   collectionData: undefined,
   collectionId: '83fd0b3e-dd08-4707-8135-e5f138a43f00',
   convertDatasourceOnLoad: datasourceConvertor,
@@ -134,4 +134,5 @@ export const loader: CollectionTypeLoader<Pin, PinpanionData> = {
   getObjectForId: getObjectForId,
   getObjectId: getObjectId,
   maxElementsPerComparison: 3,
+  name: 'pinpanion_dev',
 };

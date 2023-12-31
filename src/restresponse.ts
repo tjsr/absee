@@ -25,7 +25,7 @@ const resultToResultResponse = <T>(
   loader: CollectionTypeLoader<T, any>
 ): ComparisonResultResponse<T> => {
   const output: ComparisonResultResponse<T> = {
-    elements: result.elements.map((element: ComparisonElement) => elementToElementResponse(element, loader)),
+    elements: result.elements?.map((element: ComparisonElement) => elementToElementResponse(element, loader)),
     id: result.id.toString(),
     requestTime: result.requestTime,
     userId: result.userId.toString(),
@@ -42,7 +42,12 @@ export const createComparisonResultResponse = <T>(
     throw Error('Can\'t populate data when existingData has not been loaded.');
   }
 
-  return result.map((result: ComparisonResult) => resultToResultResponse(result, loader));
+  try {
+    return result.map((result: ComparisonResult) => resultToResultResponse(result, loader));
+  } catch (err) {
+    console.trace(err);
+    throw new Error('Error converting result to response');
+  }
 };
 
 export const createComparableObjectResponse = <T>(
