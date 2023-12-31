@@ -159,7 +159,7 @@ export const initialisePassportToExpressApp = (app: express.Express) => {
   passport.deserializeUser((googleId: string, done: (error: Error | null, user?: Profile) => void) => {
     // Look up user by id
     if (cachedGoogleUsers.has(googleId)) {
-      console.log(`Got user googleId=${googleId} from cache`);
+      // console.log(`Got user googleId=${googleId} from cache`);
       done(null, cachedGoogleUsers.get(googleId));
     } else {
       retrieveUserByGenericId(googleId).then((user: Profile) => {

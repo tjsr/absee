@@ -83,7 +83,7 @@ const Frontend = ({ collectionId } : FrontendProps): JSX.Element => {
       path: 'recent/me',
     },
     {
-      element: <RecentComparisons collectionId={DEFAULT_COLLECTION} />,
+      element: <RecentComparisons collectionId={DEFAULT_COLLECTION} maxComparisons={9999} />,
       path: 'recent',
     },
     {
