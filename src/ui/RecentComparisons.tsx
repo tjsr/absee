@@ -43,7 +43,7 @@ const updateEloRatings = (
 const calculateEloRatings = (recentComparisons: ComparisonResultResponse<Pin>[]) => {
   const filteredComparisons: ComparisonResultResponse<Pin>[] = recentComparisons
     ?.filter((comparison: ComparisonResultResponse<Pin>) =>
-      comparison.elements.every((element) => element.data.length == 1))
+      comparison.elements?.every((element) => element.data.length == 1))
     .sort((a, b) => a.requestTime?.toString().localeCompare(b.requestTime?.toString()));
   console.log(`Filtered to ${filteredComparisons.length} comparisons`);
 
