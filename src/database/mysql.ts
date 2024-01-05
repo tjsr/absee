@@ -114,7 +114,7 @@ export const retrieveComparisonResults = async (
             console.error(`Failed while retrieving comparison results for collection ${collectionId}`, comparisonErr);
             return reject(comparisonErr);
           }
-          console.log(`Fields: ${JSON.stringify(fields)}`);
+          // console.log(`Fields: ${JSON.stringify(fields)}`);
           if (comparisonResults == undefined) {
             conn.release();
             return reject(

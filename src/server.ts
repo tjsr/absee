@@ -81,7 +81,7 @@ export const startApp = (): express.Express => {
   app.get('/debugHeaders', debugHeaders);
   app.post('/login', login);
   app.get('/logout', logout);
-  app.get('/api/recent(/:collectionId)?',
+  app.get('/api/recent(/:collectionId)?(/me)?',
     async (request: ABSeeRequest, response: express.Response) => {
       const collectionId = request.params.collectionId;
       if (collectionId == PINNY_ARCADE_DEV_COLLECTION_ID) {
@@ -128,9 +128,15 @@ export const startApp = (): express.Express => {
 
   if (process.env.STATIC_CONTENT) {
     console.log(`Serving static content from ${process.env.STATIC_CONTENT}`);
-    app.use(express.static(process.env.STATIC_CONTENT));
+    const staticContent = express.static(process.env.STATIC_CONTENT);
+    app.get('/recent', staticContent);
+    app.get('/about', staticContent);
+    app.use(staticContent);
   } else {
-    app.use(createProxyMiddleware(proxyOptions));
+    const proxy = createProxyMiddleware(proxyOptions);
+    app.get('/recent', proxy);
+    app.get('/about', proxy);
+    app.use(proxy);
   }
 
   return app;

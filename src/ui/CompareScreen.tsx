@@ -6,6 +6,7 @@ import {
   EmailAddress,
   SnowflakeType
 } from '../types';
+import { Link, useLocation } from 'react-router-dom';
 import { QUERYSTRING_ARRAY_DELIMETER, QUERYSTRING_ELEMENT_DELIMETER } from './utils';
 import React, { useEffect, useRef, useState } from 'react';
 import { TokenResponse, useGoogleLogin } from '@react-oauth/google';
@@ -14,7 +15,6 @@ import { fetchNewComparison, submitComparisonChoice } from './comparisonChoice';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { ElementPicker } from './simplePicker';
 import { FaRegCopy } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
 import { LoginControl } from './auth/LoginControl';
 import { Pin } from '../pins/pinpanion';
 import { RestCallResult } from '../types/apicalls';
@@ -109,10 +109,11 @@ const CompareScreen = <T extends unknown>({
       console.log(`Google login success with token: ${tokenResponse}`);
     },
   });
+  const location = useLocation();
 
   const selectElement = async (elementId: SnowflakeType): Promise<void> => {
     const result: RestCallResult = await submitComparisonChoice(comparison!, elementId);
-    const optionsParam = `?${new URLSearchParams({ })}`;
+    const optionsParam = `?${new URLSearchParams(location.search)}`;
     if (result.success) {
       setSearchParams(optionsParam);
       setComparisonLoaded(false);

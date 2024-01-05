@@ -17,14 +17,8 @@ const retrieveComparisonsForUser = async <T>(
 };
 
 export const recent = async <T, D>(request: ABSeeRequest, response: express.Response, loaderId: CollectionIdType) => {
-  // = async <T, D>(
-  // request: express.Request,
-  // response: express.Response,
-  // loaderId: CollectionIdType
   try {
     const userId: UserId = getUserId(request);
-    const idString: string = getUserIdentificationString(request);
-    const ipAddress = getIp(request);
     const loader: CollectionTypeLoader<T, D> = await getLoader(loaderId);
 
     let maxComparisons: number|undefined;

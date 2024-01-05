@@ -1,10 +1,12 @@
 import './frontend.css';
 
-import React, { useEffect, useState } from 'react';
 import {
+  Link,
   RouterProvider,
-  createBrowserRouter
+  createBrowserRouter,
+  createHashRouter
 } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
 
 import { AboutPage } from './AboutPage';
 import CompareScreen from './CompareScreen';
@@ -66,7 +68,7 @@ const Frontend = ({ collectionId } : FrontendProps): JSX.Element => {
           {/* <RecentComparisons collectionId={DEFAULT_COLLECTION} currentUser={true}/> */}
         </>
       ),
-      path: '/',
+      path: '',
     },
     {
       element: <CompareScreen
@@ -80,15 +82,15 @@ const Frontend = ({ collectionId } : FrontendProps): JSX.Element => {
     },
     {
       element: <RecentComparisons collectionId={DEFAULT_COLLECTION} currentUser={true}/>,
-      path: 'recent/me',
+      path: '/recent/me',
     },
     {
       element: <RecentComparisons collectionId={DEFAULT_COLLECTION} maxComparisons={9999} />,
-      path: 'recent',
+      path: '/recent',
     },
     {
       element: <AboutPage />,
-      path: 'about',
+      path: '/about',
     },
   ]);
 
@@ -97,7 +99,7 @@ const Frontend = ({ collectionId } : FrontendProps): JSX.Element => {
       <div id="outer-container">
         <Menu pageWrapId="page-wrap" outerContainerId="outer-container">
           { email && (<><div className="loggedIn">Logged in as {email}</div>
-            <a id="logout" href="#" className="bm-item menu-item" onClick={() => {
+            <a id="logout" href="/" className="bm-item menu-item" onClick={() => {
               doGoogleLogout(setLoggedIn, setEmail);
               submitLogout();
             }}>Logout</a></>) }

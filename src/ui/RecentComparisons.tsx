@@ -106,6 +106,7 @@ export const RecentComparisons = (
   // const collectionId = '83fd0b3e-dd08-4707-8135-e5f138a43f00';
   const [recentLoading, setRecentLoading] = useState<boolean>(false);
   const [recentLoaded, setRecentLoaded] = useState<boolean>(false);
+  const [errorLoading, setErrorLoading] = useState<boolean>(false);
   const [recentComparisons, setRecentComparisons] = useState<ComparisonResultResponse<Pin>[]>([]);
   useEffect(() => {
     (async () => {
@@ -120,6 +121,8 @@ export const RecentComparisons = (
           setRecentComparisons(recentComparisonRequest as any);
           // console.log(`Recent comparisons is now ${recentComparisons}`);
           setRecentLoaded(true);
+        } else {
+          setErrorLoading(true);
         }
         setRecentLoading(false);
       }
@@ -128,6 +131,8 @@ export const RecentComparisons = (
 
   if (!recentLoaded) {
     return <div>Loading recent comparisons...</div>;
+  } else if (errorLoading) {
+    return <div>Error loading comparisons.</div>
   } else if (recentComparisons) {
     calculateEloRatings(recentComparisons);
 
