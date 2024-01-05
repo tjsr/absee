@@ -132,7 +132,7 @@ export const RecentComparisons = (
   if (!recentLoaded) {
     return <div>Loading recent comparisons...</div>;
   } else if (errorLoading) {
-    return <div>Error loading comparisons.</div>
+    return <div>Error loading comparisons.</div>;
   } else if (recentComparisons) {
     calculateEloRatings(recentComparisons);
 
