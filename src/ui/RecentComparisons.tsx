@@ -7,8 +7,10 @@ import Cookies from 'js-cookie';
 import { Link } from 'react-router-dom';
 import { Pin } from '../pins/pinpanion';
 import { PinInfo } from '../pins/PinInfo';
-import SuperJSON from 'superjson';
 import { getServerHost } from './utils';
+
+// import SuperJSON from 'superjson';
+
 
 const eloRating: Map<number, number> = new Map<number, number>();
 
@@ -48,13 +50,17 @@ const calculateEloRatings = (recentComparisons: ComparisonResultResponse<Pin>[])
   console.log(`Filtered to ${filteredComparisons.length} comparisons`);
 
   filteredComparisons.forEach((comparison) => {
-    const elementRatings: number[] = comparison.elements.map((element) => getEloRatingForElement(element));
-    const winningElement = comparison.elements.filter((element) => element.elementId == comparison.winner)[0];
-    const otherElement = comparison.elements.filter((element) => element.elementId != comparison.winner)[0];
+    const elementRatings: number[] = comparison.elements?.map((element) => getEloRatingForElement(element));
+    const winningElement = comparison.elements?.filter((element) => element.elementId == comparison.winner)[0];
+    const otherElement = comparison.elements?.filter((element) => element.elementId != comparison.winner)[0];
 
-    updateEloRatings(winningElement, otherElement);
+    if (winningElement && otherElement) {
+      updateEloRatings(winningElement, otherElement);
+      console.log(`Camparison ${elementRatings.join(' vs ')} on ${comparison.requestTime}`);
+    } else {
+      console.warn('Didnt get both a winning and other element.');
+    }
 
-    console.log(`Camparison ${elementRatings.join(' vs ')} on ${comparison.requestTime}`);
   //   const currentElo = comparison.elements.forEach((element) => {
   //     element.data.filter((d) => d.=> {
   //     element.data.filter((d) => d.forEach((data) => {
@@ -143,7 +149,7 @@ export const RecentComparisons = (
           {recentComparisons?.map((comparison) => {
             return (
               <div className='comparisonGroup' key={comparison.id}>
-                {comparison.elements.map((element: ComparisonElementResponse<Pin>) => {
+                {comparison.elements?.map((element: ComparisonElementResponse<Pin>) => {
                   const style = comparison.winner == element.elementId ? { backgroundColor: '#e1ffe1' } : {};
                   return <div style={style}
                     key={element.elementId}>
