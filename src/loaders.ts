@@ -9,6 +9,7 @@ import { defaultDevPinLoader } from '../src/pins/pinpanion';
 const predefinedLoaders = new Map<string, CollectionTypeLoader<any, any>>();
 predefinedLoaders.set('pinpanion', defaultDevPinLoader);
 predefinedLoaders.set('pinnyarcade_dev', defaultDevPinLoader);
+predefinedLoaders.set('pinnyarcade', defaultDevPinLoader);
 predefinedLoaders.set(defaultDevPinLoader.collectionId, defaultDevPinLoader);
 let allLoaders: CollectionTypeLoader<any, any>[]; // = undefined; //await retrieveCollections();// pinLoader];
 
@@ -16,12 +17,11 @@ export const getLoader = async <ComparableElementType, DataList>(id: CollectionI
   Promise<CollectionTypeLoader<ComparableElementType, DataList>> => {
   if (allLoaders === undefined) {
     allLoaders = [];
-    const loaderData: CollectionTypeData[] = (await retrieveCollections()).filter((loader) =>
-      loader.collectionId === id);
+    const loaderData: CollectionTypeData[] = await retrieveCollections();
     loaderData.map((loader: CollectionTypeData) => {
       const predefinedLoader = predefinedLoaders.get(loader.collectionId) || predefinedLoaders.get(loader.name);
       if (predefinedLoader === undefined) {
-        throw new Error(`No predefined loader for data type ${loader.name}`);
+        throw new Error(`No predefined loader for data type ${loader.name} (${loader.collectionId})`);
       }
       const outputLoader: CollectionTypeLoader<ComparableElementType, DataList> = {
         ...predefinedLoader,
