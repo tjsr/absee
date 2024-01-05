@@ -16,7 +16,8 @@ export const getLoader = async <ComparableElementType, DataList>(id: CollectionI
   Promise<CollectionTypeLoader<ComparableElementType, DataList>> => {
   if (allLoaders === undefined) {
     allLoaders = [];
-    const loaderData: CollectionTypeData[] = await retrieveCollections();
+    const loaderData: CollectionTypeData[] = (await retrieveCollections()).filter((loader) =>
+      loader.collectionId === id);
     loaderData.map((loader: CollectionTypeData) => {
       const predefinedLoader = predefinedLoaders.get(loader.collectionId) || predefinedLoaders.get(loader.name);
       if (predefinedLoader === undefined) {
