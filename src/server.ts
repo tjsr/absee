@@ -9,10 +9,12 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import { debugHeaders } from './api/debugHeaders';
+import fs from 'fs';
 import { initialisePassportToExpressApp } from './auth/passport';
 import { login } from './api/login';
 import { logout } from './api/logout';
 import morgan from 'morgan';
+import path from 'path';
 import { recent } from './api/recent';
 import requestIp from 'request-ip';
 import { serveComparison } from './api/serveComparison';
@@ -126,16 +128,31 @@ export const startApp = (): express.Express => {
     target: frontendData,
   };
 
+  const clientPaths: string[] = [
+    '/recent(/*)?',
+    '/about(/*)?',
+  ];
+
+  const serveIndex = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    res.setHeader('Content-Type', 'text/html');
+    res.writeHead(200);
+    const __filename = new URL('../index.html', import.meta.url).pathname;
+    res.write(fs.readFileSync(__filename));
+    res.end();
+  };
+
   if (process.env.STATIC_CONTENT) {
     console.log(`Serving static content from ${process.env.STATIC_CONTENT}`);
     const staticContent = express.static(process.env.STATIC_CONTENT);
-    app.get('/recent', staticContent);
-    app.get('/about', staticContent);
+    clientPaths.forEach((path: string) => {
+      app.all(path, serveIndex);
+    });
     app.use(staticContent);
   } else {
     const proxy = createProxyMiddleware(proxyOptions);
-    app.get('/recent', proxy);
-    app.get('/about', proxy);
+    clientPaths.forEach((path: string) => {
+      app.all(path, proxy);
+    });
     app.use(proxy);
   }
 
