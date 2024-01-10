@@ -1,10 +1,13 @@
 import { ABSeeRequest, ABSeeSessionData } from '../session';
+import { EmailAddress, UserId } from '../types';
 import { Strategy as GoogleStrategy, Profile } from 'passport-google-oauth20';
 import express, { NextFunction, Response } from 'express';
 
 import { getConnectionPool } from '../database/mysqlConnections';
+import { getUserId } from './user';
 import passport from 'passport';
 import { requireEnv } from '../utils';
+import { saveUserLogin } from '../api/login';
 import { setUserCookies } from '../sessions/getSession';
 
 // Configure Google authentication strategy
@@ -17,14 +20,23 @@ const getDisplayNameFromProfile = (profile: Profile): string => {
 };
 
 const cachedGoogleUsers: Map<string, any> = new Map<string, any>();
-const cacheGoogleUser = (user: any): void => {
+const cacheGoogleUser = (user: UserDatabaseTableRow): void => {
   const googleId = user.google_id;
   cachedGoogleUsers.set(googleId, user);
 };
 
+type GoogleId = string;
+
+interface UserDatabaseTableRow {
+  id?: UserId;
+  display_name: string;
+  email: EmailAddress | null;
+  google_id: GoogleId;
+}
+
 const createUserIdFromEmail = (profile: Profile, googleId: string): Promise<any> => {
   const displayName = getDisplayNameFromProfile(profile);
-  const newUser = {
+  const newUser: UserDatabaseTableRow = {
     display_name: displayName,
     email: profile.emails && profile.emails.length > 0 ? profile.emails[0].value : null,
     google_id: googleId,
@@ -200,14 +212,20 @@ export const initialisePassportToExpressApp = (app: express.Express) => {
       const session: ABSeeSessionData = request.session as ABSeeSessionData;
       // user.displayName;
       if (user) {
-        const userId: string = (user as any).id;
+        const userId: UserId = (user as any).id;
         session.userId = userId;
         session.username = (user as any).display_name;
         session.accessToken = (user as any).accessToken;
       }
       console.log('User info in /auth/google/callback:' + JSON.stringify(request.user));
-      setUserCookies(session.id, session.userId, session.username, response);
-      sendRedirectPage(response);
+      saveUserLogin(getUserId(request), session.username, session.id, request.ip).then(() => {
+        console.log(`Saved user login for ${session.username} with userId ${session.userId}`);
+      }).catch((err) => {
+        console.error(`Failed saving user login`, err);
+      }).finally(() => {
+        setUserCookies(session.id, getUserId(request), session.username, response);
+        sendRedirectPage(response);
+      });
       // next();
     }
   );
@@ -243,7 +261,7 @@ export const initialisePassportToExpressApp = (app: express.Express) => {
         url: request.url,
       });
       const session = request.session;
-      if (session.userId === undefined) {
+      if (session.userId === undefined || session.userId === null) {
         console.warn(`Session ${session.id} had no userId when posting to /`);
       }
       if (session.username === undefined) {

@@ -56,3 +56,12 @@ model session {
 
   @@index([expire], map: "IDX_session_expire")
 }
+
+model UserLogins {
+  id BigInt @id
+  userId String  @db.VarChar(128)
+  email String
+  sessionId String  @db.VarChar(128)
+  loginTime DateTime
+  loginIp String
+}
