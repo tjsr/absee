@@ -73,7 +73,7 @@ export const login = async (req: ABSeeRequest, res: express.Response) => {
   }
 };
 export const saveUserLogin =
-  async (userId: string, email: string, sessionId: string, loginIp: IPAddress): Promise<void> => {
+  async (userId: string, email: string, sessionId: string, loginIp: IPAddress = ''): Promise<void> => {
     const idSnowflake: SnowflakeType = getSnowflake();
     return basicMySqlInsert('UserLogins',
       ['id', 'userId', 'email', 'sessionId', 'loginTime', 'loginIp'],
