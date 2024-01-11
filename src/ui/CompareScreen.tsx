@@ -144,10 +144,14 @@ const CompareScreen = <T extends unknown>({
   }, [comparisonLoaded]);
 
   const itemSelected = (side: number) => {
-    if (side == 0) {
-      selectElement(comparison!.a.elementId);
+    if (!comparison) {
+      console.error(`No comparison loaded`);
     } else {
-      selectElement(comparison!.b.elementId);
+      if (side == 0) {
+        selectElement(comparison.a.elementId);
+      } else {
+        selectElement(comparison.b.elementId);
+      }
     }
   };
 
@@ -158,14 +162,14 @@ const CompareScreen = <T extends unknown>({
         fakeEmails={fakeEmails}
         setLoggedIn={setLoggedIn} setEmail={setEmail} email={email} />
       <div className="elementPickerContent">
-        {comparisonLoaded ? (
+        {comparisonLoaded && comparison ? (
           <>
             <ElementPicker
               selectElement={selectElement}
               itemSelected={itemSelected}
               dropRef={dropRef}
-              leftElement={comparison!.a as ComparableObjectResponse<Pin>}
-              rightElement={comparison!.b as ComparableObjectResponse<Pin>} />
+              leftElement={comparison.a as ComparableObjectResponse<Pin>}
+              rightElement={comparison.b as ComparableObjectResponse<Pin>} />
             <ComparisonLink comparison={comparison as ComparisonSelectionResponse<Pin>}/>
             <Link to="/recent">Recent comparisons</Link>
           </>
