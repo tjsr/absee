@@ -205,12 +205,11 @@ export const initialisePassportToExpressApp = (app: express.Express) => {
   app.get(
     '/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/login' }),
-    (request: ABSeeRequest, response: Response, next: NextFunction ): void => {
+    (request: ABSeeRequest, response: Response ): void => {
       // User has been authenticated, store user data in session
       // (req as any).session.passport.user
       const user: Express.User|undefined = request.user;
       const session: ABSeeSessionData = request.session as ABSeeSessionData;
-      // user.displayName;
       if (user) {
         const userId: UserId = (user as any).id;
         session.userId = userId;
@@ -226,7 +225,6 @@ export const initialisePassportToExpressApp = (app: express.Express) => {
         setUserCookies(session.id, getUserId(request), session.username, response);
         sendRedirectPage(response);
       });
-      // next();
     }
   );
 
