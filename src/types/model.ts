@@ -4,7 +4,7 @@ import {
   IPAddress,
   ISO8601Date,
   SnowflakeType,
-  uuid4
+  UserId
 } from '../types';
 
 export type ComparableObjectModel = {
@@ -20,10 +20,10 @@ export type ComparisonModel = {
   b: ComparableObjectModel[];
   requestIp: IPAddress;
   requestTime: ISO8601Date;
-  userId: uuid4;
+  userId: UserId;
 };
 
 export type UserModel = {
-  userId: uuid4;
+  userId: UserId;
   email: EmailAddress;
 };

@@ -1,8 +1,13 @@
+import { IPAddress, SnowflakeType } from '../types';
+
 import { ABSeeRequest } from '../session';
 import { AuthenticationRestResult } from '../types/apicalls';
 import { UserModel } from '../types/model';
+import { basicMySqlInsert } from '../database/basicMysqlInsert';
 import express from 'express';
 import { getDbUserByEmail } from '../database/mysql';
+import { getIp } from '../server';
+import { getSnowflake } from '../snowflake';
 import { validateEmailString } from '../utils';
 
 export const login = async (req: ABSeeRequest, res: express.Response) => {
@@ -53,6 +58,8 @@ export const login = async (req: ABSeeRequest, res: express.Response) => {
       }
     });
 
+    await saveUserLogin(user.userId, email, req.session.id, getIp(req));
+
     console.log(`Logged in user ${email} and sent HTTP 200 status with result body.`);
     res.status(200);
     res.send(result);
@@ -65,3 +72,11 @@ export const login = async (req: ABSeeRequest, res: express.Response) => {
     res.end();
   }
 };
+export const saveUserLogin =
+  async (userId: string, email: string, sessionId: string, loginIp: IPAddress = ''): Promise<void> => {
+    const idSnowflake: SnowflakeType = getSnowflake();
+    return basicMySqlInsert('UserLogins',
+      ['id', 'userId', 'email', 'sessionId', 'loginTime', 'loginIp'],
+      [idSnowflake, userId, email, sessionId, new Date(), loginIp]);
+  };
+

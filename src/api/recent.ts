@@ -5,7 +5,6 @@ import { ABSeeRequest } from '../session';
 import { CollectionTypeLoader } from '../datainfo';
 import { createComparisonResultResponse } from '../restresponse';
 import express from 'express';
-import { getIp } from '../server';
 import { getLoader } from '../loaders';
 import { retrieveComparisonResults } from '../database/mysql';
 
