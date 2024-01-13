@@ -1,25 +1,24 @@
 import './frontend.css';
 
-import {
-  Link,
-  RouterProvider,
-  createBrowserRouter,
-  createHashRouter
-} from 'react-router-dom';
+import { CollectionIdType, EmailAddress } from '../types';
 import React, { useEffect, useState } from 'react';
+import {
+  RouterProvider,
+  createBrowserRouter
+} from 'react-router-dom';
 
 import { AboutPage } from './AboutPage';
 import CompareScreen from './CompareScreen';
 import Cookies from 'js-cookie';
-import { EmailAddress } from '../types';
 import { slide as Menu } from 'react-burger-menu';
 import { RecentComparisons } from './RecentComparisons';
+import { StatsPage } from './StatsPage';
 import { doGoogleLogout } from './auth/LoginControl';
 import { fetchNewSession } from './session';
 import { submitLogout } from './auth/apicalls';
 
 type FrontendProps = {
-  collectionId: string;
+  collectionId: CollectionIdType;
 }
 
 const getCookieUserId = (): string | undefined => {
@@ -30,7 +29,7 @@ const getCookieUserId = (): string | undefined => {
   return userIdValue;
 };
 
-const DEFAULT_COLLECTION = '83fd0b3e-dd08-4707-8135-e5f138a43f00';
+const DEFAULT_COLLECTION: CollectionIdType = '83fd0b3e-dd08-4707-8135-e5f138a43f00';
 // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-constraint
 const Frontend = ({ collectionId } : FrontendProps): JSX.Element => {
   const [isLoggedIn, setLoggedIn] = useState<boolean>(false);
@@ -89,6 +88,10 @@ const Frontend = ({ collectionId } : FrontendProps): JSX.Element => {
       path: '/recent',
     },
     {
+      element: <StatsPage collectionId={DEFAULT_COLLECTION} />,
+      path: '/stats',
+    },
+    {
       element: <AboutPage />,
       path: '/about',
     },
@@ -105,6 +108,7 @@ const Frontend = ({ collectionId } : FrontendProps): JSX.Element => {
             }}>Logout</a></>) }
           <a id="home" className="menu-item" href="/">Home</a>
           <a id="about" className="menu-item" href="/about">About</a>
+          <a id="stats" className="menu-item" href="/stats">Stats</a>
           <a id="recent" className="menu-item" href="/recent">Recent comparisons</a>
         </Menu>
         <br />

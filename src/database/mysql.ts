@@ -47,14 +47,9 @@ const populateElementsFromDatabase = async (
       (elementErr: any, elementResults: any[]) => {
         if (elementErr) {
           console.error(`Error while retrieving elements for comparison IDs ${comparisonIds}`, elementErr);
+          conn.release();
           return reject(elementErr);
         }
-        // console.log(`elementFields: ${JSON.stringify(elementFields)}`);
-        // console.log(`Got ${JSON.stringify(elementResults)} elements for IDs ${comparisonIds}`);
-        if (elementErr) {
-          return reject(elementErr);
-        }
-        // : {comparisonId: BigInt, objectId: string, elementId: BigInt}
         elementResults.forEach((elementRow: RowDataPacket) => {
           const cr: ComparisonResult | undefined = resultMap.get(elementRow.comparisonId);
           if (cr) {
@@ -62,17 +57,10 @@ const populateElementsFromDatabase = async (
               cr.elements = [];
             }
             const element = cr?.elements.find((element) => element.elementId == elementRow.elementId);
-            // const comparableObject: ComparableObjectModel = {
-            //   elementId: elementRow.elementId,
-            //   id: elementRow.comparisonElementId,
-            //   objectId: elementRow.objectId,
-            // };
             if (element) {
-              // element.data.push(comparableObject);
               element.objects.push(elementRow.objectId);
             } else {
               cr?.elements.push({
-                // data: [comparableObject],
                 elementId: elementRow.elementId,
                 objects: [elementRow.objectId],
               });

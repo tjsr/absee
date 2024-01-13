@@ -1,6 +1,7 @@
 import * as dotenv from 'dotenv';
 
 import { ABSeeRequest, mysqlSessionStore } from './session';
+import { StatsResponse, getElementsCompared, getMostFrequentlyComparedElement, getUniqueContibutingUserCount } from './api/stats/stats';
 import express, { NextFunction } from 'express';
 import { getSession, setUserCookies } from './sessions/getSession';
 
@@ -93,6 +94,24 @@ export const startApp = (): express.Express => {
         response.end();
       }
     });
+  app.get('/api/stats/elementsCompared(/:collectionId)?', async (request: ABSeeRequest, response: express.Response) => {
+    const collectionId = request.params.collectionId;
+    Promise.all([
+      getElementsCompared(collectionId),
+      getUniqueContibutingUserCount(collectionId),
+      getMostFrequentlyComparedElement(collectionId),
+    ]).then((results) => {
+      const responseBody: StatsResponse = {
+        elementsCompared: results[0],
+        mostFrequentlyComparedElement: results[2][0],
+        mostFrequentlyComparedElementCount: results[2][1],
+        usersContributed: results[1],
+      };
+      response.send(responseBody);
+      response.status(200);
+      response.end();
+    });
+  });
   app.get(
     '/collection/:collectionId',
     async (request: ABSeeRequest, response: express.Response) => {
