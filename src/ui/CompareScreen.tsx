@@ -55,10 +55,12 @@ const ComparisonLink = ({ comparison }: ComparisonLinkProps<Pin>): JSX.Element =
   if (!comparison) {
     return <div>No comparison loaded</div>;
   }
-  const linkString = `${location.protocol}//${location.host}/?objects=` +
-    comparison.a.objects.join(QUERYSTRING_ELEMENT_DELIMETER) +
-      QUERYSTRING_ARRAY_DELIMETER +
-      comparison.b.objects.join(QUERYSTRING_ELEMENT_DELIMETER);
+  const server = `${location.protocol}//${location.host}`;
+  const objectString: string = [
+    comparison.a.objects.join(QUERYSTRING_ELEMENT_DELIMETER),
+    comparison.b.objects.join(QUERYSTRING_ELEMENT_DELIMETER),
+  ].join(QUERYSTRING_ARRAY_DELIMETER);
+  const linkString = `${server}/?objects=${objectString}`;
   return (
     <div className="copyToClipboard">
       Copy link clipboard <CopyToClipboard text={linkString} onCopy={() => setCopyMessageState(true)}>
@@ -113,7 +115,9 @@ const CompareScreen = <T extends unknown>({
 
   const selectElement = async (elementId: SnowflakeType): Promise<void> => {
     const result: RestCallResult = await submitComparisonChoice(comparison!, elementId);
-    const optionsParam = `?${new URLSearchParams(location.search)}`;
+    const updatedSearchParams = new URLSearchParams(location.search);
+    updatedSearchParams.delete('objects');
+    const optionsParam = `?${updatedSearchParams}`;
     if (result.success) {
       setSearchParams(optionsParam);
       setComparisonLoaded(false);
