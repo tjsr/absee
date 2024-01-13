@@ -1,7 +1,12 @@
 import * as dotenv from 'dotenv';
 
 import { ABSeeRequest, mysqlSessionStore } from './session';
-import { StatsResponse, getElementsCompared, getMostFrequentlyComparedElement, getUniqueContibutingUserCount } from './api/stats/stats';
+import {
+  StatsResponse,
+  getElementsCompared,
+  getMostFrequentlyComparedElement,
+  getUniqueContibutingUserCount
+} from './api/stats/stats';
 import express, { NextFunction } from 'express';
 import { getSession, setUserCookies } from './sessions/getSession';
 
@@ -15,7 +20,6 @@ import { initialisePassportToExpressApp } from './auth/passport';
 import { login } from './api/login';
 import { logout } from './api/logout';
 import morgan from 'morgan';
-import path from 'path';
 import { recent } from './api/recent';
 import requestIp from 'request-ip';
 import { serveComparison } from './api/serveComparison';
