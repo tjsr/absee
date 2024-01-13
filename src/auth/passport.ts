@@ -221,10 +221,9 @@ export const initialisePassportToExpressApp = (app: express.Express) => {
         console.log(`Saved user login for ${session.username} with userId ${session.userId}`);
       }).catch((err) => {
         console.error(`Failed saving user login`, err);
-      }).finally(() => {
-        setUserCookies(session.id, getUserId(request), session.username, response);
-        sendRedirectPage(response);
       });
+      setUserCookies(session.id, getUserId(request), session.username, response);
+      sendRedirectPage(response);
     }
   );
 
