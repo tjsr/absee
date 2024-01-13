@@ -175,7 +175,7 @@ const CompareScreen = <T extends unknown>({
               leftElement={comparison.a as ComparableObjectResponse<Pin>}
               rightElement={comparison.b as ComparableObjectResponse<Pin>} />
             <ComparisonLink comparison={comparison as ComparisonSelectionResponse<Pin>}/>
-            <Link to="/recent">Recent comparisons</Link>
+            <Link to="/recent">Recent comparisons</Link> (<Link to="/recent/me">mine</Link>)
           </>
         ) : (
           <div>Loading...</div>
