@@ -154,6 +154,7 @@ export const startApp = (): express.Express => {
   const clientPaths: string[] = [
     '/recent(/*)?',
     '/about(/*)?',
+    '/stats(/*)?',
   ];
 
   const serveIndex = (req: express.Request, res: express.Response, next: express.NextFunction) => {
