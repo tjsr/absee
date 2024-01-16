@@ -37,8 +37,8 @@ export const serveComparison = async <T, D>(
     if (queryStringGroups?.length == 2) {
       leftElements = queryStringGroups[0].split(QUERYSTRING_ELEMENT_DELIMETER);
       rightElements = queryStringGroups[1].split(QUERYSTRING_ELEMENT_DELIMETER);
-      console.debug(`Serving comparison request ${comparisonId} to userId ${userId} (${idString}) 
-        with predefined set ${leftElements} vs ${rightElements}}`);
+      console.debug(`Serving comparison request ${comparisonId} to userId ${userId} (${idString}) `+
+        `with predefined set ${leftElements} vs ${rightElements}}`);
     } else {
       console.debug(`Serving comparison request ${comparisonId} to userId ${userId} (${idString})`);
 

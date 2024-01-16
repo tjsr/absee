@@ -5,28 +5,13 @@ import { ComparisonSelectionResponse } from '../types';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { FaRegCopy } from 'react-icons/fa';
 import { Pin } from '../pins/pinpanion';
-import { styled } from 'styled-components';
-
-const HIDE_MESSAGE_TIMEOUT = 3000;
+import { Snackbar } from './Snackbar';
 
 type ComparisonLinkProps<T> = {
   comparison: ComparisonSelectionResponse<T> | undefined;
 }
 
-export const Snackbar = styled.span<{showPopup: boolean, backgroundColor?: string}>`
-  transition: opacity ${HIDE_MESSAGE_TIMEOUT}ms ease-out 0s;
-  padding: 0.8rem;
-  font-size: 12pt;
-  position: absolute;
-  right: 1rem;
-  bottom: 1rem;
-  font-family: sans-serif;
-  background-color: ${({ backgroundColor }) => `${backgroundColor ? backgroundColor : '#000'}`};
-  color: #fff;
-  opacity: ${({ showPopup }) => (showPopup ? '1' : '0')};
-`;
-
-export const createComparisonUrl = (comparison: ComparisonSelectionResponse<Pin>): string => {
+const createComparisonUrl = (comparison: ComparisonSelectionResponse<Pin>): string => {
   const server = `${location.protocol}//${location.host}`;
   const objectString: string = [
     comparison.a.objects.join(QUERYSTRING_ELEMENT_DELIMETER),
@@ -55,4 +40,3 @@ export const ComparisonLink = ({ comparison }: ComparisonLinkProps<Pin>): JSX.El
     </div>
   );
 };
-//         className={`copyMessage ${copyMessageState ? 'fadeOut' : ''}`}

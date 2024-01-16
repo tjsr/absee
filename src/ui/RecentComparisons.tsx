@@ -13,7 +13,7 @@ import CopyToClipboard from 'react-copy-to-clipboard';
 import { Link } from 'react-router-dom';
 import { Pin } from '../pins/pinpanion';
 import { PinInfo } from '../pins/PinInfo';
-import { Snackbar } from './ComparisonLink';
+import { Snackbar } from './Snackbar';
 
 const eloRating: Map<number, number> = new Map<number, number>();
 
