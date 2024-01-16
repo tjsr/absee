@@ -1,16 +1,19 @@
 import './RecentComparisons.css';
 
 import { ComparisonElementResponse, ComparisonResultResponse } from '../types';
+import {
+  QUERYSTRING_ARRAY_DELIMETER,
+  QUERYSTRING_ELEMENT_DELIMETER,
+  getServerHost
+} from './utils';
 import React, { useEffect, useState } from 'react';
 
 import Cookies from 'js-cookie';
+import CopyToClipboard from 'react-copy-to-clipboard';
 import { Link } from 'react-router-dom';
 import { Pin } from '../pins/pinpanion';
 import { PinInfo } from '../pins/PinInfo';
-import { getServerHost } from './utils';
-
-// import SuperJSON from 'superjson';
-
+import { Snackbar } from './ComparisonLink';
 
 const eloRating: Map<number, number> = new Map<number, number>();
 
@@ -103,6 +106,17 @@ type RecentComparisonsProps = {
   maxComparisons?: number;
 }
 
+const createComparisonUrl = (comparison: ComparisonResultResponse<Pin>): string => {
+  const server = `${location.protocol}//${location.host}`;
+  const objectString: string =
+    comparison.elements.map((e) =>
+      e.data.map((p: Pin) => p.id).join(QUERYSTRING_ELEMENT_DELIMETER))
+      .join(QUERYSTRING_ARRAY_DELIMETER);
+  const linkString = `${server}/?objects=${objectString}`;
+  return linkString;
+};
+
+
 export const RecentComparisons = (
   {
     currentUser = false,
@@ -114,6 +128,8 @@ export const RecentComparisons = (
   const [recentLoaded, setRecentLoaded] = useState<boolean>(false);
   const [errorLoading, setErrorLoading] = useState<boolean>(false);
   const [recentComparisons, setRecentComparisons] = useState<ComparisonResultResponse<Pin>[]>([]);
+  const [copyMessageState, setCopyMessageState] = useState<boolean>(false);
+
   useEffect(() => {
     (async () => {
       if (!recentLoading && !recentLoaded) {
@@ -146,24 +162,35 @@ export const RecentComparisons = (
       <>
         <h3 className="recentComparisons">Recent comparisons</h3>
         <div>
-          {recentComparisons?.map((comparison) => {
+          {recentComparisons?.map((comparison: ComparisonResultResponse<Pin>) => {
+            function copyComparisonLink(comparison: ComparisonResultResponse<Pin>): void {
+              throw new Error('Function not implemented.');
+            }
+
             return (
-              <div className='comparisonGroup' key={comparison.id}>
+              <div className='comparisonGroup' key={comparison.id} onClick={() => copyComparisonLink(comparison)}>
                 {comparison.elements?.map((element: ComparisonElementResponse<Pin>) => {
+                  const clipboardLink = createComparisonUrl(comparison);
                   const style = comparison.winner == element.elementId ? { backgroundColor: '#e1ffe1' } : {};
-                  return <div style={style}
-                    key={element.elementId}>
-                    {element.data.map((dataElement) => {
-                      // const pinInfo: Pin = getPinForId(dataElement);
-                      return (<PinInfo
-                        minimal={true}
-                        pin={dataElement}
-                        key={dataElement.id}
-                        style={style}
-                      />);
-                    }) }
-                  </div>;
+                  return <CopyToClipboard text={clipboardLink}
+                    onCopy={() => setCopyMessageState(true)}>
+                    <div style={style}
+                      key={element.elementId}>
+                      {element.data.map((dataElement) => {
+                        // const pinInfo: Pin = getPinForId(dataElement);
+                        return (<PinInfo
+                          minimal={true}
+                          pin={dataElement}
+                          key={dataElement.id}
+                          style={style}
+                        />);
+                      }) }
+                    </div></CopyToClipboard>;
                 })}
+                <Snackbar
+                  showPopup={copyMessageState}
+                  onTransitionEnd={() => setCopyMessageState(false)}
+                >Link copied to clipboard!</Snackbar>
               </div>
             );
           })}

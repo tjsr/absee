@@ -12,17 +12,13 @@ import React, { useEffect, useRef, useState } from 'react';
 import { TokenResponse, useGoogleLogin } from '@react-oauth/google';
 import { fetchNewComparison, submitComparisonChoice } from './comparisonChoice';
 
-import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { ComparisonLink } from './ComparisonLink';
 import { ElementPicker } from './simplePicker';
-import { FaRegCopy } from 'react-icons/fa';
 import { LoginControl } from './auth/LoginControl';
 import { Pin } from '../pins/pinpanion';
 import { RestCallResult } from '../types/apicalls';
 import SuperJSON from 'superjson';
-import { styled } from 'styled-components';
 import { useSearchParams } from 'react-router-dom';
-
-const HIDE_MESSAGE_TIMEOUT = 3000;
 
 type CompareScreenProps = {
   collectionId: string;
@@ -31,49 +27,6 @@ type CompareScreenProps = {
   isLoggedIn: boolean;
   setLoggedIn: (loggedIn: boolean) => void;
 }
-
-type ComparisonLinkProps<T> = {
-  comparison: ComparisonSelectionResponse<T> | undefined;
-}
-
-const Snackbar = styled.span<{showPopup: boolean, backgroundColor?: string}>`
-  transition: opacity 3s ease-out 0s;
-  padding: 0.8rem;
-  font-size: 12pt;
-  position: absolute;
-  right: 1rem;
-  bottom: 1rem;
-  font-family: sans-serif;
-  background-color: ${({ backgroundColor }) => `${backgroundColor ? backgroundColor : '#000'}`};
-  color: #fff;
-  opacity: ${({ showPopup }) => (showPopup ? '1' : '0')};
-`;
-
-const ComparisonLink = ({ comparison }: ComparisonLinkProps<Pin>): JSX.Element => {
-  const [copyMessageState, setCopyMessageState] = useState<boolean>(false);
-
-  if (!comparison) {
-    return <div>No comparison loaded</div>;
-  }
-  const server = `${location.protocol}//${location.host}`;
-  const objectString: string = [
-    comparison.a.objects.join(QUERYSTRING_ELEMENT_DELIMETER),
-    comparison.b.objects.join(QUERYSTRING_ELEMENT_DELIMETER),
-  ].join(QUERYSTRING_ARRAY_DELIMETER);
-  const linkString = `${server}/?objects=${objectString}`;
-  return (
-    <div className="copyToClipboard">
-      Copy link clipboard <CopyToClipboard text={linkString} onCopy={() => setCopyMessageState(true)}>
-        <FaRegCopy style={{ cursor: 'pointer' }} />
-      </CopyToClipboard>
-      <Snackbar
-        showPopup={copyMessageState}
-        onTransitionEnd={() => setCopyMessageState(false)}
-      >Link copied to clipboard!</Snackbar>
-    </div>
-  );
-};
-//         className={`copyMessage ${copyMessageState ? 'fadeOut' : ''}`}
 
 // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-constraint
 const CompareScreen = <T extends unknown>({
