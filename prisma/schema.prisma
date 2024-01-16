@@ -25,6 +25,7 @@ model Comparison {
   userId String
   requestTime DateTime
   requestIp String
+  @@index([collectionId], map: "IDX_Comparison_collectionId")
 }
 
 model Collection {
@@ -42,6 +43,9 @@ model ComparisonElement {
   elementId BigInt
   comparisonId BigInt
   objectId String
+
+  @@index([comparisonId], map: "IDX_ComparisonElement_comparisonId")
+  @@index([elementId], map: "IDX_ComparisonElement_elementId")
 }
 
 model ComparisonResponse {
@@ -64,4 +68,6 @@ model UserLogins {
   sessionId String  @db.VarChar(128)
   loginTime DateTime
   loginIp String
+
+  @@index([userId], map: "IDX_UserLogins_userId")
 }

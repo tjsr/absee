@@ -10,6 +10,7 @@ export interface StatsResponse {
 export const getElementsCompared = async (collectionId: string): Promise<number> => {
   const conn = await getConnection();
   return new Promise<number>((resolve, reject) => {
+    const startTime: number = new Date().getTime();
     try {
       conn.query(
         `SELECT COUNT(*) AS comparisonsPerformed
@@ -25,7 +26,8 @@ export const getElementsCompared = async (collectionId: string): Promise<number>
             return reject(err);
           }
           conn.release();
-          console.log(`Got elementsCompared stats: ${results[0].comparisonsPerformed}`);
+          const completionTime = (new Date().getTime()) - startTime;
+          console.log(`Got elementsCompared stats: ${results[0].comparisonsPerformed} in ${completionTime}ms`);
           return resolve(results[0].comparisonsPerformed);
         });
     } catch (sqlErr) {
@@ -37,6 +39,7 @@ export const getElementsCompared = async (collectionId: string): Promise<number>
 export const getUniqueContibutingUserCount = async (collectionId: string): Promise<number> => {
   const conn = await getConnection();
   return new Promise<number>((resolve, reject) => {
+    const startTime: number = new Date().getTime();
     try {
       conn.query(`SELECT COUNT(distinct C.userId) as uniqueUsers
         FROM Comparison C
@@ -49,7 +52,8 @@ export const getUniqueContibutingUserCount = async (collectionId: string): Promi
           return reject(err);
         }
         conn.release();
-        console.log(`Got userCount stats: ${results[0].uniqueUsers}`);
+        const completionTime = (new Date().getTime()) - startTime;
+        console.log(`Got userCount stats: ${results[0].uniqueUsers} in ${completionTime}ms`);
         return resolve(results[0].uniqueUsers);
       });
     } catch (sqlErr) {
@@ -61,6 +65,7 @@ export const getUniqueContibutingUserCount = async (collectionId: string): Promi
 export const getMostFrequentlyComparedElement = async (collectionId: string): Promise<[string, number]> => {
   const conn = await getConnection();
   return new Promise<[string, number]>((resolve, reject) => {
+    const startTime: number = new Date().getTime();
     try {
       conn.query(`SELECT COUNT(CE.objectId) as objectIdCount, CE.objectId
         FROM ComparisonElement CE
@@ -77,7 +82,8 @@ export const getMostFrequentlyComparedElement = async (collectionId: string): Pr
           return reject(err);
         }
         conn.release();
-        console.log(`Most frequent objectId: ${results[0].objectId}`);
+        const completionTime = (new Date().getTime()) - startTime;
+        console.log(`Most frequent objectId: ${results[0].objectId} in ${completionTime}ms`);
         return resolve([results[0].objectId, results[0].objectIdCount]);
       });
     } catch (sqlErr) {

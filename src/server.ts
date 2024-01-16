@@ -100,6 +100,7 @@ export const startApp = (): express.Express => {
     });
   app.get('/api/stats/elementsCompared(/:collectionId)?', async (request: ABSeeRequest, response: express.Response) => {
     const collectionId = request.params.collectionId;
+    const startTime: number = new Date().getTime();
     Promise.all([
       getElementsCompared(collectionId),
       getUniqueContibutingUserCount(collectionId),
@@ -111,6 +112,8 @@ export const startApp = (): express.Express => {
         mostFrequentlyComparedElementCount: results[2][1],
         usersContributed: results[1],
       };
+      const endTime: number = new Date().getTime();
+      console.log(`Retrieving all stats data took ${endTime - startTime}ms}`);
       response.send(responseBody);
       response.status(200);
       response.end();
