@@ -163,12 +163,8 @@ export const RecentComparisons = (
         <h3 className="recentComparisons">Recent comparisons</h3>
         <div>
           {recentComparisons?.map((comparison: ComparisonResultResponse<Pin>) => {
-            function copyComparisonLink(comparison: ComparisonResultResponse<Pin>): void {
-              throw new Error('Function not implemented.');
-            }
-
             return (
-              <div className='comparisonGroup' key={comparison.id} onClick={() => copyComparisonLink(comparison)}>
+              <div className='comparisonGroup' key={comparison.id}>
                 {comparison.elements?.map((element: ComparisonElementResponse<Pin>) => {
                   const clipboardLink = createComparisonUrl(comparison);
                   const style = comparison.winner == element.elementId ? { backgroundColor: '#e1ffe1' } : {};
