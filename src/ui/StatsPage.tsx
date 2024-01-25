@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 
 import { CollectionIdType } from '../types';
-import { PinInfo } from '../pins/PinInfo';
 import { StatsResponse } from '../api/stats/stats';
 
 interface StatsPageProps {

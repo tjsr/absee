@@ -1,5 +1,6 @@
 import * as dotenv from 'dotenv';
 
+import { ClientCollectionType, CollectionObject } from '../types';
 import { CollectionTypeLoader } from '../datainfo';
 
 import events from './eventnames.json' assert { type: 'json' };
@@ -23,7 +24,7 @@ type PinpanionPin = {
   image_name: string;
 };
 
-export type Pin = {
+export interface Pin extends CollectionObject<number> {
   id: number;
   name: string;
   year: number;
@@ -33,7 +34,7 @@ export type Pin = {
   paxId: number;
   setId?: number;
   cssClass: string;
-};
+}
 
 export type PinSet = {
   id: number;
@@ -135,4 +136,8 @@ export const defaultDevPinLoader: CollectionTypeLoader<Pin, PinpanionData> = {
   getObjectId: getObjectId,
   maxElementsPerComparison: 3,
   name: 'pinpanion_dev',
+};
+
+export const clientPinLoader: ClientCollectionType<Pin, string> = {
+  getObjectId: getObjectId,
 };

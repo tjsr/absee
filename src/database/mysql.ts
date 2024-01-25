@@ -1,7 +1,6 @@
 import { ComparisonResult, EmailAddress, SnowflakeType, UserId, uuid5 } from '../types';
 import { PoolConnection, getConnection } from './mysqlConnections';
 
-import { CollectionTypeLoader } from '../datainfo';
 import { ComparisonRequestResponseBody } from '../types/datasource';
 import { RowDataPacket } from 'mysql2';
 import { UserModel } from '../types/model';
