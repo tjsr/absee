@@ -1,6 +1,8 @@
 import './CompareScreen.css';
 
 import {
+  CollectionObject,
+  CollectionObjectIdType,
   ComparableObjectResponse,
   ComparisonSelectionResponse,
   EmailAddress,
@@ -15,7 +17,6 @@ import { fetchNewComparison, submitComparisonChoice } from './comparisonChoice';
 import { ComparisonLink } from './ComparisonLink';
 import { ElementPicker } from './simplePicker';
 import { LoginControl } from './auth/LoginControl';
-import { Pin } from '../pins/pinpanion';
 import { RestCallResult } from '../types/apicalls';
 import SuperJSON from 'superjson';
 import { useSearchParams } from 'react-router-dom';
@@ -29,14 +30,14 @@ type CompareScreenProps = {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-constraint
-const CompareScreen = <T extends unknown>({
+const CompareScreen = <CO extends CollectionObject<IdType>, IdType extends CollectionObjectIdType>({
   collectionId,
   setEmail,
   email,
   isLoggedIn,
   setLoggedIn,
 } : CompareScreenProps): JSX.Element => {
-  const [comparison, setComparison] = useState<ComparisonSelectionResponse<T> | undefined>(undefined);
+  const [comparison, setComparison] = useState<ComparisonSelectionResponse<CO> | undefined>(undefined);
   const [comparisonLoaded, setComparisonLoaded] = useState<boolean>(false);
   const [comparisonLoading, setComparisonLoading] = useState<boolean>(false);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -91,7 +92,7 @@ const CompareScreen = <T extends unknown>({
         const res = await fetchNewComparison(collectionId, preselectedObjectArr);
         if (res.success) {
           console.log(`Loaded ${SuperJSON.stringify(res.data)}`);
-          const comparisonRequest: ComparisonSelectionResponse<T> = res.data.json;
+          const comparisonRequest: ComparisonSelectionResponse<CO> = res.data.json;
           setComparison(comparisonRequest);
           setComparisonLoaded(true);
         }
@@ -125,9 +126,9 @@ const CompareScreen = <T extends unknown>({
               selectElement={selectElement}
               itemSelected={itemSelected}
               dropRef={dropRef}
-              leftElement={comparison.a as ComparableObjectResponse<Pin>}
-              rightElement={comparison.b as ComparableObjectResponse<Pin>} />
-            <ComparisonLink comparison={comparison as ComparisonSelectionResponse<Pin>}/>
+              leftElement={comparison.a}
+              rightElement={comparison.b} />
+            <ComparisonLink comparison={comparison as ComparisonSelectionResponse<CO>}/>
             <Link to="/recent">Recent comparisons</Link> (<Link to="/recent/me">mine</Link>)
           </>
         ) : (

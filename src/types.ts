@@ -23,10 +23,6 @@ export type CollectionObject<CollectionObjectIdType> = {
   id: CollectionObjectIdType
 };
 
-// export interface CollectionIdElement<ID> {
-//   id: ID;
-// }
-
 export type ComparableObjectPutBody = {
   id: SnowflakeType;
   comparisonId: SnowflakeType;

@@ -1,19 +1,18 @@
 import './collection.css';
 
-import { ComparableObjectResponse, SnowflakeType } from '../types';
+import { CollectionObject, CollectionObjectIdType, ComparableObjectResponse, SnowflakeType } from '../types';
 
 import { ComparisonElement } from './collection.styles';
-import { Pin } from '../pins/pinpanion';
 import React from 'react';
 import SuperJSON from 'superjson';
 
-export type CollectionPropTypes<T> = {
+export type CollectionPropTypes<T extends CollectionObject<IdType>, IdType> = {
   element: ComparableObjectResponse<T>;
   selectElement?: (elementId: SnowflakeType) => void;
   isSelected?: boolean;
 };
 
-export type ICollectionPropTypes<T> = {
+export type ICollectionPropTypes<T extends CollectionObject<IdType>, IdType> = {
   element: ComparableObjectResponse<T>;
   selectElement?: (elementId: SnowflakeType) => void;
   getCollectionItem: (data: T) => JSX.Element;
@@ -21,7 +20,8 @@ export type ICollectionPropTypes<T> = {
   isSelected?: boolean;
 };
 
-export const Collection = (props: ICollectionPropTypes<Pin>): JSX.Element => {
+export const Collection = <T extends CollectionObject<IdType>, IdType extends CollectionObjectIdType>
+  (props: ICollectionPropTypes<T, IdType>): JSX.Element => {
   if (props.element == undefined) {
     return <div>Error: element undefined.</div>;
   }

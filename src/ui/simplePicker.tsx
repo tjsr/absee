@@ -1,36 +1,37 @@
-import { ComparableObjectResponse, SnowflakeType } from '../types';
+import { CollectionObject, CollectionObjectIdType, ComparableObjectResponse, SnowflakeType } from '../types';
 import { DualSwiper, SelectionAction, StaticDualSwiper, SwipeDirection } from './components';
 import React, { SetStateAction, useRef, useState } from 'react';
 
-import { Pin } from '../pins/pinpanion';
 import { PinCollection } from '../pins/pincollection';
 import { isMobile } from 'react-device-detect';
 
 type SelectionTypeOptions = 'click' | 'swipe' | 'static';
 
-interface ElementPickerProps extends React.HTMLProps<HTMLDivElement> {
+interface ElementPickerProps<CO extends CollectionObject<IdType>, IdType extends CollectionObjectIdType>
+extends React.HTMLProps<HTMLDivElement> {
   selectElement: (elementId: SnowflakeType) => Promise<void>;
   itemSelected: (side: SwipeDirection, action: SelectionAction) => void;
-  leftElement: ComparableObjectResponse<Pin>;
-  rightElement: ComparableObjectResponse<Pin>;
+  leftElement: ComparableObjectResponse<CO>;
+  rightElement: ComparableObjectResponse<CO>;
   dropRef?: React.MutableRefObject<HTMLDivElement | null>;
   devmode?: boolean;
 }
 
-interface SwipeComparisonContainer extends React.HTMLProps<HTMLDivElement> {
+interface SwipeComparisonContainer<CO extends CollectionObject<IdType>, IdType extends CollectionObjectIdType>
+extends React.HTMLProps<HTMLDivElement> {
   itemSelected: (side: SwipeDirection, action: SelectionAction) => void;
-  leftElement: ComparableObjectResponse<Pin>;
-  rightElement: ComparableObjectResponse<Pin>;
+  leftElement: ComparableObjectResponse<CO>;
+  rightElement: ComparableObjectResponse<CO>;
   selectElement: (elementId: SnowflakeType) => Promise<void>;
   externalDropRef: React.MutableRefObject<HTMLDivElement | null>;
 }
 
-const SwipeComparisonContainer = ({
+const SwipeComparisonContainer = <CO extends CollectionObject<IdType>, IdType extends CollectionObjectIdType>({
   externalDropRef,
   itemSelected,
   leftElement,
   rightElement,
-  selectElement }: SwipeComparisonContainer): JSX.Element => {
+  selectElement }: SwipeComparisonContainer<CO, IdType>): JSX.Element => {
   const [currentSelectedElement, setCurrentSelectedElement] = useState<SnowflakeType | undefined>(undefined);
 
   const elementSelect = (elementId: SnowflakeType, side: SwipeDirection, action: SelectionAction): void => {
@@ -72,7 +73,8 @@ const SwipeComparisonContainer = ({
   );
 };
 
-export const ElementPicker = (props: ElementPickerProps): JSX.Element => {
+export const ElementPicker = <CO extends CollectionObject<IdType>, IdType extends CollectionObjectIdType>
+  (props: ElementPickerProps<CO, IdType>): JSX.Element => {
   const [displayMode, setDisplayMode] = useState<SelectionTypeOptions>('click');
   const [isSwiperEnabled, setSwiperEnabled] = useState<boolean>(isMobile);
   const [tapToSelect, enableTapToSelect] = useState<boolean>(!isMobile);
