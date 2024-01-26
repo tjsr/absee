@@ -2,6 +2,7 @@ import { CollectionObject, CollectionObjectIdType, ComparableObjectResponse, Sno
 import { DualSwiper, SelectionAction, StaticDualSwiper, SwipeDirection } from './components';
 import React, { SetStateAction, useRef, useState } from 'react';
 
+import { Pin } from '../pins/pinpanion';
 import { PinCollection } from '../pins/pincollection';
 import { isMobile } from 'react-device-detect';
 
@@ -54,14 +55,14 @@ const SwipeComparisonContainer = <CO extends CollectionObject<IdType>, IdType ex
         }}
         leftContent={
           <PinCollection
-            element={leftElement}
+            element={leftElement as unknown as ComparableObjectResponse<Pin>}
             selectElement={selectElement}
             isSelected={currentSelectedElement == leftElement.elementId}
           />
         }
         rightContent={
           <PinCollection
-            element={rightElement}
+            element={rightElement as unknown as ComparableObjectResponse<Pin>}
             selectElement={selectElement}
             isSelected={currentSelectedElement == rightElement.elementId}
           />
@@ -137,13 +138,13 @@ export const ElementPicker = <CO extends CollectionObject<IdType>, IdType extend
         itemSelected={itemSelected}
         staticContent={
           <PinCollection
-            element={leftElement}
+            element={leftElement as unknown as ComparableObjectResponse<Pin>}
             selectElement={selectElement}
           />
         }
         comparisonContent={
           <PinCollection
-            element={rightElement}
+            element={rightElement as unknown as ComparableObjectResponse<Pin>}
             selectElement={selectElement}
           />
         }
