@@ -1,17 +1,17 @@
+import { CollectionObject, CollectionObjectIdType, ComparisonSelectionResponse } from '../types';
 import { QUERYSTRING_ARRAY_DELIMETER, QUERYSTRING_ELEMENT_DELIMETER } from './utils';
 import React, { useState } from 'react';
 
-import { ComparisonSelectionResponse } from '../types';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { FaRegCopy } from 'react-icons/fa';
-import { Pin } from '../pins/pinpanion';
 import { Snackbar } from './Snackbar';
 
-type ComparisonLinkProps<T> = {
-  comparison: ComparisonSelectionResponse<T> | undefined;
+type ComparisonLinkProps<CO extends CollectionObject<IdType>, IdType extends CollectionObjectIdType> = {
+  comparison: ComparisonSelectionResponse<CO> | undefined;
 }
 
-const createComparisonUrl = (comparison: ComparisonSelectionResponse<Pin>): string => {
+const createComparisonUrl = <CO extends CollectionObject<IdType>, IdType extends CollectionObjectIdType>
+  (comparison: ComparisonSelectionResponse<CO>): string => {
   const server = `${location.protocol}//${location.host}`;
   const objectString: string = [
     comparison.a.objects.join(QUERYSTRING_ELEMENT_DELIMETER),
@@ -21,7 +21,8 @@ const createComparisonUrl = (comparison: ComparisonSelectionResponse<Pin>): stri
   return linkString;
 };
 
-export const ComparisonLink = ({ comparison }: ComparisonLinkProps<Pin>): JSX.Element => {
+export const ComparisonLink = <CO extends CollectionObject<IdType>, IdType extends CollectionObjectIdType>
+  ({ comparison }: ComparisonLinkProps<CO, IdType>): JSX.Element => {
   const [copyMessageState, setCopyMessageState] = useState<boolean>(false);
 
   if (!comparison) {
