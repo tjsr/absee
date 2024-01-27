@@ -1,3 +1,3 @@
-export { default as DualSwiper } from './DualSwiper';
-export type { DualSwiperProps } from './DualSwiper';
-export { SelectionAction } from './types';
+export { default as DualSwiper } from './DualSwiper.js';
+export type { DualSwiperProps } from './DualSwiper.js';
+export { SelectionAction } from './types.js';

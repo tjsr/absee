@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 
-import { CollectionIdType } from '../types';
-import { StatsResponse } from '../api/stats/stats';
+import { CollectionIdType } from '../types.js';
+import { StatsResponse } from '../api/stats/stats.js';
 
 interface StatsPageProps {
   collectionId: CollectionIdType;

@@ -1,8 +1,8 @@
-import { CollectionTypeData, retrieveCollections } from './database/mysql';
-import { CollectionTypeLoader, initializeLoader } from './datainfo';
+import { CollectionTypeData, retrieveCollections } from './database/mysql.js';
+import { CollectionTypeLoader, initializeLoader } from './datainfo.js';
 
-import { CollectionIdType } from './types';
-import { defaultDevPinLoader } from '../src/pins/pinpanion';
+import { CollectionIdType } from './types.js';
+import { defaultDevPinLoader } from '../src/pins/pinpanion.js';
 
 // import { loader as pinLoader } from '../src/pins/pinpanion';
 

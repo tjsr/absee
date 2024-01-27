@@ -1,10 +1,10 @@
-import { CollectionObject, CollectionObjectIdType, ComparisonSelectionResponse } from '../types';
-import { QUERYSTRING_ARRAY_DELIMETER, QUERYSTRING_ELEMENT_DELIMETER } from './utils';
+import { CollectionObject, CollectionObjectIdType, ComparisonSelectionResponse } from '../types.js';
+import { QUERYSTRING_ARRAY_DELIMETER, QUERYSTRING_ELEMENT_DELIMETER } from './utils.js';
 import React, { useState } from 'react';
 
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { FaRegCopy } from 'react-icons/fa';
-import { Snackbar } from './Snackbar';
+import { FaRegCopy } from 'react-icons/fa/index.js';
+import { Snackbar } from './Snackbar.js';
 
 type ComparisonLinkProps<CO extends CollectionObject<IdType>, IdType extends CollectionObjectIdType> = {
   comparison: ComparisonSelectionResponse<CO> | undefined;

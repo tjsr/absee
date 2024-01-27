@@ -1,20 +1,20 @@
-import { CollectionIdType, ComparisonSelectionResponse, SnowflakeType, UserId } from '../types';
-import { ComparableObjectModel, ComparisonModel } from '../types/model';
-import { QUERYSTRING_ARRAY_DELIMETER, QUERYSTRING_ELEMENT_DELIMETER } from '../ui/utils';
-import { getUserId, getUserIdentificationString } from '../auth/user';
+import { CollectionIdType, ComparisonSelectionResponse, SnowflakeType, UserId } from '../types.js';
+import { ComparableObjectModel, ComparisonModel } from '../types/model.js';
+import { QUERYSTRING_ARRAY_DELIMETER, QUERYSTRING_ELEMENT_DELIMETER } from '../ui/utils.js';
+import { getUserId, getUserIdentificationString } from '../auth/user.js';
 
-import { CollectionTypeLoader } from '../datainfo';
+import { CollectionTypeLoader } from '../datainfo.js';
 import SuperJSON from 'superjson';
-import { createCandidateElementList } from '../utils';
-import { createComparableObjectList } from '../comparableobjects';
-import { createComparisonSelection } from '../datastore';
-import { createComparisonSelectionResponse } from '../restresponse';
+import { createCandidateElementList } from '../utils.js';
+import { createComparableObjectList } from '../comparableobjects.js';
+import { createComparisonSelection } from '../datastore.js';
+import { createComparisonSelectionResponse } from '../restresponse.js';
 import express from 'express';
-import { getIp } from '../server';
-import { getLoader } from '../loaders';
-import { getSnowflake } from '../snowflake';
-import { populatePrioritizedObjectList } from '../populatePrioritizedObjectList';
-import { storeComparisonRequest } from '../comparison';
+import { getIp } from '../server.js';
+import { getLoader } from '../loaders.js';
+import { getSnowflake } from '../snowflake.js';
+import { populatePrioritizedObjectList } from '../populatePrioritizedObjectList.js';
+import { storeComparisonRequest } from '../comparison.js';
 
 const MINIMUM_PRIORITIZED_OBJECTS = 100;
 

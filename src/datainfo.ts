@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 
-import { CollectionIdType } from './types';
+import { CollectionIdType } from './types.js';
 import axios from 'axios';
 
 dotenv.config();

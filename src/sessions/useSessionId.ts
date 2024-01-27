@@ -1,7 +1,7 @@
-import { ABSeeRequest } from '../session';
-import { createRandomUserId } from '../auth/user';
+import { ABSeeRequest } from '../session.js';
+import { createRandomUserId } from '../auth/user.js';
 import express from 'express';
-import { uuid5 } from '../types';
+import { uuid5 } from '../types.js';
 
 export const useSessionId = (
   req: ABSeeRequest,

@@ -1,7 +1,7 @@
-import { EmailAddress, UserId, uuid5 } from '../types';
+import { EmailAddress, UserId, uuid5 } from '../types.js';
 
-import { ABSeeRequest } from '../session';
-import { getSnowflake } from '../snowflake';
+import { ABSeeRequest } from '../session.js';
+import { getSnowflake } from '../snowflake.js';
 import { v5 as uuidv5 } from 'uuid';
 
 const USERID_UUID_NAMESPACE =

@@ -1,12 +1,12 @@
-import { IPAddress, UserId } from '../types';
+import { IPAddress, UserId } from '../types.js';
 import express, { NextFunction } from 'express';
-import { getUserId, getUserIdentificationString } from '../auth/user';
+import { getUserId, getUserIdentificationString } from '../auth/user.js';
 
-import { ABSeeRequest } from '../session';
-import { getIp } from '../server';
-import { isSnowflake } from '../validate';
-import { saveComparisonSelection } from '../comparisonresponse';
-import { verifyComparisonOwner } from '../comparison';
+import { ABSeeRequest } from '../session.js';
+import { getIp } from '../server.js';
+import { isSnowflake } from '../validate.js';
+import { saveComparisonSelection } from '../comparisonresponse.js';
+import { verifyComparisonOwner } from '../comparison.js';
 
 export const submit = (request: ABSeeRequest, response: express.Response, next: NextFunction) => {
   try {

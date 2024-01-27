@@ -1,9 +1,9 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { ComparableObjectModel } from './types/model';
-import { SnowflakeType } from './types';
-import { getSnowflake } from './snowflake';
-import { storeComparisonElement } from './comparisonelement';
+import { ComparableObjectModel } from './types/model.js';
+import { SnowflakeType } from './types.js';
+import { getSnowflake } from './snowflake.js';
+import { storeComparisonElement } from './comparisonelement.js';
 
 describe('comparisonelement', () => {
   test('Should write an element to the DB', async () => {

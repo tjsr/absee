@@ -1,4 +1,4 @@
-import { getConnection } from './mysqlConnections';
+import { getConnection } from './mysqlConnections.js';
 
 export const retrieveObjectFrequency = async(collectionId: string): Promise<Map<string, number>> => {
   const conn = await getConnection();

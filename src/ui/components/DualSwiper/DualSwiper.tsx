@@ -1,11 +1,11 @@
 // import './DualSwiper.css';
 
 import React, { MutableRefObject } from 'react';
-import { SwipableBox, SwipeDirection } from '../SwipableBox';
+import { SwipableBox, SwipeDirection } from '../SwipableBox/index.js';
 
-import { DragDirection } from '../SwipableBox/types';
-import { SelectionAction } from './types';
-import { SwiperSharedProps } from '..';
+import { DragDirection } from '../SwipableBox/types.js';
+import { SelectionAction } from './types.js';
+import { SwiperSharedProps } from '../index.js';
 
 // export const TargetDropArea = styled.div`
 //   width: 8rem;

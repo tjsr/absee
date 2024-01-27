@@ -1,4 +1,4 @@
-import { createdWeightedRandomizerList } from './utils';
+import { createdWeightedRandomizerList } from './utils.js';
 
 describe('Should verify weighted list', () => {
   test('With 0 passed', () => {

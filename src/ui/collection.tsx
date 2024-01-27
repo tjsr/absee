@@ -1,8 +1,8 @@
 import './collection.css';
 
-import { CollectionObject, CollectionObjectIdType, ComparableObjectResponse, SnowflakeType } from '../types';
+import { CollectionObject, CollectionObjectIdType, ComparableObjectResponse, SnowflakeType } from '../types.js';
 
-import { ComparisonElement } from './collection.styles';
+import { ComparisonElement } from './collection.styles.js';
 import React from 'react';
 import SuperJSON from 'superjson';
 

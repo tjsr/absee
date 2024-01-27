@@ -1,12 +1,12 @@
 import {
   ComparisonSelectionResponse,
   SnowflakeType
-} from '../types';
+} from '../types.js';
 import {
   ComparisonSubmissionRequestBody,
   RestCallResult
-} from '../types/apicalls';
-import { QUERYSTRING_ARRAY_DELIMETER, QUERYSTRING_ELEMENT_DELIMETER, getServerHost } from './utils';
+} from '../types/apicalls.js';
+import { QUERYSTRING_ARRAY_DELIMETER, QUERYSTRING_ELEMENT_DELIMETER, getServerHost } from './utils.js';
 
 import Cookies from 'js-cookie';
 

@@ -1,4 +1,4 @@
-import { ABSeeRequest } from '../session';
+import { ABSeeRequest } from '../session.js';
 import express from 'express';
 
 export const session = (request: ABSeeRequest, response: express.Response) => {

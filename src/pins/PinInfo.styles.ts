@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import { styled } from 'styled-components';
 
 export const SizedPin = styled.div<{ maxWidth?: number, minHeight?: number }>`
   max-width: ${( { maxWidth } ) => maxWidth !== undefined ? `${maxWidth}rem;` : null}

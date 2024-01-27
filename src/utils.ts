@@ -1,8 +1,8 @@
 import * as EmailValidator from 'email-validator';
 import * as dotenv from 'dotenv';
 
-import { CollectionTypeLoader } from './datainfo';
-import { ISO8601Date } from './types';
+import { CollectionTypeLoader } from './datainfo.js';
+import { ISO8601Date } from './types.js';
 
 dotenv.config();
 

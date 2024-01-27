@@ -3,21 +3,20 @@ import './CompareScreen.css';
 import {
   CollectionObject,
   CollectionObjectIdType,
-  ComparableObjectResponse,
   ComparisonSelectionResponse,
   EmailAddress,
   SnowflakeType
-} from '../types';
+} from '../types.js';
 import { Link, useLocation } from 'react-router-dom';
-import { QUERYSTRING_ARRAY_DELIMETER, QUERYSTRING_ELEMENT_DELIMETER } from './utils';
+import { QUERYSTRING_ARRAY_DELIMETER, QUERYSTRING_ELEMENT_DELIMETER } from './utils.js';
 import React, { useEffect, useRef, useState } from 'react';
 import { TokenResponse, useGoogleLogin } from '@react-oauth/google';
-import { fetchNewComparison, submitComparisonChoice } from './comparisonChoice';
+import { fetchNewComparison, submitComparisonChoice } from './comparisonChoice.js';
 
-import { ComparisonLink } from './ComparisonLink';
-import { ElementPicker } from './simplePicker';
-import { LoginControl } from './auth/LoginControl';
-import { RestCallResult } from '../types/apicalls';
+import { ComparisonLink } from './ComparisonLink.js';
+import { ElementPicker } from './simplePicker.js';
+import { LoginControl } from './auth/LoginControl.js';
+import { RestCallResult } from '../types/apicalls.js';
 import SuperJSON from 'superjson';
 import { useSearchParams } from 'react-router-dom';
 

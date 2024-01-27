@@ -1,11 +1,11 @@
 import * as Express from 'express';
 import * as expressSession from 'express-session';
 
-import { EmailAddress, UserId } from './types';
+import { EmailAddress, UserId } from './types.js';
 import { Session, SessionData } from 'express-session';
 import mySQLStore, { MySQLStore } from 'express-mysql-session';
 
-import { getConnectionPool } from './database/mysqlConnections';
+import { getConnectionPool } from './database/mysqlConnections.js';
 
 export interface ABSeeSessionData extends SessionData {
   id: string;

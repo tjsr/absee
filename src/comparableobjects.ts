@@ -1,6 +1,6 @@
-import { ComparableObjectModel } from './types/model';
-import { SnowflakeType } from './types';
-import { getSnowflake } from './snowflake';
+import { ComparableObjectModel } from './types/model.js';
+import { SnowflakeType } from './types.js';
+import { getSnowflake } from './snowflake.js';
 
 export const createComparableObject = (
   objectId: string,

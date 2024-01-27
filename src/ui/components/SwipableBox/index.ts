@@ -1,3 +1,3 @@
-export { default as SwipableBox } from './SwipableBox';
-export type { SwipableBoxProps } from './SwipableBox';
-export { SwipeDirection } from './types';
+export { default as SwipableBox } from './SwipableBox.js';
+export type { SwipableBoxProps } from './SwipableBox.js';
+export { SwipeDirection } from './types.js';

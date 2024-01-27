@@ -1,4 +1,4 @@
-import { ComparableObjectModel, ComparisonModel } from './types/model';
+import { ComparableObjectModel, ComparisonModel } from './types/model.js';
 import {
   ComparableObjectResponse,
   ComparisonElement,
@@ -6,9 +6,9 @@ import {
   ComparisonResult,
   ComparisonResultResponse,
   ComparisonSelectionResponse
-} from './types';
+} from './types.js';
 
-import { CollectionTypeLoader } from './datainfo';
+import { CollectionTypeLoader } from './datainfo.js';
 
 const elementToElementResponse = <T>(
   element: ComparisonElement,

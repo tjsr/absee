@@ -3,15 +3,15 @@ import {
   IPAddress,
   SnowflakeType,
   UserId
-} from './types';
+} from './types.js';
 
-import { ComparisonModel } from './types/model';
-import { ComparisonRequestResponseBody } from './types/datasource';
-import { basicMySqlInsert } from './database/basicMysqlInsert';
+import { ComparisonModel } from './types/model.js';
+import { ComparisonRequestResponseBody } from './types/datasource.js';
+import { basicMySqlInsert } from './database/basicMysqlInsert.js';
 import {
   retrieveComparisonRequest
-} from './database/mysql';
-import { storeComparisonElements } from './comparisonelement';
+} from './database/mysql.js';
+import { storeComparisonElements } from './comparisonelement.js';
 
 export const storeComparisonRequest = async <T>(
   comparisonRequest: ComparisonModel

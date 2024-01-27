@@ -1,8 +1,8 @@
 import * as dotenv from 'dotenv';
 
-import { ClientCollectionType, CollectionObject } from '../types';
-import { CollectionTypeLoader } from '../datainfo';
+import { ClientCollectionType, CollectionObject } from '../types.js';
 
+import { CollectionTypeLoader } from '../datainfo.js';
 import events from './eventnames.json' assert { type: 'json' };
 
 dotenv.config();
