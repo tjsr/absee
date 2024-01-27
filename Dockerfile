@@ -1,5 +1,5 @@
-ARG NPM_VERSION=10.2.4
-ARG NODE_VERSION=20.11.0
+ARG NPM_VERSION=9.8.1
+ARG NODE_VERSION=18.18.0
 FROM node:${NODE_VERSION}-alpine3.18 as absee-build-preflight
 RUN npm install -g npm@${NPM_VERSION}
 
