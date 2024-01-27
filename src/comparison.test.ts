@@ -1,10 +1,9 @@
-import { ComparableObjectModel, ComparisonModel } from './types/model';
+import { ComparableObjectModel, ComparisonModel } from './types/model.js';
 import { describe, expect, test } from '@jest/globals';
 
-import { SnowflakeType } from './types';
-import { assert } from 'console';
-import { getSnowflake } from './snowflake';
-import { storeComparisonRequest } from './comparison';
+import { SnowflakeType } from './types.js';
+import { getSnowflake } from './snowflake.js';
+import { storeComparisonRequest } from './comparison.js';
 import { v4 as uuidv4 } from 'uuid';
 
 describe('comparison', () => {

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { submitLogin, submitLogout } from './auth/apicalls';
+import { submitLogin, submitLogout } from './auth/apicalls.js';
 
 import Cookies from 'js-cookie';
-import { EmailAddress } from '../types';
+import { EmailAddress } from '../types.js';
 
 export const FreeformEmailLoginBox = (): JSX.Element => {
   const [loggedIn, setLoggedIn] = useState<boolean>(false);

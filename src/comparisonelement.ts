@@ -1,7 +1,7 @@
-import { ComparableObjectPutBody, SnowflakeType } from './types';
+import { ComparableObjectPutBody, SnowflakeType } from './types.js';
 
-import { ComparableObjectModel } from './types/model';
-import { basicMySqlInsert } from './database/basicMysqlInsert';
+import { ComparableObjectModel } from './types/model.js';
+import { basicMySqlInsert } from './database/basicMysqlInsert.js';
 
 export const storeComparisonElement = async (
   comparisonId: SnowflakeType,

@@ -1,12 +1,12 @@
-import { CollectionIdType, ComparisonResult, UserId } from '../types';
-import { getUserId, getUserIdentificationString } from '../auth/user';
+import { CollectionIdType, ComparisonResult, UserId } from '../types.js';
 
-import { ABSeeRequest } from '../session';
-import { CollectionTypeLoader } from '../datainfo';
-import { createComparisonResultResponse } from '../restresponse';
+import { ABSeeRequest } from '../session.js';
+import { CollectionTypeLoader } from '../datainfo.js';
+import { createComparisonResultResponse } from '../restresponse.js';
 import express from 'express';
-import { getLoader } from '../loaders';
-import { retrieveComparisonResults } from '../database/mysql';
+import { getLoader } from '../loaders.js';
+import { getUserId } from '../auth/user.js';
+import { retrieveComparisonResults } from '../database/mysql.js';
 
 const retrieveComparisonsForUser = async <T>(
   collectionId: string,

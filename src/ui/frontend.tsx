@@ -1,21 +1,21 @@
 import './frontend.css';
 
-import { CollectionIdType, EmailAddress } from '../types';
+import { CollectionIdType, EmailAddress } from '../types.js';
 import React, { useEffect, useState } from 'react';
 import {
   RouterProvider,
   createBrowserRouter
 } from 'react-router-dom';
 
-import { AboutPage } from './AboutPage';
-import CompareScreen from './CompareScreen';
+import { AboutPage } from './AboutPage.js';
+import CompareScreen from './CompareScreen.js';
 import Cookies from 'js-cookie';
 import { slide as Menu } from 'react-burger-menu';
-import { RecentComparisons } from './RecentComparisons';
-import { StatsPage } from './StatsPage';
-import { doGoogleLogout } from './auth/LoginControl';
-import { fetchNewSession } from './session';
-import { submitLogout } from './auth/apicalls';
+import { RecentComparisons } from './RecentComparisons.js';
+import { StatsPage } from './StatsPage.js';
+import { doGoogleLogout } from './auth/LoginControl.js';
+import { fetchNewSession } from './session.js';
+import { submitLogout } from './auth/apicalls.js';
 
 type FrontendProps = {
   collectionId: CollectionIdType;

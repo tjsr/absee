@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import { styled } from 'styled-components';
 
 export const ComparisonElement = styled.div<
   {paddingLeft?: number, paddingRight?: number, isHighlighted?: boolean, selectGlowColor?: string }

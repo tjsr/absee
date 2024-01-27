@@ -1,4 +1,4 @@
-import { getConnection } from '../../database/mysqlConnections';
+import { getConnection } from '../../database/mysqlConnections.js';
 
 export interface StatsResponse {
   elementsCompared: number|undefined;

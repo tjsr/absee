@@ -1,10 +1,10 @@
-import { ComparisonResult, EmailAddress, SnowflakeType, UserId, uuid5 } from '../types';
-import { PoolConnection, getConnection } from './mysqlConnections';
+import { ComparisonResult, EmailAddress, SnowflakeType, UserId, uuid5 } from '../types.js';
+import { PoolConnection, getConnection } from './mysqlConnections.js';
 
-import { ComparisonRequestResponseBody } from '../types/datasource';
+import { ComparisonRequestResponseBody } from '../types/datasource.js';
 import { RowDataPacket } from 'mysql2';
-import { UserModel } from '../types/model';
-import { createUserIdFromEmail } from '../auth/user';
+import { UserModel } from '../types/model.js';
+import { createUserIdFromEmail } from '../auth/user.js';
 
 export type { PoolConnection };
 

@@ -1,4 +1,4 @@
-import { InfoBlurb } from './InfoBlurb';
+import { InfoBlurb } from './InfoBlurb.js';
 import { Link } from 'react-router-dom';
 import React from 'react';
 

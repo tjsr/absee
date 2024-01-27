@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie';
-import { getServerHost } from './utils';
+import { getServerHost } from './utils.js';
 
 export const fetchNewSession = async () => {
   try {

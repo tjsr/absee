@@ -1,14 +1,14 @@
-import { IPAddress, SnowflakeType } from '../types';
+import { IPAddress, SnowflakeType } from '../types.js';
 
-import { ABSeeRequest } from '../session';
-import { AuthenticationRestResult } from '../types/apicalls';
-import { UserModel } from '../types/model';
-import { basicMySqlInsert } from '../database/basicMysqlInsert';
+import { ABSeeRequest } from '../session.js';
+import { AuthenticationRestResult } from '../types/apicalls.js';
+import { UserModel } from '../types/model.js';
+import { basicMySqlInsert } from '../database/basicMysqlInsert.js';
 import express from 'express';
-import { getDbUserByEmail } from '../database/mysql';
-import { getIp } from '../server';
-import { getSnowflake } from '../snowflake';
-import { validateEmailString } from '../utils';
+import { getDbUserByEmail } from '../database/mysql.js';
+import { getIp } from '../server.js';
+import { getSnowflake } from '../snowflake.js';
+import { validateEmailString } from '../utils.js';
 
 export const login = async (req: ABSeeRequest, res: express.Response) => {
   try {

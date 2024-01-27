@@ -1,4 +1,4 @@
-import { PoolConnection, getConnection } from './mysqlConnections';
+import { PoolConnection, getConnection } from './mysqlConnections.js';
 
 export const basicMySqlInsert = (
   table: string,

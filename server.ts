@@ -4,8 +4,8 @@ import * as https from 'https';
 import * as sourcemap from 'source-map-support';
 
 import express from 'express';
-import { requireEnv } from './src/utils';
-import { startApp } from './src/server';
+import { requireEnv } from './src/utils.js';
+import { startApp } from './src/server.js';
 
 dotenv.config();
 

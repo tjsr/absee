@@ -1,8 +1,8 @@
-import Frontend from './ui/frontend';
+import Frontend from './ui/frontend.js';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import reportWebVitals from './reportWebVitals';
+import reportWebVitals from './reportWebVitals.js';
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(

@@ -1,14 +1,14 @@
-import { ABSeeRequest, ABSeeSessionData } from '../session';
-import { EmailAddress, UserId } from '../types';
+import { ABSeeRequest, ABSeeSessionData } from '../session.js';
+import { EmailAddress, UserId } from '../types.js';
 import { Strategy as GoogleStrategy, Profile } from 'passport-google-oauth20';
 import express, { NextFunction, Response } from 'express';
 
-import { getConnectionPool } from '../database/mysqlConnections';
-import { getUserId } from './user';
+import { getConnectionPool } from '../database/mysqlConnections.js';
+import { getUserId } from './user.js';
 import passport from 'passport';
-import { requireEnv } from '../utils';
-import { saveUserLogin } from '../api/login';
-import { setUserCookies } from '../sessions/getSession';
+import { requireEnv } from '../utils.js';
+import { saveUserLogin } from '../api/login.js';
+import { setUserCookies } from '../sessions/getSession.js';
 
 // Configure Google authentication strategy
 const GOOGLE_CLIENT_ID = requireEnv('GOOGLE_CLIENT_ID');

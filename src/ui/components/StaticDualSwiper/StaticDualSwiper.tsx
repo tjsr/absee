@@ -1,6 +1,6 @@
 // import './StaticDualSwiper.css';
 
-import { DragDirection, SelectionAction, SwipableBox, SwipeDirection, SwiperSharedProps } from '..';
+import { DragDirection, SelectionAction, SwipableBox, SwipeDirection, SwiperSharedProps } from '../index.js';
 
 import React from 'react';
 

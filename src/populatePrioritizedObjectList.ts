@@ -1,5 +1,5 @@
-import { CollectionTypeLoader } from './datainfo';
-import { retrieveObjectFrequency } from './database/retrieveObjectFrequency';
+import { CollectionTypeLoader } from './datainfo.js';
+import { retrieveObjectFrequency } from './database/retrieveObjectFrequency.js';
 
 export const populatePrioritizedObjectList = async <T, D>(loader: CollectionTypeLoader<T, D>): Promise<void> => {
   const frequencyList: Map<string, number> = await retrieveObjectFrequency(loader.collectionId);

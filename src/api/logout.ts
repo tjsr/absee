@@ -1,8 +1,8 @@
-import { ABSeeRequest } from '../session';
-import { AuthenticationRestResult } from '../types/apicalls';
-import { UserId } from '../types';
+import { ABSeeRequest } from '../session.js';
+import { AuthenticationRestResult } from '../types/apicalls.js';
+import { UserId } from '../types.js';
 import express from 'express';
-import { getUserId } from '../auth/user';
+import { getUserId } from '../auth/user.js';
 
 export const logout = async (request: ABSeeRequest, res: express.Response) => {
   const userId: UserId = getUserId(request);
@@ -15,7 +15,7 @@ export const logout = async (request: ABSeeRequest, res: express.Response) => {
     request.session.userId = undefined;
     request.session.email = undefined;
     request.session.username = undefined;
-    request.session.save((err) => {
+    request.session.save((err:any) => {
       if (err) {
         console.error(`Failed saving session`, err);
       }

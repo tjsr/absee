@@ -5,7 +5,7 @@ import express, { Response } from 'express';
 
 import { IncomingHttpHeaders } from 'http';
 import session from 'express-session';
-import { uuid4 } from '../types';
+import { uuid4 } from '../types.js';
 import { v4 as uuidv4 } from 'uuid';
 
 const memoryStore = new session.MemoryStore();

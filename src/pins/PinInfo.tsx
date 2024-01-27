@@ -1,9 +1,9 @@
 import './pincolours.css';
 import './pinpanion.css';
 
-import { PaxInfo, PinName, SetInfo, SizedPin } from './PinInfo.styles';
+import { PaxInfo, PinName, SetInfo, SizedPin } from './PinInfo.styles.js';
 
-import { Pin } from './pinpanion';
+import { Pin } from './pinpanion.js';
 import React from 'react';
 
 type PinInfoPropTypes = {

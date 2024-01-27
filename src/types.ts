@@ -1,4 +1,4 @@
-import { ISO8601Date, SnowflakeType } from './types/mysqltypes';
+import { ISO8601Date, SnowflakeType } from './types/mysqltypes.js';
 
 export type uuid = string;
 export type uuid5 = uuid;

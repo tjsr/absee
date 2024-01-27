@@ -5,7 +5,7 @@ import {
   ISO8601Date,
   SnowflakeType,
   UserId
-} from '../types';
+} from '../types.js';
 
 export type ComparableObjectModel = {
   id: SnowflakeType;

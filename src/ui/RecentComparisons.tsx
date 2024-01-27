@@ -6,20 +6,20 @@ import {
   ComparisonElementResponse,
   ComparisonResultResponse,
   SnowflakeType
-} from '../types';
+} from '../types.js';
 import {
   QUERYSTRING_ARRAY_DELIMETER,
   QUERYSTRING_ELEMENT_DELIMETER,
   getServerHost
-} from './utils';
+} from './utils.js';
 import React, { useEffect, useState } from 'react';
 
 import Cookies from 'js-cookie';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { Link } from 'react-router-dom';
-import { Pin } from '../pins/pinpanion';
-import { PinInfo } from '../pins/PinInfo';
-import { Snackbar } from './Snackbar';
+import { Pin } from '../pins/pinpanion.js';
+import { PinInfo } from '../pins/PinInfo.js';
+import { Snackbar } from './Snackbar.js';
 
 const eloRating: Map<SnowflakeType|object|number, number> = new Map<SnowflakeType|object|number, number>();
 const elementValues: Map<SnowflakeType|object|number, number> = new Map<SnowflakeType|object|number, number>();

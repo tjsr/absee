@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 
 import mysql from 'mysql';
-import { requireEnv } from '../utils';
+import { requireEnv } from '../utils.js';
 
 export type PoolConnection = mysql.PoolConnection;
 

@@ -1,31 +1,31 @@
 import * as dotenv from 'dotenv';
 
-import { ABSeeRequest, mysqlSessionStore } from './session';
+import { ABSeeRequest, mysqlSessionStore } from './session.js';
 import {
   StatsResponse,
   getElementsCompared,
   getMostFrequentlyComparedElement,
   getUniqueContibutingUserCount
-} from './api/stats/stats';
+} from './api/stats/stats.js';
 import express, { NextFunction } from 'express';
-import { getSession, setUserCookies } from './sessions/getSession';
+import { getSession, setUserCookies } from './sessions/getSession.js';
 
-import { IPAddress } from './types';
+import { IPAddress } from './types.js';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import { createProxyMiddleware } from 'http-proxy-middleware';
-import { debugHeaders } from './api/debugHeaders';
+import { debugHeaders } from './api/debugHeaders.js';
 import fs from 'fs';
-import { initialisePassportToExpressApp } from './auth/passport';
-import { login } from './api/login';
-import { logout } from './api/logout';
+import { initialisePassportToExpressApp } from './auth/passport.js';
+import { login } from './api/login.js';
+import { logout } from './api/logout.js';
 import morgan from 'morgan';
-import { recent } from './api/recent';
+import { recent } from './api/recent.js';
 import requestIp from 'request-ip';
-import { serveComparison } from './api/serveComparison';
-import { session } from './api/session';
-import { submit } from './api/submit';
-import { useSessionId } from './sessions/useSessionId';
+import { serveComparison } from './api/serveComparison.js';
+import { session } from './api/session.js';
+import { submit } from './api/submit.js';
+import { useSessionId } from './sessions/useSessionId.js';
 
 const ASSET_BUILD_DIR = 'dist';
 dotenv.config();
