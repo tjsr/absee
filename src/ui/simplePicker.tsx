@@ -18,7 +18,7 @@ extends React.HTMLProps<HTMLDivElement> {
   devmode?: boolean;
 }
 
-interface SwipeComparisonContainer<CO extends CollectionObject<IdType>, IdType extends CollectionObjectIdType>
+interface SwipeComparisonContainerProps<CO extends CollectionObject<IdType>, IdType extends CollectionObjectIdType>
 extends React.HTMLProps<HTMLDivElement> {
   itemSelected: (side: SwipeDirection, action: SelectionAction) => void;
   leftElement: ComparableObjectResponse<CO>;
@@ -32,7 +32,7 @@ const SwipeComparisonContainer = <CO extends CollectionObject<IdType>, IdType ex
   itemSelected,
   leftElement,
   rightElement,
-  selectElement }: SwipeComparisonContainer<CO, IdType>): JSX.Element => {
+  selectElement }: SwipeComparisonContainerProps<CO, IdType>): JSX.Element => {
   const [currentSelectedElement, setCurrentSelectedElement] = useState<SnowflakeType | undefined>(undefined);
 
   const elementSelect = (elementId: SnowflakeType, side: SwipeDirection, action: SelectionAction): void => {
@@ -45,6 +45,24 @@ const SwipeComparisonContainer = <CO extends CollectionObject<IdType>, IdType ex
     }
   };
 
+  interface getContentElementProps {
+    elementType: 'pin',
+    element: ComparableObjectResponse<CollectionObject<CollectionObjectIdType>>
+  }
+
+  // <CO extends CollectionObject<IdType>, IdType extends CollectionObjectIdType>
+  const getContentElement =
+    ({ elementType, element } : getContentElementProps ): JSX.Element => {
+      if (elementType === 'pin') {
+        return <PinCollection
+          element={element as unknown as ComparableObjectResponse<Pin>}
+          selectElement={selectElement}
+          isSelected={currentSelectedElement == element.elementId}
+        />;
+      }
+      return <></>;
+    };
+
   return (
     <div className="comparisonContainer">
       <DualSwiper
@@ -54,18 +72,16 @@ const SwipeComparisonContainer = <CO extends CollectionObject<IdType>, IdType ex
           elementSelect(leftElement.elementId, side, action);
         }}
         leftContent={
-          <PinCollection
-            element={leftElement as unknown as ComparableObjectResponse<Pin>}
-            selectElement={selectElement}
-            isSelected={currentSelectedElement == leftElement.elementId}
-          />
+          getContentElement({
+            element: leftElement,
+            elementType: 'pin',
+          })
         }
         rightContent={
-          <PinCollection
-            element={rightElement as unknown as ComparableObjectResponse<Pin>}
-            selectElement={selectElement}
-            isSelected={currentSelectedElement == rightElement.elementId}
-          />
+          getContentElement({
+            element: rightElement,
+            elementType: 'pin',
+          })
         }
         refDiv={externalDropRef}>
         <div className="comparisonText">Swipe your selection towards the centre.</div>
@@ -85,6 +101,22 @@ export const ElementPicker = <CO extends CollectionObject<IdType>, IdType extend
 
   const onTapSelect = async (elementId: SnowflakeType): Promise<void> => {
     if (tapToSelect) props.selectElement(elementId);
+  };
+
+  interface getContentElementProps {
+    elementType: 'pin',
+    element: ComparableObjectResponse<CollectionObject<CollectionObjectIdType>>
+  }
+
+  const getContentElement =
+  ({ elementType, element } : getContentElementProps ): JSX.Element => {
+    if (elementType === 'pin') {
+      return <PinCollection
+        element={element as unknown as ComparableObjectResponse<Pin>}
+        selectElement={selectElement}
+      />;
+    }
+    return <></>;
   };
 
   return <>
@@ -137,16 +169,16 @@ export const ElementPicker = <CO extends CollectionObject<IdType>, IdType extend
         boxMinWidth={8}
         itemSelected={itemSelected}
         staticContent={
-          <PinCollection
-            element={leftElement as unknown as ComparableObjectResponse<Pin>}
-            selectElement={selectElement}
-          />
+          getContentElement({
+            element: leftElement,
+            elementType: 'pin',
+          })
         }
         comparisonContent={
-          <PinCollection
-            element={rightElement as unknown as ComparableObjectResponse<Pin>}
-            selectElement={selectElement}
-          />
+          getContentElement({
+            element: rightElement,
+            elementType: 'pin',
+          })
         }
       />
     </div>

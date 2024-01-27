@@ -219,18 +219,18 @@ type RecentComparisonsProps = {
   maxComparisons?: number;
 }
 
-const createComparisonUrl = (comparison: ComparisonResultResponse<Pin>): string => {
+const createComparisonUrl = <ComparableObjectType extends CollectionObject<IdType>, IdType extends object|number>
+  (comparison: ComparisonResultResponse<ComparableObjectType>): string => {
   const server = `${location.protocol}//${location.host}`;
   const objectString: string =
     comparison.elements.map((e) =>
-      e.data.map((p: Pin) => p.id).join(QUERYSTRING_ELEMENT_DELIMETER))
+      e.data.map((p: ComparableObjectType) => p.id).join(QUERYSTRING_ELEMENT_DELIMETER))
       .join(QUERYSTRING_ARRAY_DELIMETER);
   const linkString = `${server}/?objects=${objectString}`;
   return linkString;
 };
 
-
-export const RecentComparisons = (
+export const RecentComparisons = <ComparableObjectType extends CollectionObject<IdType>, IdType extends object|number>(
   {
     currentUser = false,
     collectionId,
@@ -240,7 +240,7 @@ export const RecentComparisons = (
   const [recentLoading, setRecentLoading] = useState<boolean>(false);
   const [recentLoaded, setRecentLoaded] = useState<boolean>(false);
   const [errorLoading, setErrorLoading] = useState<boolean>(false);
-  const [recentComparisons, setRecentComparisons] = useState<ComparisonResultResponse<Pin>[]>([]);
+  const [recentComparisons, setRecentComparisons] = useState<ComparisonResultResponse<ComparableObjectType>[]>([]);
   const [copyMessageState, setCopyMessageState] = useState<boolean>(false);
 
   useEffect(() => {
@@ -252,7 +252,7 @@ export const RecentComparisons = (
         if (res.success) {
           // console.log(`Loaded ${SuperJSON.stringify(res.data)}`);
           // console.log(`As json: ${res.data}`);
-          const recentComparisonRequest: ComparisonResultResponse<Pin> = res.data;
+          const recentComparisonRequest: ComparisonResultResponse<ComparableObjectType> = res.data;
           setRecentComparisons(recentComparisonRequest as any);
           // console.log(`Recent comparisons is now ${recentComparisons}`);
           setRecentLoaded(true);
@@ -276,22 +276,22 @@ export const RecentComparisons = (
       <>
         <h3 className="recentComparisons">Recent comparisons</h3>
         <div>
-          {recentComparisons?.map((comparison: ComparisonResultResponse<Pin>) => {
+          {recentComparisons?.map((comparison: ComparisonResultResponse<ComparableObjectType>) => {
             return (
               <div className='comparisonGroup' key={comparison.id}>
-                {comparison.elements?.map((element: ComparisonElementResponse<Pin>) => {
+                {comparison.elements?.map((element: ComparisonElementResponse<ComparableObjectType>) => {
                   const clipboardLink = createComparisonUrl(comparison);
                   const style = comparison.winner == element.elementId ? { backgroundColor: '#e1ffe1' } : {};
                   return <CopyToClipboard text={clipboardLink}
                     onCopy={() => setCopyMessageState(true)}>
                     <div style={style}
                       key={element.elementId}>
-                      {element.data.map((dataElement) => {
+                      {element.data.map((dataElement: CollectionObject<IdType>) => {
                         // const pinInfo: Pin = getPinForId(dataElement);
                         return (<PinInfo
                           minimal={true}
-                          pin={dataElement}
-                          key={dataElement.id}
+                          pin={dataElement as unknown as Pin}
+                          key={`${dataElement.id}`}
                           style={style}
                         />);
                       }) }
