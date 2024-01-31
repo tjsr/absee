@@ -21,17 +21,18 @@ export const getLoader = async <ComparableElementType, DataList>(id: CollectionI
     loaderData.map((loader: CollectionTypeData) => {
       const predefinedLoader = predefinedLoaders.get(loader.collectionId) || predefinedLoaders.get(loader.name);
       if (predefinedLoader === undefined) {
-        throw new Error(`No predefined loader for data type ${loader.name} (${loader.collectionId})`);
+        console.warn(`No predefined loader for data type ${loader.name} (${loader.collectionId})`);
+      } else {
+        const outputLoader: CollectionTypeLoader<ComparableElementType, DataList> = {
+          ...predefinedLoader,
+          collectionData: loader.cachedData?.trim() === '' ? undefined : JSON.parse(loader.cachedData),
+          collectionId: loader.collectionId,
+          datasourceUrl: loader.datasource,
+          maxElementsPerComparison: loader.maxElementsPerComparison,
+        };
+        predefinedLoaders.set(loader.collectionId, outputLoader);
+        allLoaders.push(outputLoader);
       }
-      const outputLoader: CollectionTypeLoader<ComparableElementType, DataList> = {
-        ...predefinedLoader,
-        collectionData: loader.cachedData?.trim() === '' ? undefined : JSON.parse(loader.cachedData),
-        collectionId: loader.collectionId,
-        datasourceUrl: loader.datasource,
-        maxElementsPerComparison: loader.maxElementsPerComparison,
-      };
-      predefinedLoaders.set(loader.collectionId, outputLoader);
-      allLoaders.push(outputLoader);
     });
   }
 

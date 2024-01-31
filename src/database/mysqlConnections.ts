@@ -22,6 +22,8 @@ const config: mysql.PoolConfig = {
   user: requireEnv('MYSQL_USER'),
 };
 
+export const getPoolConfig = (): mysql.PoolConfig => config;
+
 let connectionPool: mysql.Pool;
 try {
   connectionPool = mysql.createPool(config);
@@ -30,7 +32,7 @@ try {
   process.exit(1);
 }
 
-export const getConnectionPool = () => {
+export const getConnectionPool = (): mysql.Pool => {
   return connectionPool;
 };
 

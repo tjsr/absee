@@ -3,9 +3,10 @@ import * as expressSession from 'express-session';
 
 import { EmailAddress, UserId } from './types.js';
 import { Session, SessionData } from 'express-session';
+import { getConnectionPool, getPoolConfig } from './database/mysqlConnections.js';
 import mySQLStore, { MySQLStore } from 'express-mysql-session';
 
-import { getConnectionPool } from './database/mysqlConnections.js';
+import mysql from 'mysql';
 
 export interface ABSeeSessionData extends SessionData {
   id: string;
@@ -20,8 +21,14 @@ export interface ABSeeRequest extends Express.Request {
   // user?: Profile;
 }
 
+const poolConfig: mysql.PoolConfig = getPoolConfig();
+
 const sessionStoreOptions: mySQLStore.Options = {
   createDatabaseTable: true,
+  database: poolConfig.database,
+  host: poolConfig.host,
+  password: poolConfig.password,
+  port: poolConfig.port,
   schema: {
     columnNames: {
       data: 'sess',
@@ -30,17 +37,14 @@ const sessionStoreOptions: mySQLStore.Options = {
     },
     tableName: 'session',
   },
+  user: poolConfig.user,
 };
 
 export let mysqlSessionStore: MySQLStore;
 try {
   const MysqlSessionStore = mySQLStore(expressSession);
   mysqlSessionStore = new MysqlSessionStore(
-    sessionStoreOptions /* session store options */,
-    getConnectionPool(),
-    (err) => {
-      console.warn('Error:' + err);
-    }
+    sessionStoreOptions /* session store options */
   );
 } catch (err) {
   console.error(`Failed getting MySQL session store`, err);
