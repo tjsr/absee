@@ -3,7 +3,7 @@ import { QUERYSTRING_ARRAY_DELIMETER, QUERYSTRING_ELEMENT_DELIMETER } from './ut
 import React, { useState } from 'react';
 
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { FaRegCopy } from 'react-icons/fa/index.js';
+import { FaClone } from 'react-icons/fa';
 import { Snackbar } from './Snackbar.js';
 
 type ComparisonLinkProps<CO extends CollectionObject<IdType>, IdType extends CollectionObjectIdType> = {
@@ -32,7 +32,7 @@ export const ComparisonLink = <CO extends CollectionObject<IdType>, IdType exten
   return (
     <div className="copyToClipboard">
       Copy link clipboard <CopyToClipboard text={linkString} onCopy={() => setCopyMessageState(true)}>
-        <FaRegCopy style={{ cursor: 'pointer' }} />
+        <FaClone style={{ cursor: 'pointer' }} />
       </CopyToClipboard>
       <Snackbar
         showPopup={copyMessageState}
