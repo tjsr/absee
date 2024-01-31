@@ -3,9 +3,9 @@ import * as expressSession from 'express-session';
 
 import { EmailAddress, UserId } from './types.js';
 import { Session, SessionData } from 'express-session';
-import { getConnectionPool, getPoolConfig } from './database/mysqlConnections.js';
 import mySQLStore, { MySQLStore } from 'express-mysql-session';
 
+import { getPoolConfig } from './database/mysqlConnections.js';
 import mysql from 'mysql';
 
 export interface ABSeeSessionData extends SessionData {
@@ -18,7 +18,6 @@ export interface ABSeeSessionData extends SessionData {
 
 export interface ABSeeRequest extends Express.Request {
   session: Session & Partial<ABSeeSessionData>;
-  // user?: Profile;
 }
 
 const poolConfig: mysql.PoolConfig = getPoolConfig();

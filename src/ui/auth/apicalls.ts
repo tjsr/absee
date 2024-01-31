@@ -17,17 +17,12 @@ export const submitLogin = async (email: EmailAddress) => {
       body: JSON.stringify(loginPostBody),
       cache: 'no-cache',
       headers: {
-        // 'Accept': 'application/json',
         'Content-Type': 'application/json',
         'x-session-id': sessionId!,
       },
       method: 'POST',
       mode: 'cors',
     });
-
-    const headers = response.headers.get('Set-Cookie');
-    // const rawHeaders = response.headers.raw()['Set-Cookie'];
-    const cookie = headers ? headers.split(',') : [];
 
     const loginBody: AuthenticationRestResult = await response.json();
     setAuthenticationCookies(loginBody);
@@ -62,7 +57,6 @@ export const submitLogout = async () => {
     const sessionId = Cookies.get('sessionId');
     const response = await fetch(`${getServerHost()}/logout`, {
       headers: {
-        // 'Accept': 'application/json',
         'Content-Type': 'application/json',
         'x-session-id': sessionId!,
       },
