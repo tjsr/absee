@@ -62,13 +62,24 @@ export type ComparisonResult = {
   requestTime: ISO8601Date;
 };
 
-export type ComparisonResultResponse<CollectionObject> = {
+export interface ComparisonResultResponse<CollectionObject> {
   id: SnowflakeType;
   userId: UserId;
   elements: ComparisonElementResponse<CollectionObject>[];
   winner: SnowflakeType;
   requestTime: ISO8601Date;
-};
+}
+
+export interface ElementEloRating<CollectionObjectIdType> {
+  elementId: CollectionObjectIdType;
+  rating: number;
+}
+
+export interface EloTimelineResponse<CollectionObject, CollectionObjectIdType>
+  extends ComparisonResultResponse<CollectionObject> {
+  eloRatingsAfter: ElementEloRating<CollectionObjectIdType>[];
+  eloRatingsBefore: ElementEloRating<CollectionObjectIdType>[];
+}
 
 export interface ClientCollectionType<CO extends CollectionObject<any>, CollectionObjectIdType> {
   getObjectId: (object: CO) => CollectionObjectIdType;

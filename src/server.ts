@@ -15,6 +15,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import { debugHeaders } from './api/debugHeaders.js';
+import { elo } from './api/elo.js';
 import fs from 'fs';
 import { initialisePassportToExpressApp } from './auth/passport.js';
 import { login } from './api/login.js';
@@ -98,6 +99,18 @@ export const startApp = (): express.Express => {
         response.end();
       }
     });
+
+  app.get('/api/elo(/:collectionId)?(/me)?',
+    async (request: ABSeeRequest, response: express.Response) => {
+      const collectionId = request.params.collectionId;
+      if (collectionId == PINNY_ARCADE_DEV_COLLECTION_ID) {
+        await elo(request, response, PINNY_ARCADE_DEV_COLLECTION_ID);
+      } else {
+        response.status(401);
+        response.end();
+      }
+    });
+
   app.get('/api/stats/elementsCompared(/:collectionId)?', async (request: ABSeeRequest, response: express.Response) => {
     const collectionId = request.params.collectionId;
     const startTime: number = new Date().getTime();
@@ -158,6 +171,7 @@ export const startApp = (): express.Express => {
     '/recent(/*)?',
     '/about(/*)?',
     '/stats(/*)?',
+    '/elo(/*)?',
   ];
 
   const serveIndex = (req: express.Request, res: express.Response, next: express.NextFunction) => {

@@ -5,7 +5,9 @@ import {
   ComparisonElementResponse,
   ComparisonResult,
   ComparisonResultResponse,
-  ComparisonSelectionResponse
+  ComparisonSelectionResponse,
+  ElementEloRating,
+  EloTimelineResponse
 } from './types.js';
 
 import { CollectionTypeLoader } from './datainfo.js';
@@ -44,6 +46,42 @@ export const createComparisonResultResponse = <T>(
 
   try {
     return result.map((result: ComparisonResult) => resultToResultResponse(result, loader));
+  } catch (err) {
+    console.trace(err);
+    throw new Error('Error converting result to response');
+  }
+};
+
+const resultToEloTimelineResponse = <T, IDType>(
+  result:ComparisonResult,
+  loader: CollectionTypeLoader<T, any>,
+  eloRatings: Map<IDType, number>
+): EloTimelineResponse<T, IDType> => {
+  const eloRatingsAfter: ElementEloRating<IDType>[] = [];
+  const eloRatingsBefore: ElementEloRating<IDType>[] = [];
+  const output: EloTimelineResponse<T, IDType> = {
+    elements: result.elements?.map((element: ComparisonElement) => elementToElementResponse(element, loader)),
+    eloRatingsAfter,
+    eloRatingsBefore,
+    id: result.id.toString(),
+    requestTime: result.requestTime,
+    userId: result.userId.toString(),
+    winner: result.winner.toString(),
+  };
+  return output;
+};
+
+export const createEloTimelineFromComparisons = <T, IDType>(
+  result: ComparisonResult[],
+  loader: CollectionTypeLoader<T, IDType>
+): EloTimelineResponse<T, IDType>[] => {
+  if (loader.collectionData === undefined) {
+    throw Error('Can\'t populate data when existingData has not been loaded.');
+  }
+
+  try {
+    const eloRatings:Map<IDType, number> = new Map();
+    return result.map((result: ComparisonResult) => resultToEloTimelineResponse(result, loader, eloRatings));
   } catch (err) {
     console.trace(err);
     throw new Error('Error converting result to response');
