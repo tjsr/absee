@@ -7,10 +7,12 @@ import {
   ComparisonResultResponse,
   ComparisonSelectionResponse,
   ElementEloRating,
-  EloTimelineResponse
+  EloTimelineResponse,
+  SnowflakeType
 } from './types.js';
 
 import { CollectionTypeLoader } from './datainfo.js';
+import { updateEloRatings } from './rankings/elo.js';
 
 const elementToElementResponse = <T>(
   element: ComparisonElement,
@@ -52,12 +54,36 @@ export const createComparisonResultResponse = <T>(
   }
 };
 
-const resultToEloTimelineResponse = <T, IDType>(
+const getEloRatingsOfElements = <IDType>(
+  eloRatings: Map<IDType, number>, result:ComparisonResult
+): ElementEloRating<IDType>[] => {
+  const output: ElementEloRating<IDType>[] = [];
+  result.elements.forEach((element: ComparisonElement) => {
+    element.objects.forEach((objectId: string) => {
+      output.push({ elementId: objectId as unknown as IDType, rating: 400 });
+    });
+  });
+
+  return output;
+};
+
+const resultToEloTimelineResponse = <T, IDType extends SnowflakeType|object|number>(
   result:ComparisonResult,
   loader: CollectionTypeLoader<T, any>,
   eloRatings: Map<IDType, number>
 ): EloTimelineResponse<T, IDType> => {
-  const eloRatingsAfter: ElementEloRating<IDType>[] = [];
+  const eloRatingsAfter: ElementEloRating<IDType>[] = getEloRatingsOfElements(eloRatings, result);
+
+  const winningElement = result.elements?.filter((element) => element.elementId == result.winner)[0];
+  const otherElement = result.elements?.filter((element) => element.elementId != result.winner)[0];
+
+  if (winningElement && otherElement) {
+    updateEloRatings(eloRatings, winningElement, otherElement);
+    console.log(`Camparison ${elementRatings.join(' vs ')} on ${result.requestTime}`);
+  } else {
+    console.warn('Didnt get both a winning and other element.');
+  }
+
   const eloRatingsBefore: ElementEloRating<IDType>[] = [];
   const output: EloTimelineResponse<T, IDType> = {
     elements: result.elements?.map((element: ComparisonElement) => elementToElementResponse(element, loader)),
@@ -71,7 +97,7 @@ const resultToEloTimelineResponse = <T, IDType>(
   return output;
 };
 
-export const createEloTimelineFromComparisons = <T, IDType>(
+export const createEloTimelineFromComparisons = <T, IDType extends SnowflakeType|object|number>(
   result: ComparisonResult[],
   loader: CollectionTypeLoader<T, IDType>
 ): EloTimelineResponse<T, IDType>[] => {
@@ -80,7 +106,7 @@ export const createEloTimelineFromComparisons = <T, IDType>(
   }
 
   try {
-    const eloRatings:Map<IDType, number> = new Map();
+    const eloRatings:Map<SnowflakeType|object|number, number> = new Map();
     return result.map((result: ComparisonResult) => resultToEloTimelineResponse(result, loader, eloRatings));
   } catch (err) {
     console.trace(err);
