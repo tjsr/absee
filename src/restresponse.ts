@@ -58,8 +58,11 @@ const getEloRatingsOfElements = <IDType extends SnowflakeType|number|string>(
   eloRatings: Map<IDType, number>, result:ComparisonResult
 ): ElementEloRating<IDType>[] => {
   const output: ElementEloRating<IDType>[] = [];
-  result.elements.forEach((element: ComparisonElement) => {
-    element.objects.forEach((objectId: string) => {
+  if (!result?.elements) {
+    console.warn(`ComparisonResult ${result?.id} had no elements array.`);
+  }
+  result?.elements?.forEach((element: ComparisonElement) => {
+    element?.objects?.forEach((objectId: string) => {
       const objectEloRating = eloRatings.get(objectId as unknown as IDType) || 400;
       output.push({ elementId: objectId as unknown as IDType, rating: objectEloRating });
     });
@@ -104,6 +107,9 @@ const resultToEloTimeline = <IDType extends SnowflakeType|string|number>(
   result:ComparisonResult,
   eloRatings: Map<IDType, number>
 ): EloTimeline<IDType> => {
+  if (!result?.elements) {
+    console.warn(`ComparisonResult ${result?.id} had no comparison elements.`);
+  }
   const eloRatingsBefore: ElementEloRating<IDType>[] = getEloRatingsOfElements(eloRatings, result);
   let eloRatingsAfter: ElementEloRating<IDType>[] = [];
 
@@ -135,7 +141,8 @@ export const createEloTimelineFromComparisons = <IDType extends SnowflakeType|st
 ): EloTimeline<IDType>[] => {
   try {
     const eloRatings:Map<IDType, number> = new Map();
-    return result.map((result: ComparisonResult) => resultToEloTimeline(result, eloRatings));
+    return result.filter((r) => r.elements !== undefined).map(
+      (result: ComparisonResult) => resultToEloTimeline(result, eloRatings));
   } catch (err) {
     console.trace(err);
     throw new Error('Error converting result to timeline element');
