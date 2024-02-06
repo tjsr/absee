@@ -3,8 +3,14 @@ import * as dotenv from 'dotenv';
 
 import { CollectionTypeLoader } from './datainfo.js';
 import { ISO8601Date } from './types.js';
+import os from 'os';
 
-dotenv.config();
+const systemName: string = os.hostname();
+
+const config: dotenv.DotenvConfigOptions = {
+  path: `.env.${systemName}`,
+};
+dotenv.config(config);
 
 export const iso8601Now = (): ISO8601Date => {
   // return (new Date()).toISOString();

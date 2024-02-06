@@ -1,12 +1,30 @@
-import { CollectionObject, ComparisonElementResponse, ComparisonResultResponse, SnowflakeType } from '../types.js';
+import {
+  CollectionObjectType,
+  ComparisonElement,
+  ComparisonElementResponse,
+  ComparisonResultResponse,
+  SnowflakeType
+} from '../types.js';
 
 const STARTING_ELO_RATING = 400;
 const ELO_WIN_DELTA = 32;
 
-const getCurrentEloRating = <CollectionObjectType extends CollectionObject<IdType>, IdType extends object|number>
+const getCurrentEloRating = (
+  elementEloRatings: Map<SnowflakeType|object|number, number>,
+  elementId: string
+): number => {
+  const currentRating = elementEloRatings.get(elementId);
+  if (currentRating === undefined) {
+    return STARTING_ELO_RATING;
+  }
+  return currentRating;
+};
+
+const getCurrentCollectionObjectEloRating = <CollectionObject extends CollectionObjectType<IdType>,
+IdType extends object|number>
   (
     elementEloRatings: Map<SnowflakeType|object|number, number>,
-    element: CollectionObjectType
+    element: CollectionObject
   ): number => {
   const currentRating = elementEloRatings.get(element.id);
   if (currentRating === undefined) {
@@ -15,41 +33,65 @@ const getCurrentEloRating = <CollectionObjectType extends CollectionObject<IdTyp
   return currentRating;
 };
 
-const getEloRatingForElement = <CollectionObjectType extends CollectionObject<IdType>, IdType extends object|number>
+const getEloRatingForElementResponse = <CollectionObject extends CollectionObjectType<IdType>,
+IdType extends object|number>
   (
     elementEloRatings: Map<SnowflakeType|object|number, number>,
-    element: ComparisonElementResponse<CollectionObjectType>
+    element: ComparisonElementResponse<CollectionObject>
   ): number => {
   const elementRating = element.data.map(
-    (objectElement: CollectionObjectType) => getCurrentEloRating(elementEloRatings, objectElement))
+    (objectElement: CollectionObject) => getCurrentCollectionObjectEloRating(elementEloRatings, objectElement))
     .reduce((acc, cur) => acc + cur);
   return elementRating;
 };
 
-const updateEloRating = <ComparableObjectType extends CollectionObject<IdType>, IdType extends object|number>
+const getEloRatingForElement =
+(
+  elementEloRatings: Map<SnowflakeType|object|number, number>,
+  element: ComparisonElement
+): number => {
+  const elementRating = element.objects.map(
+    (objectElementId: string) => getCurrentEloRating(elementEloRatings, objectElementId))
+    .reduce((acc, cur) => acc + cur);
+  return elementRating;
+};
+
+const updateEloRatingForResponse = <ComparableObject extends CollectionObjectType<IdType>, IdType extends object|number>
   (
     eloRatings: Map<SnowflakeType|object|number, number>,
-    element: ComparisonElementResponse<ComparableObjectType>,
+    element: ComparisonElementResponse<ComparableObject>,
     ratingUpdate: number
   ): void => {
-  const elo = getEloRatingForElement(eloRatings, element);
-  element.data.forEach((objectElement: ComparableObjectType) => {
-    eloRatings.set(objectElement.id, elo + ratingUpdate);
+  const elo = getEloRatingForElementResponse(eloRatings, element);
+  element.data.forEach((objectId: ComparableObject) => {
+    eloRatings.set(objectId, elo + ratingUpdate);
   });
 };
+
+const updateEloRating =
+  (
+    eloRatings: Map<SnowflakeType|object|number, number>,
+    element: ComparisonElement,
+    ratingUpdate: number
+  ): void => {
+    const elo = getEloRatingForElement(eloRatings, element);
+    element.objects.forEach((objectElementId: string) => {
+      eloRatings.set(objectElementId, elo + ratingUpdate);
+    });
+  };
 
 const calculateExpectedOutcome = (eloRating1: number, eloRating2: number): number => 1 / (1 +
   Math.pow(10, (
     eloRating2 - eloRating1
   ) / STARTING_ELO_RATING));
 
-export const calculateEloRatings = <ComparableObjectType extends CollectionObject<IdType>, IdType extends object|number>
+export const calculateEloRatings = <ComparableObject extends CollectionObjectType<IdType>, IdType extends object|number>
   (
     eloRating: Map<SnowflakeType|object|number, number>,
-    recentComparisons: ComparisonResultResponse<ComparableObjectType>[]
+    recentComparisons: ComparisonResultResponse<ComparableObject>[]
   ) => {
-  const filteredComparisons: ComparisonResultResponse<ComparableObjectType>[] = recentComparisons
-    ?.filter((comparison: ComparisonResultResponse<ComparableObjectType>) =>
+  const filteredComparisons: ComparisonResultResponse<ComparableObject>[] = recentComparisons
+    ?.filter((comparison: ComparisonResultResponse<ComparableObject>) =>
       comparison.elements?.every((element) => element.data.length > 0))
     .sort((a, b) => a.requestTime?.toString().localeCompare(b.requestTime?.toString()));
   console.log(`Filtered to ${filteredComparisons.length} comparisons`);
@@ -57,13 +99,13 @@ export const calculateEloRatings = <ComparableObjectType extends CollectionObjec
   filteredComparisons.forEach((comparison) => {
     if (comparison.elements?.every((element) => element.data.length == 1)) {
       const elementRatings: number[] = comparison.elements?.map(
-        (element) => getEloRatingForElement(eloRating, element)
+        (element) => getEloRatingForElementResponse(eloRating, element)
       );
       const winningElement = comparison.elements?.filter((element) => element.elementId == comparison.winner)[0];
       const otherElement = comparison.elements?.filter((element) => element.elementId != comparison.winner)[0];
 
       if (winningElement && otherElement) {
-        updateEloRatings(eloRating, winningElement, otherElement);
+        updateEloRatingsFromResponses(eloRating, winningElement, otherElement);
         console.log(`Camparison ${elementRatings.join(' vs ')} on ${comparison.requestTime}`);
       } else {
         console.warn('Didnt get both a winning and other element.');
@@ -81,10 +123,27 @@ export const calculateEloRatings = <ComparableObjectType extends CollectionObjec
   });
 };
 
+export const updateEloRatingsFromResponses = (
+  eloRatings: Map<SnowflakeType|object|number, number>,
+  winningElement: ComparisonElementResponse<CollectionObjectType<any>>,
+  otherElement: ComparisonElementResponse<CollectionObjectType<any>>
+) => {
+  const existingWinnerElo = getEloRatingForElementResponse(eloRatings, winningElement);
+  const existingOtherElo = getEloRatingForElementResponse(eloRatings, otherElement);
+  const expectedOutcomeA = calculateExpectedOutcome(existingWinnerElo, existingOtherElo);
+  const expectedOutcomeB = calculateExpectedOutcome(existingOtherElo, existingWinnerElo);
+
+  const pointsForRatingA = ELO_WIN_DELTA * (1 - expectedOutcomeA);
+  const pointsForRatingB = ELO_WIN_DELTA * (0 - expectedOutcomeB);
+  console.log(`Expected outcome: ${existingWinnerElo}/${pointsForRatingA} vs ${existingOtherElo}/${pointsForRatingB}`);
+  updateEloRatingForResponse(eloRatings, winningElement, pointsForRatingA);
+  updateEloRatingForResponse(eloRatings, otherElement, pointsForRatingB);
+};
+
 export const updateEloRatings = (
   eloRatings: Map<SnowflakeType|object|number, number>,
-  winningElement: ComparisonElementResponse<CollectionObject<any>>,
-  otherElement: ComparisonElementResponse<CollectionObject<any>>
+  winningElement: ComparisonElement,
+  otherElement: ComparisonElement
 ) => {
   const existingWinnerElo = getEloRatingForElement(eloRatings, winningElement);
   const existingOtherElo = getEloRatingForElement(eloRatings, otherElement);

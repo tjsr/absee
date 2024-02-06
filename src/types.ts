@@ -19,9 +19,9 @@ export type EmailAddress = string;
 export type CookieName = string;
 export type CollectionIdType = uuid4;
 export type CollectionObjectIdType = any;
-export type CollectionObject<CollectionObjectIdType> = {
+export interface CollectionObjectType<CollectionObjectIdType> {
   id: CollectionObjectIdType
-};
+}
 
 export type ComparableObjectPutBody = {
   id: SnowflakeType;
@@ -30,10 +30,10 @@ export type ComparableObjectPutBody = {
   objectId: string;
 };
 
-export type ComparableObjectResponse<CollectionObject> = {
+export type ComparableObjectResponse<CollectionObjectType> = {
   elementId: SnowflakeType;
   objects: string[];
-  data: CollectionObject[];
+  data: CollectionObjectType[];
 };
 
 export type ComparisonSelectionResponse<CollectionObject> = {
@@ -70,19 +70,29 @@ export interface ComparisonResultResponse<CollectionObject> {
   requestTime: ISO8601Date;
 }
 
-export interface ElementEloRating<CollectionObjectIdType> {
-  elementId: CollectionObjectIdType;
+export interface ElementEloRating<CollectionObjectId extends CollectionObjectIdType> {
+  elementId: CollectionObjectId;
   rating: number;
 }
 
-export interface EloTimelineResponse<CollectionObject, CollectionObjectIdType>
-  extends ComparisonResultResponse<CollectionObject> {
-  eloRatingsAfter: ElementEloRating<CollectionObjectIdType>[];
-  eloRatingsBefore: ElementEloRating<CollectionObjectIdType>[];
+export interface EloTimeline<CollectionObjectId extends CollectionObjectIdType>
+  extends ComparisonResult {
+  eloRatingsAfter: ElementEloRating<CollectionObjectId>[];
+  eloRatingsBefore: ElementEloRating<CollectionObjectId>[];
 }
 
-export interface ClientCollectionType<CO extends CollectionObject<any>, CollectionObjectIdType> {
-  getObjectId: (object: CO) => CollectionObjectIdType;
+export interface EloTimelineResponse<
+CollectionObject extends CollectionObjectType<CollectionObjectId>, CollectionObjectId extends CollectionObjectIdType
+>
+  extends ComparisonResultResponse<CollectionObject> {
+  eloRatingsAfter: ElementEloRating<CollectionObjectId>[];
+  eloRatingsBefore: ElementEloRating<CollectionObjectId>[];
+}
+
+export interface ClientCollectionType<
+  CO extends CollectionObjectType<any>, CollectionObjectId extends CollectionObjectIdType
+> {
+  getObjectId: (object: CO) => CollectionObjectId;
 }
 
 export type { ISO8601Date, SnowflakeType };
