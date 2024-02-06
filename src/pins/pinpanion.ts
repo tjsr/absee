@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 
-import { ClientCollectionType, CollectionObject } from '../types.js';
+import { ClientCollectionType, CollectionObjectType } from '../types.js';
 
 import { CollectionTypeLoader } from '../datainfo.js';
 import events from './eventnames.json' assert { type: 'json' };
@@ -24,7 +24,7 @@ type PinpanionPin = {
   image_name: string;
 };
 
-export interface Pin extends CollectionObject<number> {
+export interface Pin extends CollectionObjectType<number> {
   id: number;
   name: string;
   year: number;

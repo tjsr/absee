@@ -1,6 +1,6 @@
-import { CollectionObject } from '../types.js';
+import { CollectionObjectType } from '../types.js';
 
-export const getComparableObjectId = <T extends CollectionObject<IdType>,
-  IdType>(object: T): IdType => {
+export const getComparableObjectId = <CO extends CollectionObjectType<IdType>,
+  IdType>(object: CO): IdType => {
   return object.id;
 };

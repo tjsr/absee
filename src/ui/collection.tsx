@@ -1,27 +1,28 @@
 import './collection.css';
 
-import { CollectionObject, CollectionObjectIdType, ComparableObjectResponse, SnowflakeType } from '../types.js';
+import { CollectionObjectIdType, CollectionObjectType, ComparableObjectResponse, SnowflakeType } from '../types.js';
 
 import { ComparisonElement } from './collection.styles.js';
 import React from 'react';
 import SuperJSON from 'superjson';
 
-export type CollectionPropTypes<T extends CollectionObject<IdType>, IdType> = {
-  element: ComparableObjectResponse<T>;
+export type CollectionPropTypes<CO extends CollectionObjectType<IdType>, IdType> = {
+  element: ComparableObjectResponse<CO>;
   selectElement?: (elementId: SnowflakeType) => void;
   isSelected?: boolean;
 };
 
-export type ICollectionPropTypes<T extends CollectionObject<IdType>, IdType> = {
-  element: ComparableObjectResponse<T>;
+export type ICollectionPropTypes<CO extends CollectionObjectType<IdType>, IdType> = {
+  element: ComparableObjectResponse<CO>;
   selectElement?: (elementId: SnowflakeType) => void;
-  getCollectionItem: (data: T) => JSX.Element;
+  getCollectionItem: (data: CO) => JSX.Element;
   usePreselect?: boolean;
   isSelected?: boolean;
 };
 
-export const Collection = <T extends CollectionObject<IdType>, IdType extends CollectionObjectIdType>
-  (props: ICollectionPropTypes<T, IdType>): JSX.Element => {
+export const Collection = <CO extends CollectionObjectType<IdType>, IdType extends CollectionObjectIdType>(
+  props: ICollectionPropTypes<CO, IdType>
+): JSX.Element => {
   if (props.element == undefined) {
     return <div>Error: element undefined.</div>;
   }

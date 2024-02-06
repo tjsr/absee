@@ -1,22 +1,23 @@
 import {
-  CollectionObject,
   CollectionObjectIdType,
+  CollectionObjectType,
   ComparisonElementResponse,
   ComparisonResultResponse,
   SnowflakeType
 } from '../types.js';
+
 // import { getComparableObjectId } from './ids.js";
 const DEFAULT_ELEMENT_VALUE = 15;
 
-const getComparableObjectId = <T extends CollectionObject<IdType>,
+const getComparableObjectId = <T extends CollectionObjectType<IdType>,
   IdType>(object: T): IdType => {
   return object.id;
 };
 
-export const getCurrentValue = <CollectionObjectType extends CollectionObject<IdType>, IdType extends object|number>
+export const getCurrentValue = <CO extends CollectionObjectType<IdType>, IdType extends object|number>
   (
     elementValues: Map<SnowflakeType|object|number, number>,
-    element: CollectionObjectType
+    element: CO
   ): number => {
   const currentValue = elementValues.get(element.id);
   if (currentValue === undefined) {
@@ -25,28 +26,30 @@ export const getCurrentValue = <CollectionObjectType extends CollectionObject<Id
   return currentValue;
 };
 
-export const getObjectValue = <T extends CollectionObject<IdType>, IdType extends object|number>(
+export const getObjectValue = <CO extends CollectionObjectType<IdType>, IdType extends object|number>(
   objectValues: Map<IdType, number>,
-  comparableObject: T
+  comparableObject: CO
 ): number|undefined => {
-  const id = getComparableObjectId<T, IdType>(comparableObject);
+  const id = getComparableObjectId<CO, IdType>(comparableObject);
   const objectValue = objectValues.get(id);
   return objectValue;
 };
 
-export const getElementValue = <T extends CollectionObject<IdType>, IdType extends object|number>
+export const getElementValue = <CO extends CollectionObjectType<IdType>, IdType extends object|number>
   (
     elementValues: Map<SnowflakeType|object|number, number>,
-    element: ComparisonElementResponse<T>
+    element: ComparisonElementResponse<CO>
   ): number => {
   const elementRating = element.data.map(
-    (elementData: T) => getCurrentValue(elementValues, elementData)).reduce((acc, cur) => acc + cur);
+    (elementData: CO) => getCurrentValue(elementValues, elementData)).reduce((acc, cur) => acc + cur);
   return elementRating;
 };
 
-export const updateObjectValue = <T extends CollectionObject<IdType>,
-  IdType extends object|number>(objectValues: Map<IdType, number>, comparableObject: T, updatedValue: number): void => {
-  const objectId = getComparableObjectId<CollectionObject<IdType>, IdType>(
+export const updateObjectValue = <CO extends CollectionObjectType<IdType>,
+  IdType extends object|number>(
+    objectValues: Map<IdType, number>, comparableObject: CO, updatedValue: number
+  ): void => {
+  const objectId = getComparableObjectId<CO, IdType>(
     comparableObject
   );
   console.log(`Updating ${objectId} to ${updatedValue}`);
@@ -54,15 +57,15 @@ export const updateObjectValue = <T extends CollectionObject<IdType>,
 };
 
 export const calculateRelativeValues = <
-  ComparableObjectType extends CollectionObject<IdType>,
+CO extends CollectionObjectType<IdType>,
   IdType extends object|number
 > (
     objectValues: Map<CollectionObjectIdType, number>,
     elementValues: Map<SnowflakeType|object|number, number>,
-    recentComparisons: ComparisonResultResponse<ComparableObjectType>[]
+    recentComparisons: ComparisonResultResponse<CO>[]
   ) => {
-  const filteredComparisons: ComparisonResultResponse<ComparableObjectType>[] = recentComparisons
-    ?.filter((comparison: ComparisonResultResponse<ComparableObjectType>) =>
+  const filteredComparisons: ComparisonResultResponse<CO>[] = recentComparisons
+    ?.filter((comparison: ComparisonResultResponse<CO>) =>
       comparison.elements?.every((element) => element.data.length > 0))
     .sort((a, b) => a.requestTime?.toString().localeCompare(b.requestTime?.toString()));
   filteredComparisons.forEach((comparison) => {
@@ -71,24 +74,24 @@ export const calculateRelativeValues = <
     const otherElement = comparison.elements?.filter((element) => element.elementId != comparison.winner)[0];
     if (winningElement && otherElement) {
       if (winningElement.data.length === 1) {
-        const otherElementValue = getElementValue<ComparableObjectType, IdType>(elementValues, otherElement);
+        const otherElementValue = getElementValue<CO, IdType>(elementValues, otherElement);
         // const otherElementValue = getObjectValue<ComparableObjectType, IdType>(otherElement.data[0]) ??
         //   DEFAULT_ELEMENT_VALUE * (otherElement.data?.length ?? 1);
-        const winningElementValue = getElementValue<ComparableObjectType, IdType>(elementValues, winningElement);
+        const winningElementValue = getElementValue<CO, IdType>(elementValues, winningElement);
         const comparisonElementString = comparison.elements?.map(
           (e) => {
             const elementDataItemsString = e.data.map((d) =>
-              getComparableObjectId<ComparableObjectType, IdType>(d)).join(',');
+              getComparableObjectId<CO, IdType>(d)).join(',');
             return elementDataItemsString;
           }).join(' vs ');
 
         if (otherElementValue > winningElementValue) {
           const updatedElementValue = otherElementValue ? otherElementValue + 1 : DEFAULT_ELEMENT_VALUE;
-          updateObjectValue<ComparableObjectType, IdType>(
+          updateObjectValue<CO, IdType>(
             objectValues, winningElement.data[0], updatedElementValue
           );
           const individualValues = otherElement.data.map(
-            (elementData: ComparableObjectType) => getCurrentValue(objectValues, elementData)).join('+');
+            (elementData: CO) => getCurrentValue(objectValues, elementData)).join('+');
           console.log(`Camparison ${comparisonElementString} on ${comparison.requestTime} ${otherElementValue} ` +
             `updated to ${individualValues}=${updatedElementValue}`);
         } else {
