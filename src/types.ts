@@ -19,19 +19,22 @@ export type EmailAddress = string;
 export type CookieName = string;
 export type CollectionIdType = uuid4;
 export type CollectionObjectIdType = any;
+export type ComparisonElementId = SnowflakeType;
+export type ComparisonResultId = SnowflakeType;
+export type ComparisonId = SnowflakeType;
 export interface CollectionObjectType<CollectionObjectIdType> {
   id: CollectionObjectIdType
 }
 
 export type ComparableObjectPutBody = {
   id: SnowflakeType;
-  comparisonId: SnowflakeType;
-  elementId: SnowflakeType;
+  comparisonId: ComparisonId;
+  elementId: ComparisonElementId;
   objectId: string;
 };
 
 export type ComparableObjectResponse<CollectionObjectType> = {
-  elementId: SnowflakeType;
+  elementId: ComparisonElementId;
   objects: string[];
   data: CollectionObjectType[];
 };
@@ -45,20 +48,20 @@ export type ComparisonSelectionResponse<CollectionObject> = {
 };
 
 export type ComparisonElementResponse<CollectionObject> = {
-  elementId: SnowflakeType;
+  elementId: ComparisonElementId;
   data: CollectionObject[];
 }
 
 export type ComparisonElement = {
-  elementId: SnowflakeType;
+  elementId: ComparisonElementId;
   objects: string[];
 }
 
 export type ComparisonResult = {
-  id: SnowflakeType;
+  id: ComparisonResultId;
   userId: UserId;
   elements: ComparisonElement[];
-  winner: SnowflakeType;
+  winner: ComparisonElementId;
   requestTime: ISO8601Date;
 };
 
@@ -66,27 +69,27 @@ export interface ComparisonResultResponse<CollectionObject> {
   id: SnowflakeType;
   userId: UserId;
   elements: ComparisonElementResponse<CollectionObject>[];
-  winner: SnowflakeType;
+  winner: ComparisonElementId;
   requestTime: ISO8601Date;
 }
 
-export interface ElementEloRating<CollectionObjectId extends CollectionObjectIdType> {
-  elementId: CollectionObjectId;
+export interface CollectionObjectEloRating<CollectionObjectId extends CollectionObjectIdType> {
+  objectId: CollectionObjectId;
   rating: number;
 }
 
 export interface EloTimeline<CollectionObjectId extends CollectionObjectIdType>
   extends ComparisonResult {
-  eloRatingsAfter: ElementEloRating<CollectionObjectId>[];
-  eloRatingsBefore: ElementEloRating<CollectionObjectId>[];
+  eloRatingsAfter: CollectionObjectEloRating<CollectionObjectId>[];
+  eloRatingsBefore: CollectionObjectEloRating<CollectionObjectId>[];
 }
 
 export interface EloTimelineResponse<
 CollectionObject extends CollectionObjectType<CollectionObjectId>, CollectionObjectId extends CollectionObjectIdType
 >
   extends ComparisonResultResponse<CollectionObject> {
-  eloRatingsAfter: ElementEloRating<CollectionObjectId>[];
-  eloRatingsBefore: ElementEloRating<CollectionObjectId>[];
+  eloRatingsAfter: CollectionObjectEloRating<CollectionObjectId>[];
+  eloRatingsBefore: CollectionObjectEloRating<CollectionObjectId>[];
 }
 
 export interface ClientCollectionType<

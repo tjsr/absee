@@ -1,11 +1,11 @@
 import {
   CollectionIdType,
+  CollectionObjectEloRating,
   CollectionObjectIdType,
   CollectionObjectType,
   ComparisonElement,
   ComparisonElementResponse,
   ComparisonResult,
-  ElementEloRating,
   EloTimeline,
   EloTimelineResponse,
   SnowflakeType
@@ -45,7 +45,7 @@ const convertElementIdsToCollectionObjects = <
   return objects.map((objectId: string) => createObjectFromId(objectId));
 };
 
-const roundEloValues = <ET extends ElementEloRating<IDType>[], IDType>(values: ET): ElementEloRating<IDType>[] => {
+const roundEloValues = <ET extends CollectionObjectEloRating<IDType>[], IDType>(values: ET): CollectionObjectEloRating<IDType>[] => {
   return values.map((et) => {
     return {
       ...et,

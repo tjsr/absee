@@ -1,15 +1,15 @@
-import { ComparableObjectModel, ComparisonModel } from './types/model.js';
 import {
+  CollectionObjectEloRating,
   ComparableObjectResponse,
   ComparisonElement,
   ComparisonElementResponse,
   ComparisonResult,
   ComparisonResultResponse,
   ComparisonSelectionResponse,
-  ElementEloRating,
   EloTimeline,
   SnowflakeType
 } from './types.js';
+import { ComparableObjectModel, ComparisonModel } from './types/model.js';
 
 import { CollectionTypeLoader } from './datainfo.js';
 import { updateEloRatings } from './rankings/elo.js';
@@ -56,15 +56,15 @@ export const createComparisonResultResponse = <T>(
 
 const getEloRatingsOfElements = <IDType extends SnowflakeType|number|string>(
   eloRatings: Map<IDType, number>, result:ComparisonResult
-): ElementEloRating<IDType>[] => {
-  const output: ElementEloRating<IDType>[] = [];
+): CollectionObjectEloRating<IDType>[] => {
+  const output: CollectionObjectEloRating<IDType>[] = [];
   if (!result?.elements) {
     console.warn(`ComparisonResult ${result?.id} had no elements array.`);
   }
   result?.elements?.forEach((element: ComparisonElement) => {
     element?.objects?.forEach((objectId: string) => {
       const objectEloRating = eloRatings.get(objectId as unknown as IDType) || 400;
-      output.push({ elementId: objectId as unknown as IDType, rating: objectEloRating });
+      output.push({ objectId: objectId as unknown as IDType, rating: objectEloRating });
     });
   });
 
@@ -110,8 +110,8 @@ const resultToEloTimeline = <IDType extends SnowflakeType|string|number>(
   if (!result?.elements) {
     console.warn(`ComparisonResult ${result?.id} had no comparison elements.`);
   }
-  const eloRatingsBefore: ElementEloRating<IDType>[] = getEloRatingsOfElements(eloRatings, result);
-  let eloRatingsAfter: ElementEloRating<IDType>[] = [];
+  const eloRatingsBefore: CollectionObjectEloRating<IDType>[] = getEloRatingsOfElements(eloRatings, result);
+  let eloRatingsAfter: CollectionObjectEloRating<IDType>[] = [];
 
   const winningElement: ComparisonElement = result.elements?.filter((element) => element.elementId == result.winner)[0];
   const otherElement: ComparisonElement = result.elements?.filter((element) => element.elementId != result.winner)[0];
