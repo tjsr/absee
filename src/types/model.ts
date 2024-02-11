@@ -1,5 +1,6 @@
 import {
   CollectionIdType,
+  CollectionObjectId,
   EmailAddress,
   IPAddress,
   ISO8601Date,
@@ -7,17 +8,17 @@ import {
   UserId
 } from '../types.js';
 
-export type ComparableObjectModel = {
+export type ComparableObjectModel<CollectionObjectIdType extends CollectionObjectId> = {
   id: SnowflakeType;
   elementId: SnowflakeType;
-  objectId: string;
+  objectId: CollectionObjectIdType;
 };
 
-export type ComparisonModel = {
+export type ComparisonModel<CollectionObjectIdType extends CollectionObjectId> = {
   id: SnowflakeType;
   collectionId: CollectionIdType;
-  a: ComparableObjectModel[];
-  b: ComparableObjectModel[];
+  a: ComparableObjectModel<CollectionObjectIdType>[];
+  b: ComparableObjectModel<CollectionObjectIdType>[];
   requestIp: IPAddress;
   requestTime: ISO8601Date;
   userId: UserId;

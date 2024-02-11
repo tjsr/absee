@@ -1,18 +1,18 @@
 import './collection.css';
 
-import { CollectionObjectIdType, CollectionObjectType, ComparableObjectResponse, SnowflakeType } from '../types.js';
+import { CollectionObject, CollectionObjectIdType, ComparableObjectResponse, SnowflakeType } from '../types.js';
 
 import { ComparisonElement } from './collection.styles.js';
 import React from 'react';
 import SuperJSON from 'superjson';
 
-export type CollectionPropTypes<CO extends CollectionObjectType<IdType>, IdType> = {
+export type CollectionPropTypes<CO extends CollectionObject<IdType>, IdType> = {
   element: ComparableObjectResponse<CO>;
   selectElement?: (elementId: SnowflakeType) => void;
   isSelected?: boolean;
 };
 
-export type ICollectionPropTypes<CO extends CollectionObjectType<IdType>, IdType> = {
+export type ICollectionPropTypes<CO extends CollectionObject<IdType>, IdType> = {
   element: ComparableObjectResponse<CO>;
   selectElement?: (elementId: SnowflakeType) => void;
   getCollectionItem: (data: CO) => JSX.Element;
@@ -20,7 +20,7 @@ export type ICollectionPropTypes<CO extends CollectionObjectType<IdType>, IdType
   isSelected?: boolean;
 };
 
-export const Collection = <CO extends CollectionObjectType<IdType>, IdType extends CollectionObjectIdType>(
+export const Collection = <CO extends CollectionObject<IdType>, IdType extends CollectionObjectIdType>(
   props: ICollectionPropTypes<CO, IdType>
 ): JSX.Element => {
   if (props.element == undefined) {

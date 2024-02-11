@@ -1,11 +1,11 @@
 import './CompareScreen.css';
 
 import {
-  CollectionObjectIdType,
-  CollectionObjectType,
+  CollectionObject,
+  CollectionObjectId,
   ComparisonSelectionResponse,
   EmailAddress,
-  SnowflakeType,
+  SnowflakeType
 } from '../types.js';
 import { Link, useLocation } from 'react-router-dom';
 import { QUERYSTRING_ARRAY_DELIMETER, QUERYSTRING_ELEMENT_DELIMETER } from './utils.js';
@@ -29,7 +29,7 @@ type CompareScreenProps = {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-constraint
-const CompareScreen = <CO extends CollectionObjectType<IdType>, IdType extends CollectionObjectIdType>({
+const CompareScreen = <CO extends CollectionObject<IdType>, IdType extends CollectionObjectId>({
   collectionId,
   setEmail,
   email,

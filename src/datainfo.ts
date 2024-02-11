@@ -1,11 +1,12 @@
 import * as dotenv from 'dotenv';
 
-import { CollectionIdType } from './types.js';
+import { CollectionIdType, CollectionObject, CollectionObjectId } from './types.js';
+
 import axios from 'axios';
 
 dotenv.config();
 
-export const retrieveCollectionData = async <T, D>(
+export const retrieveCollectionData = async <D>(
   existingData: D | undefined,
   url: string,
   datasourceConvertor: <D>(data: any) => D
@@ -26,24 +27,27 @@ export const retrieveCollectionData = async <T, D>(
   });
 };
 
-type IdType = string;
+// type IdType = string;
 
-export type CollectionTypeLoader<T, D> = {
+export type CollectionTypeLoader<
+CollectionObjectType extends CollectionObject<IdType>, D, IdType extends CollectionObjectId> = {
   collectionId: CollectionIdType;
   datasourceUrl: string;
   collectionData: D | undefined;
   maxElementsPerComparison: number;
   name: string;
-  getNumberOfElements: (loader: CollectionTypeLoader<T, D>) => number; // defaultElementCounter;
+  getNumberOfElements: (loader: CollectionTypeLoader<CollectionObjectType, D, IdType>) => number;
+  // defaultElementCounter;
   convertDatasourceOnLoad: <D>(data: any) => D;
-  getObjectForId: (collectionData: D, id: IdType) => T;
-  getObjectByIndex: (collectionData: D, index: number) => T;
-  getObjectId: (object: T) => string;
+  getObjectForId: (collectionData: D, id: IdType) => CollectionObjectType;
+  getObjectByIndex: (collectionData: D, index: number) => CollectionObjectType;
+  getObjectId: (object: CollectionObjectType) => string;
   prioritizedObjectIdList?: string[];
 };
 
-export const initializeLoader = async <T, D>(
-  loader: CollectionTypeLoader<T, D>
+export const initializeLoader = async <
+CollectionObjectType extends CollectionObject<IdType>, D, IdType extends CollectionIdType>(
+  loader: CollectionTypeLoader<CollectionObjectType, D, IdType>
 ): Promise<D> => {
   return new Promise((resolve, reject) => {
     retrieveCollectionData(
@@ -59,6 +63,8 @@ export const initializeLoader = async <T, D>(
   });
 };
 
-export const dataFromLoader = <T, D>(loader: CollectionTypeLoader<T, D>): D => {
+export const dataFromLoader = <
+CollectionObjectType extends CollectionObject<IdType>, D, IdType extends CollectionIdType>(
+    loader: CollectionTypeLoader<CollectionObjectType, D, IdType>): D => {
   return loader.collectionData!;
 };

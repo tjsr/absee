@@ -1,35 +1,39 @@
 import {
+  CollectionObject,
   CollectionObjectEloRating,
+  CollectionObjectId,
   ComparableObjectResponse,
   ComparisonElement,
   ComparisonElementResponse,
   ComparisonResult,
   ComparisonResultResponse,
   ComparisonSelectionResponse,
-  EloTimeline,
-  SnowflakeType
+  EloTimeline
 } from './types.js';
 import { ComparableObjectModel, ComparisonModel } from './types/model.js';
+import { STARTING_ELO_RATING, updateEloRatings } from './rankings/elo.js';
 
 import { CollectionTypeLoader } from './datainfo.js';
-import { updateEloRatings } from './rankings/elo.js';
 
-const elementToElementResponse = <T>(
-  element: ComparisonElement,
-  loader: CollectionTypeLoader<T, any>
-): ComparisonElementResponse<T> => {
+const elementToElementResponse = <
+  CollectionObjectType extends CollectionObject<IdType>, IdType extends CollectionObjectId>(
+    element: ComparisonElement<IdType>,
+    loader: CollectionTypeLoader<CollectionObjectType, any, IdType>
+  ): ComparisonElementResponse<CollectionObjectType, IdType> => {
   return {
-    data: element.objects.map((objectId: string) => loader.getObjectForId(loader.collectionData!, objectId)),
+    data: element.objectIds.map((objectId: IdType) =>
+      loader.getObjectForId(loader.collectionData!, objectId)),
     elementId: element.elementId.toString(),
   };
 };
 
-const resultToResultResponse = <T>(
-  result:ComparisonResult,
-  loader: CollectionTypeLoader<T, any>
-): ComparisonResultResponse<T> => {
-  const output: ComparisonResultResponse<T> = {
-    elements: result.elements?.map((element: ComparisonElement) => elementToElementResponse(element, loader)),
+const resultToResultResponse = <CollectionObjectType extends CollectionObject<IdType>,
+IdType extends CollectionObjectId>(
+    result:ComparisonResult<IdType>,
+    loader: CollectionTypeLoader<CollectionObjectType, any, IdType>
+  ): ComparisonResultResponse<CollectionObjectType, IdType> => {
+  const output: ComparisonResultResponse<CollectionObjectType, IdType> = {
+    elements: result.elements?.map((element: ComparisonElement<IdType>) => elementToElementResponse(element, loader)),
     id: result.id.toString(),
     requestTime: result.requestTime,
     userId: result.userId.toString(),
@@ -38,33 +42,34 @@ const resultToResultResponse = <T>(
   return output;
 };
 
-export const createComparisonResultResponse = <T>(
-  result: ComparisonResult[],
-  loader: CollectionTypeLoader<T, any>
-): ComparisonResultResponse<T>[] => {
+export const createComparisonResultResponse = <
+CollectionObjectType extends CollectionObject<IdType>, IdType extends CollectionObjectId>(
+    result: ComparisonResult<IdType>[],
+    loader: CollectionTypeLoader<CollectionObjectType, any, IdType>
+  ): ComparisonResultResponse<CollectionObjectType, IdType>[] => {
   if (loader.collectionData === undefined) {
     throw Error('Can\'t populate data when existingData has not been loaded.');
   }
 
   try {
-    return result.map((result: ComparisonResult) => resultToResultResponse(result, loader));
+    return result.map((result: ComparisonResult<IdType>) => resultToResultResponse(result, loader));
   } catch (err) {
     console.trace(err);
     throw new Error('Error converting result to response');
   }
 };
 
-const getEloRatingsOfElements = <IDType extends SnowflakeType|number|string>(
-  eloRatings: Map<IDType, number>, result:ComparisonResult
-): CollectionObjectEloRating<IDType>[] => {
-  const output: CollectionObjectEloRating<IDType>[] = [];
+const getEloRatingsOfElements = <IdType extends CollectionObjectId>(
+  eloRatings: Map<IdType, number>, result:ComparisonResult<IdType>
+): CollectionObjectEloRating<IdType>[] => {
+  const output: CollectionObjectEloRating<IdType>[] = [];
   if (!result?.elements) {
     console.warn(`ComparisonResult ${result?.id} had no elements array.`);
   }
-  result?.elements?.forEach((element: ComparisonElement) => {
-    element?.objects?.forEach((objectId: string) => {
-      const objectEloRating = eloRatings.get(objectId as unknown as IDType) || 400;
-      output.push({ objectId: objectId as unknown as IDType, rating: objectEloRating });
+  result?.elements?.forEach((element: ComparisonElement<IdType>) => {
+    element?.objectIds?.forEach((objectId: CollectionObjectId) => {
+      const objectEloRating = eloRatings.get(objectId as unknown as IdType) || STARTING_ELO_RATING;
+      output.push({ objectId: objectId as unknown as IdType, rating: objectEloRating });
     });
   });
 
@@ -103,28 +108,48 @@ const getEloRatingsOfElements = <IDType extends SnowflakeType|number|string>(
 //   return output;
 // };
 
-const resultToEloTimeline = <IDType extends SnowflakeType|string|number>(
-  result:ComparisonResult,
-  eloRatings: Map<IDType, number>
-): EloTimeline<IDType> => {
+const updateObjectEvolutions = <IdType extends CollectionObjectId>(
+  evolutionElements: ComparisonElement<IdType>[], objectEvolutions: Map<IdType, number>
+) => {
+  evolutionElements.forEach((element) => {
+    element.objectIds.forEach((objectId: IdType) => {
+      if (!objectEvolutions.has(objectId)) {
+        objectEvolutions.set(objectId, 1);
+      } else {
+        const currentEvo = objectEvolutions.get(objectId)!;
+        objectEvolutions.set(objectId, currentEvo + 1);
+      }
+    });
+  });
+};
+
+const resultToEloTimeline = <IdType extends CollectionObjectId>(
+  result:ComparisonResult<IdType>,
+  eloRatings: Map<IdType, number>,
+  objectEvolutions: Map<IdType, number>
+): EloTimeline<IdType> => {
   if (!result?.elements) {
     console.warn(`ComparisonResult ${result?.id} had no comparison elements.`);
   }
-  const eloRatingsBefore: CollectionObjectEloRating<IDType>[] = getEloRatingsOfElements(eloRatings, result);
-  let eloRatingsAfter: CollectionObjectEloRating<IDType>[] = [];
+  const eloRatingsBefore: CollectionObjectEloRating<IdType>[] = getEloRatingsOfElements(eloRatings, result);
+  let eloRatingsAfter: CollectionObjectEloRating<IdType>[] = [];
 
-  const winningElement: ComparisonElement = result.elements?.filter((element) => element.elementId == result.winner)[0];
-  const otherElement: ComparisonElement = result.elements?.filter((element) => element.elementId != result.winner)[0];
+  const winningElement: ComparisonElement<IdType> =
+    result.elements?.filter((element) => element.elementId == result.winner)[0];
+  const otherElement: ComparisonElement<IdType> =
+    result.elements?.filter((element) => element.elementId != result.winner)[0];
 
   if (winningElement && otherElement) {
     updateEloRatings(eloRatings, winningElement, otherElement);
+    updateObjectEvolutions([winningElement, otherElement], objectEvolutions);
+
     eloRatingsAfter = getEloRatingsOfElements(eloRatings, result);
     // console.log(`Camparison ${elementRatings.join(' vs ')} on ${result.requestTime}`);
   } else {
     console.warn('Didnt get both a winning and other element.');
   }
 
-  const output: EloTimeline<IDType> = {
+  const output: EloTimeline<IdType> = {
     elements: result.elements,
     eloRatingsAfter,
     eloRatingsBefore,
@@ -136,23 +161,25 @@ const resultToEloTimeline = <IDType extends SnowflakeType|string|number>(
   return output;
 };
 
-export const createEloTimelineFromComparisons = <IDType extends SnowflakeType|string|number>(
-  result: ComparisonResult[]
-): EloTimeline<IDType>[] => {
+export const createEloTimelineFromComparisons = <IdType extends CollectionObjectId>(
+  result: ComparisonResult<IdType>[]
+): EloTimeline<IdType>[] => {
   try {
-    const eloRatings:Map<IDType, number> = new Map();
+    const eloRatings:Map<IdType, number> = new Map();
+    const objectEvolutions:Map<IdType, number> = new Map();
     return result.filter((r) => r.elements !== undefined).map(
-      (result: ComparisonResult) => resultToEloTimeline(result, eloRatings));
+      (result: ComparisonResult<IdType>) => resultToEloTimeline(result, eloRatings, objectEvolutions));
   } catch (err) {
     console.trace(err);
     throw new Error('Error converting result to timeline element');
   }
 };
 
-export const createComparableObjectResponse = <T>(
-  comparableObject: ComparableObjectModel[],
-  loader: CollectionTypeLoader<T, any>
-): ComparableObjectResponse<T> => {
+export const createComparableObjectResponse = <
+CollectionObjectType extends CollectionObject<IdType>, IdType extends CollectionObjectId>(
+    comparableObject: ComparableObjectModel<IdType>[],
+    loader: CollectionTypeLoader<CollectionObjectType, any, IdType>
+  ): ComparableObjectResponse<CollectionObjectType> => {
   if (comparableObject === undefined || comparableObject.length == 0) {
     throw Error(
       'Can\'t pass an empty array of comparable left/right elements to convert to a JSON Response object'
@@ -162,19 +189,20 @@ export const createComparableObjectResponse = <T>(
     throw Error('Can\'t populate data when existingData has not been loaded.');
   }
   return {
-    data: comparableObject.map((co) =>
-      loader.getObjectForId(loader.collectionData!, co.objectId)
+    data: comparableObject.map((co: ComparableObjectModel<IdType>) =>
+      loader.getObjectForId(loader.collectionData!, co.objectId as IdType)
     ),
     elementId: comparableObject[0].elementId.toString(),
     objects: comparableObject.map((co) => co.objectId),
   };
 };
 
-export const createComparisonSelectionResponse = <T>(
-  comparisonRequest: ComparisonModel,
-  loader: CollectionTypeLoader<T, any>
-): ComparisonSelectionResponse<T> => {
-  let a!: ComparableObjectResponse<T>;
+export const createComparisonSelectionResponse = <
+CollectionObjectType extends CollectionObject<IdType>, IdType extends CollectionObjectId>(
+    comparisonRequest: ComparisonModel<IdType>,
+    loader: CollectionTypeLoader<CollectionObjectType, any, IdType>
+  ): ComparisonSelectionResponse<CollectionObjectType> => {
+  let a!: ComparableObjectResponse<CollectionObjectType>;
 
   let errorString: string|undefined = undefined;
   try {
@@ -183,7 +211,7 @@ export const createComparisonSelectionResponse = <T>(
     errorString = `Failed while getting object a: ${err.message}\n`;
   }
 
-  let b!: ComparableObjectResponse<T>;
+  let b!: ComparableObjectResponse<CollectionObjectType>;
   try {
     b = createComparableObjectResponse(comparisonRequest.b, loader);
   } catch (err: any) {

@@ -1,14 +1,13 @@
 import {
   CollectionIdType,
+  CollectionObject,
   CollectionObjectEloRating,
-  CollectionObjectIdType,
-  CollectionObjectType,
+  CollectionObjectId,
   ComparisonElement,
   ComparisonElementResponse,
   ComparisonResult,
   EloTimeline,
-  EloTimelineResponse,
-  SnowflakeType
+  EloTimelineResponse
 } from '../types.js';
 
 import { ABSeeRequest } from '../session.js';
@@ -21,31 +20,32 @@ import { retrieveComparisonResults } from '../database/mysql.js';
 const MAX_ELO_COMPARISONS = 99999;
 
 const createObjectFromId = <
-T extends CollectionObjectType<CID>,
-CID extends CollectionObjectIdType
-> (objectId: string): T => {
-  const output: CollectionObjectType<CID> = {
-    id: idStringToCollectionObjectId<CID>(objectId),
+T extends CollectionObject<IdType>,
+IdType extends CollectionObjectId
+> (objectId: CollectionObjectId): T => {
+  const output: CollectionObject<IdType> = {
+    id: idStringToCollectionObjectId<IdType>(objectId),
   };
   return output as T;
 };
 
-const idStringToCollectionObjectId = <CollectionObjectId extends CollectionObjectIdType>(
-  idString: string
-): CollectionObjectId => {
-  return idString as unknown as CollectionObjectId;
+const idStringToCollectionObjectId = <CollectionObjectIdType extends CollectionObjectId>(
+  idString: CollectionObjectId
+): CollectionObjectIdType => {
+  return idString as unknown as CollectionObjectIdType;
 };
 
 const convertElementIdsToCollectionObjects = <
-  T extends CollectionObjectType<CID>,
-  CID extends CollectionObjectIdType
+  CollectionObjectType extends CollectionObject<IdType>,
+  IdType extends CollectionObjectId
   > (
-    objects: string[]
-  ): T[] => {
-  return objects.map((objectId: string) => createObjectFromId(objectId));
+    objects: CollectionObjectId[]
+  ): CollectionObjectType[] => {
+  return objects.map((objectId: CollectionObjectId) => createObjectFromId(objectId));
 };
 
-const roundEloValues = <ET extends CollectionObjectEloRating<IDType>[], IDType>(values: ET): CollectionObjectEloRating<IDType>[] => {
+const roundEloValues = <ET extends CollectionObjectEloRating<IdType>[], IdType extends CollectionObjectId>(
+  values: ET): CollectionObjectEloRating<IdType>[] => {
   return values.map((et) => {
     return {
       ...et,
@@ -54,18 +54,23 @@ const roundEloValues = <ET extends CollectionObjectEloRating<IDType>[], IDType>(
   });
 };
 
-const convertTimelineToResponse = <T extends CollectionObjectType<IDType>, IDType extends SnowflakeType|object|number>
-  (timeline: EloTimeline<IDType>[]): EloTimelineResponse<T, IDType>[] => {
+const convertTimelineToResponse = <
+CollectionObjectType extends CollectionObject<IdType>, IdType extends CollectionObjectId>
+  (timeline: EloTimeline<IdType>[], loader: CollectionTypeLoader<CollectionObjectType, any, IdType>):
+  EloTimelineResponse<CollectionObjectType, IdType>[] => {
   return timeline.map((timelineEntry) => {
-    const elements: ComparisonElementResponse<T>[] = timelineEntry.elements.map((ce: ComparisonElement) => {
-      const response: ComparisonElementResponse<T> = {
-        data: convertElementIdsToCollectionObjects(ce.objects),
+    const elements: ComparisonElementResponse<CollectionObjectType, IdType>[] =
+    timelineEntry.elements.map((ce: ComparisonElement<IdType>) => {
+      const response: ComparisonElementResponse<CollectionObjectType, IdType> = {
+        data: convertElementIdsToCollectionObjects(ce.objectIds),
         elementId: ce.elementId,
       };
       return response;
     });
 
-    const responseElement: EloTimelineResponse<T, IDType> = {
+    const responseElement: EloTimelineResponse<CollectionObjectType, IdType> = {
+      collectionObjects: timelineEntry.elements.flatMap((et) => et.objectIds).map(
+        (objectId) => loader.getObjectForId(loader.collectionData, objectId)),
       elements: elements,
       eloRatingsAfter: roundEloValues(timelineEntry.eloRatingsAfter),
       eloRatingsBefore: roundEloValues(timelineEntry.eloRatingsBefore),
@@ -78,19 +83,20 @@ const convertTimelineToResponse = <T extends CollectionObjectType<IDType>, IDTyp
   });
 };
 
-export const elo = async <T extends CollectionObjectType<IDType>, IDType extends SnowflakeType|string|number>(
+export const elo = async <CollectionObjectType extends CollectionObject<IdType>,
+IdType extends CollectionIdType>(
   request: ABSeeRequest, response: express.Response, loaderId: CollectionIdType
 ) => {
   try {
-    const loader: CollectionTypeLoader<T, IDType> = await getLoader(loaderId);
+    const loader: CollectionTypeLoader<CollectionObjectType, any, IdType> = await getLoader(loaderId);
 
     retrieveComparisonResults(
       loader.collectionId, undefined, MAX_ELO_COMPARISONS
-    ).then((comparisons: ComparisonResult[]) => {
+    ).then((comparisons: ComparisonResult<IdType>[]) => {
       response.contentType('application/json');
-      const timelineJson: EloTimeline<IDType>[] = createEloTimelineFromComparisons(comparisons);
-      const responseJson: EloTimelineResponse<T, IDType>[] =
-        convertTimelineToResponse(timelineJson);
+      const timelineJson: EloTimeline<IdType>[] = createEloTimelineFromComparisons(comparisons);
+      const responseJson: EloTimelineResponse<CollectionObjectType, IdType>[] =
+        convertTimelineToResponse(timelineJson, loader);
       response.send(responseJson);
       response.end();
     }).catch((err: Error) => {

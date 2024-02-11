@@ -1,4 +1,4 @@
-import { CollectionObjectIdType, CollectionObjectType, ComparableObjectResponse, SnowflakeType } from '../types.js';
+import { CollectionObject, CollectionObjectId, ComparableObjectResponse, SnowflakeType } from '../types.js';
 import { DualSwiper, SelectionAction, StaticDualSwiper, SwipeDirection } from './components/index.js';
 import React, { SetStateAction, useRef, useState } from 'react';
 
@@ -8,7 +8,7 @@ import { isMobile } from 'react-device-detect';
 
 type SelectionTypeOptions = 'click' | 'swipe' | 'static';
 
-interface ElementPickerProps<CO extends CollectionObjectType<IdType>, IdType extends CollectionObjectIdType>
+interface ElementPickerProps<CO extends CollectionObject<IdType>, IdType extends CollectionObjectId>
   extends React.HTMLProps<HTMLDivElement> {
   selectElement: (elementId: SnowflakeType) => Promise<void>;
   itemSelected: (side: SwipeDirection, action: SelectionAction) => void;
@@ -18,7 +18,7 @@ interface ElementPickerProps<CO extends CollectionObjectType<IdType>, IdType ext
   devmode?: boolean;
 }
 
-interface SwipeComparisonContainerProps<CO extends CollectionObjectType<IdType>, IdType extends CollectionObjectIdType>
+interface SwipeComparisonContainerProps<CO extends CollectionObject<IdType>, IdType extends CollectionObjectId>
   extends React.HTMLProps<HTMLDivElement> {
   itemSelected: (side: SwipeDirection, action: SelectionAction) => void;
   leftElement: ComparableObjectResponse<CO>;
@@ -27,7 +27,7 @@ interface SwipeComparisonContainerProps<CO extends CollectionObjectType<IdType>,
   externalDropRef: React.MutableRefObject<HTMLDivElement | null>;
 }
 
-const SwipeComparisonContainer = <CO extends CollectionObjectType<IdType>, IdType extends CollectionObjectIdType>({
+const SwipeComparisonContainer = <CO extends CollectionObject<IdType>, IdType extends CollectionObjectId>({
   externalDropRef,
   itemSelected,
   leftElement,
@@ -48,7 +48,7 @@ const SwipeComparisonContainer = <CO extends CollectionObjectType<IdType>, IdTyp
 
   interface getContentElementProps {
     elementType: 'pin';
-    element: ComparableObjectResponse<CollectionObjectType<CollectionObjectIdType>>;
+    element: ComparableObjectResponse<CollectionObject<CollectionObjectId>>;
   }
 
   // <CO extends CollectionObject<IdType>, IdType extends CollectionObjectIdType>
@@ -89,7 +89,7 @@ const SwipeComparisonContainer = <CO extends CollectionObjectType<IdType>, IdTyp
   );
 };
 
-export const ElementPicker = <CO extends CollectionObjectType<IdType>, IdType extends CollectionObjectIdType>(
+export const ElementPicker = <CO extends CollectionObject<IdType>, IdType extends CollectionObjectId>(
   props: ElementPickerProps<CO, IdType>
 ): JSX.Element => {
   const [displayMode, setDisplayMode] = useState<SelectionTypeOptions>('click');

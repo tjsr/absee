@@ -57,11 +57,11 @@ const populateElementsFromDatabase = async (
             }
             const element = cr?.elements.find((element) => element.elementId == elementRow.elementId);
             if (element) {
-              element.objects.push(elementRow.objectId);
+              element.objectIds.push(elementRow.objectId);
             } else {
               cr?.elements.push({
                 elementId: elementRow.elementId,
-                objects: [elementRow.objectId],
+                objectIds: [elementRow.objectId],
               });
             }
           }

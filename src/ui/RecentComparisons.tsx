@@ -1,11 +1,10 @@
 import './RecentComparisons.css';
 
 import {
-  CollectionObjectIdType,
-  CollectionObjectType,
+  CollectionObject,
+  CollectionObjectId,
   ComparisonElementResponse,
-  ComparisonResultResponse,
-  SnowflakeType,
+  ComparisonResultResponse
 } from '../types.js';
 import { QUERYSTRING_ARRAY_DELIMETER, QUERYSTRING_ELEMENT_DELIMETER, getServerHost } from './utils.js';
 import React, { useEffect, useState } from 'react';
@@ -18,9 +17,10 @@ import { PinInfo } from '../pins/PinInfo.js';
 import { Snackbar } from './Snackbar.js';
 import { calculateRelativeValues } from '../rankings/value.js';
 
-const eloRating: Map<SnowflakeType | string | number, number> = new Map<SnowflakeType | string | number, number>();
-const elementValues: Map<SnowflakeType | object | number, number> = new Map<SnowflakeType | object | number, number>();
-const objectValues: Map<CollectionObjectIdType, number> = new Map<CollectionObjectIdType, number>();
+// const eloRating: CollectionEloMap = new Map<SnowflakeType | string | number, number>();
+// const elementValues: Map<SnowflakeType | object | number, number> =
+// new Map<SnowflakeType | object | number, number>();
+const objectValues: Map<CollectionObjectId, number> = new Map<CollectionObjectId, number>();
 
 export const fetchRecentComparisons = async (collectionId: string, currentUser = false, maxComparisons?: number) => {
   try {
@@ -55,8 +55,8 @@ type RecentComparisonsProps = {
   maxComparisons?: number;
 };
 
-const createComparisonUrl = <CO extends CollectionObjectType<IdType>, IdType extends object | number>(
-  comparison: ComparisonResultResponse<CO>
+const createComparisonUrl = <CO extends CollectionObject<IdType>, IdType extends CollectionObjectId>(
+  comparison: ComparisonResultResponse<CO, IdType>
 ): string => {
   const server = `${location.protocol}//${location.host}`;
   const objectString: string = comparison.elements
@@ -66,7 +66,7 @@ const createComparisonUrl = <CO extends CollectionObjectType<IdType>, IdType ext
   return linkString;
 };
 
-export const RecentComparisons = <CO extends CollectionObjectType<IdType>, IdType extends object | number>({
+export const RecentComparisons = <CO extends CollectionObject<IdType>, IdType extends CollectionObjectId>({
   currentUser = false,
   collectionId,
   maxComparisons,
@@ -75,7 +75,7 @@ export const RecentComparisons = <CO extends CollectionObjectType<IdType>, IdTyp
   const [recentLoading, setRecentLoading] = useState<boolean>(false);
   const [recentLoaded, setRecentLoaded] = useState<boolean>(false);
   const [errorLoading, setErrorLoading] = useState<boolean>(false);
-  const [recentComparisons, setRecentComparisons] = useState<ComparisonResultResponse<CO>[]>([]);
+  const [recentComparisons, setRecentComparisons] = useState<ComparisonResultResponse<CO, IdType>[]>([]);
   const [copyMessageState, setCopyMessageState] = useState<boolean>(false);
 
   useEffect(() => {
@@ -87,7 +87,7 @@ export const RecentComparisons = <CO extends CollectionObjectType<IdType>, IdTyp
         if (res.success) {
           // console.log(`Loaded ${SuperJSON.stringify(res.data)}`);
           // console.log(`As json: ${res.data}`);
-          const recentComparisonRequest: ComparisonResultResponse<CO> = res.data;
+          const recentComparisonRequest: ComparisonResultResponse<CO, IdType> = res.data;
           setRecentComparisons(recentComparisonRequest as any);
           // console.log(`Recent comparisons is now ${recentComparisons}`);
           setRecentLoaded(true);
@@ -105,16 +105,16 @@ export const RecentComparisons = <CO extends CollectionObjectType<IdType>, IdTyp
     return <div>Error loading comparisons.</div>;
   } else if (recentComparisons) {
     // calculateEloRatings(eloRating, recentComparisons);
-    calculateRelativeValues(objectValues, elementValues, recentComparisons);
+    calculateRelativeValues(objectValues, recentComparisons);
 
     return (
       <>
         <h3 className="recentComparisons">Recent comparisons</h3>
         <div>
-          {recentComparisons?.map((comparison: ComparisonResultResponse<CO>) => {
+          {recentComparisons?.map((comparison: ComparisonResultResponse<CO, IdType>) => {
             return (
               <div className="comparisonGroup" key={comparison.id}>
-                {comparison.elements?.map((element: ComparisonElementResponse<CO>) => {
+                {comparison.elements?.map((element: ComparisonElementResponse<CO, IdType>) => {
                   const clipboardLink = createComparisonUrl(comparison);
                   const style = comparison.winner == element.elementId ? { backgroundColor: '#e1ffe1' } : {};
                   return (
