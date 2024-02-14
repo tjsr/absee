@@ -21,10 +21,10 @@ interface EloCalculationProps {
   collectionId: string;
 }
 
-interface ElementEloMutation<IdType extends CollectionObjectId> {
+interface ElementEloMutation<CollectionObjectType extends CollectionObject<IdType>, IdType extends CollectionObjectId> {
   elementId: ComparisonElementId;
   objectId: IdType;
-  objectData: CollectionObject<IdType>;
+  objectData: CollectionObjectType;
   eloAfter: number;
   eloBefore: number;
   winner: ComparisonElementId;
@@ -53,42 +53,46 @@ export const fetchElo = async (collectionId: CollectionIdType) => {
   }
 };
 
-interface EloEvolutionTableProps<ComparableObject extends CollectionObject<IdType>, IdType extends CollectionObjectId> {
-  data: EloTimelineResponse<ComparableObject, IdType>;
-  evolutionElements: ElementEloMutation<IdType>[];
+interface EloEvolutionTableProps<
+CollectionObjectType extends CollectionObject<IdType>, IdType extends CollectionObjectId> {
+  data: EloTimelineResponse<CollectionObjectType, IdType>;
+  evolutionElements: ElementEloMutation<CollectionObjectType, IdType>[];
+  toggleObjectSearch: (comparableObject: CollectionObjectType) => void;
 }
 
-const EloEvolutionTable = <ComparableObject extends CollectionObject<IdType>, IdType extends CollectionObjectId>({
+const EloEvolutionTable = <CollectionObjectType extends CollectionObject<IdType>, IdType extends CollectionObjectId>({
   data,
   evolutionElements,
-}: EloEvolutionTableProps<ComparableObject, IdType>): JSX.Element => {
+  toggleObjectSearch,
+}: EloEvolutionTableProps<CollectionObjectType, IdType>): JSX.Element => {
   return (
     <div key={`elo-${data.id}`}>
       {data.id?.toString()} -&gt; {data.winner?.toString()}
       <table>
         <tbody>
           <tr>
-            {evolutionElements.map((e: ElementEloMutation<IdType>) => (
-              <td key={`${e.elementId}-before}`}>{e.eloBefore}</td>
+            {evolutionElements.map((e: ElementEloMutation<CollectionObjectType, IdType>) => (
+              <td key={`${e.elementId}-${e.objectId}-before}`}>{e.eloBefore}</td>
             ))}
           </tr>
           <tr>
-            {evolutionElements.map((e: ElementEloMutation<IdType>) => {
+            {evolutionElements.map((e: ElementEloMutation<CollectionObjectType, IdType>) => {
               const isWinner = e.winner == e.elementId;
               const style = isWinner ? { backgroundColor: '#e1ffe1' } : {};
-              const dataElement: CollectionObject<IdType> = e.objectData;
+              const dataElement: CollectionObjectType = e.objectData;
               // loader.getObjectForId(loader.collectionData!, e.objectId);
-              return (<td key={`${e.elementId}-id}`}>{dataElement && <div className="eloPinInfo"><PinInfo
-                minimal={true}
-                pin={dataElement as unknown as Pin}
-                key={`${e.elementId}-${e.objectId}`}
-                style={style}
-              /></div>}<div className={`eloObjectId${isWinner ? ' isWinner' : ''}`}>{e.objectId}</div></td>);
+              return (<td key={`${e.elementId}-${e.objectId}}`}>{dataElement && <div
+                onClick={() => toggleObjectSearch(dataElement)} className="eloPinInfo"><PinInfo
+                  minimal={true}
+                  pin={dataElement as unknown as Pin}
+                  key={`${e.elementId}-${e.objectId}`}
+                  style={style}
+                /></div>}<div className={`eloObjectId${isWinner ? ' isWinner' : ''}`}>{e.objectId}</div></td>);
             })}
           </tr>
           <tr>
-            {evolutionElements.map((e: ElementEloMutation<IdType>) => (
-              <td key={`${e.elementId}-after}`}>{e.eloAfter}</td>
+            {evolutionElements.map((e: ElementEloMutation<CollectionObjectType, IdType>) => (
+              <td key={`${e.elementId}-${e.objectId}-after}`}>{e.eloAfter}</td>
             ))}
           </tr>
         </tbody>
@@ -97,13 +101,37 @@ const EloEvolutionTable = <ComparableObject extends CollectionObject<IdType>, Id
   );
 };
 
-export const EloCalculation = <ComparableObject extends CollectionObject<IdType>, IdType extends CollectionIdType>({
+interface FilteredElementsProps<
+CollectionObjectType extends CollectionObject<IdType>, IdType extends CollectionObjectId> {
+  filtered: Map<IdType, CollectionObjectType>;
+  toggleObjectSearch: (filteredObject: CollectionObjectType) => void;
+}
+
+const FilteredElements = <CollectionObjectType extends CollectionObject<IdType>, IdType extends CollectionObjectId>(
+  { filtered, toggleObjectSearch } : FilteredElementsProps<CollectionObjectType, IdType>): JSX.Element => {
+  const elementKeys: IdType[] = Array.from(filtered.keys());
+  // elementKeys.forEach((ek) => console.log(ek));
+  const collectionObjects: CollectionObjectType[] = elementKeys.map((objectId: IdType) => filtered.get(objectId))
+    .filter((co) => co !== undefined) as CollectionObjectType[];
+
+  return <>{collectionObjects.map((e: CollectionObjectType) => (<div key={`filteredElement-${e!.id}`}
+    onClick={() => toggleObjectSearch(e!)} className="eloInfo">
+    <PinInfo
+      minimal={true}
+      pin={e as unknown as Pin}
+    /></div>)
+  )}</>;
+};
+
+export const EloCalculation = <CollectionObjectType extends CollectionObject<IdType>, IdType extends CollectionIdType>({
   collectionId,
 }: EloCalculationProps): JSX.Element => {
   const [eloLoading, setEloLoading] = useState<boolean>(false);
   const [eloLoaded, setEloLoaded] = useState<boolean>(false);
   const [errorLoading, setErrorLoading] = useState<boolean>(false);
-  const [eloTimelineData, setEloTimelineData] = useState<EloTimelineResponse<ComparableObject, IdType>[]>([]);
+  const [eloTimelineData, setEloTimelineData] = useState<EloTimelineResponse<CollectionObjectType, IdType>[]>([]);
+  const [filteredElementData, setFilteredElementData] = useState<Map<IdType, CollectionObjectType>>(new Map());
+  const [objectsFilteredCount, setObjectsFilteredCount] = useState<number>(0);
   useEffect(() => {
     (async () => {
       if (!eloLoading && !eloLoaded) {
@@ -111,7 +139,7 @@ export const EloCalculation = <ComparableObject extends CollectionObject<IdType>
         setEloLoaded(false);
         const res = await fetchElo(collectionId);
         if (res.success) {
-          const recentComparisonRequest: EloTimelineResponse<ComparableObject, IdType> = res.data;
+          const recentComparisonRequest: EloTimelineResponse<CollectionObjectType, IdType> = res.data;
           setEloTimelineData(recentComparisonRequest as any);
           setEloLoaded(true);
         } else {
@@ -122,11 +150,11 @@ export const EloCalculation = <ComparableObject extends CollectionObject<IdType>
     })();
   }, [eloLoading]);
 
-  const convertTimelineElement = (data: EloTimelineResponse<ComparableObject, IdType>):
-  ElementEloMutation<IdType>[] => {
-    return data.elements.flatMap((element: ComparisonElementResponse<ComparableObject, IdType>) => {
+  const convertTimelineElement = (data: EloTimelineResponse<CollectionObjectType, IdType>):
+  ElementEloMutation<CollectionObjectType, IdType>[] => {
+    return data.elements.flatMap((element: ComparisonElementResponse<CollectionObjectType, IdType>) => {
       const elementId: ComparisonElementId = element.elementId;
-      return element.data.map((elementObject: ComparableObject) => {
+      return element.data.map((elementObject: CollectionObjectType) => {
         const searchId: number | string =
           typeof elementObject.id === 'number' ? (elementObject.id as number) : elementObject?.id.toString();
         const collectionObjectData: CollectionObject<IdType>|undefined =
@@ -138,9 +166,32 @@ export const EloCalculation = <ComparableObject extends CollectionObject<IdType>
           objectData: collectionObjectData,
           objectId: searchId,
           winner: data.winner,
-        } as ElementEloMutation<IdType>;
+        } as ElementEloMutation<CollectionObjectType, IdType>;
       });
     });
+  };
+
+  const responseHasObject = (data: EloTimelineResponse<CollectionObjectType, IdType>,
+    filteredElementData: Map<IdType, CollectionObjectType>): boolean => {
+    const objectIdList = data.elements.flatMap((elements) => elements.data);
+    // console.log(JSON.stringify(objectIdList));
+    // console.log(filteredElementData);
+    // return true;
+    return objectIdList.some(
+      (co: CollectionObjectType) => filteredElementData.has(co.id));
+  };
+
+  const toggleObjectSearch = (filteredObject: CollectionObjectType):void => {
+    const objectId: IdType = filteredObject.id.toString() as IdType;
+    if (!filteredElementData.has(objectId)) {
+      filteredElementData.set(objectId, filteredObject);
+      console.log(`Removing ${objectId} from showObjects which now has ${filteredElementData.size} elements.`);
+    } else {
+      filteredElementData.delete(objectId);
+      console.log(`Adding ${objectId} from showObjects which now has ${filteredElementData.size} elements.`);
+    }
+    setObjectsFilteredCount(filteredElementData.size);
+    setFilteredElementData(new Map(filteredElementData));
   };
 
   if (!eloLoaded) {
@@ -151,10 +202,28 @@ export const EloCalculation = <ComparableObject extends CollectionObject<IdType>
     return (
       <>
         <p>Timeline elements: {eloTimelineData.length}</p>
-        {eloTimelineData.map((data: EloTimelineResponse<ComparableObject, IdType>) => {
-          const allElements: ElementEloMutation<IdType>[] = convertTimelineElement(data);
-          return <EloEvolutionTable data={data} evolutionElements={allElements} />;
-        })}
+        { objectsFilteredCount > 0 && (
+          <div>Filtered to:
+            <FilteredElements filtered={filteredElementData} toggleObjectSearch={toggleObjectSearch} />
+          </div>
+        )}
+        {eloTimelineData
+          .map((data: EloTimelineResponse<CollectionObjectType, IdType>) => {
+            const hasObject: boolean = responseHasObject(data, filteredElementData);
+            // if (hasObject) {
+            //   console.log(`Num filtered: ${objectsFilteredCount}  has Object ${JSON.stringify(data)} ${hasObject}`);
+            // }
+            if (objectsFilteredCount == 0 || hasObject) {
+              // data.elements.forEach((ek) => console.log(`Response has object: ${JSON.stringify(ek)}`));
+              const allElements: ElementEloMutation<CollectionObjectType, IdType>[] = convertTimelineElement(data);
+              return <EloEvolutionTable
+                data={data}
+                evolutionElements={allElements}
+                toggleObjectSearch={toggleObjectSearch} />;
+            } else {
+              return (<></>);
+            }
+          })}
       </>
     );
   }

@@ -58,29 +58,31 @@ const convertTimelineToResponse = <
 CollectionObjectType extends CollectionObject<IdType>, IdType extends CollectionObjectId>
   (timeline: EloTimeline<IdType>[], loader: CollectionTypeLoader<CollectionObjectType, any, IdType>):
   EloTimelineResponse<CollectionObjectType, IdType>[] => {
-  return timeline.map((timelineEntry) => {
-    const elements: ComparisonElementResponse<CollectionObjectType, IdType>[] =
-    timelineEntry.elements.map((ce: ComparisonElement<IdType>) => {
-      const response: ComparisonElementResponse<CollectionObjectType, IdType> = {
-        data: convertElementIdsToCollectionObjects(ce.objectIds),
-        elementId: ce.elementId,
-      };
-      return response;
-    });
+  return timeline
+    .sort((te1, te2) => te1.requestTime.getTime() - te2.requestTime.getTime())
+    .map((timelineEntry) => {
+      const elements: ComparisonElementResponse<CollectionObjectType, IdType>[] =
+      timelineEntry.elements.map((ce: ComparisonElement<IdType>) => {
+        const response: ComparisonElementResponse<CollectionObjectType, IdType> = {
+          data: convertElementIdsToCollectionObjects(ce.objectIds),
+          elementId: ce.elementId,
+        };
+        return response;
+      });
 
-    const responseElement: EloTimelineResponse<CollectionObjectType, IdType> = {
-      collectionObjects: timelineEntry.elements.flatMap((et) => et.objectIds).map(
-        (objectId) => loader.getObjectForId(loader.collectionData, objectId)),
-      elements: elements,
-      eloRatingsAfter: roundEloValues(timelineEntry.eloRatingsAfter),
-      eloRatingsBefore: roundEloValues(timelineEntry.eloRatingsBefore),
-      id: timelineEntry.id,
-      requestTime: timelineEntry.requestTime,
-      userId: timelineEntry.userId,
-      winner: timelineEntry.winner,
-    };
-    return responseElement;
-  });
+      const responseElement: EloTimelineResponse<CollectionObjectType, IdType> = {
+        collectionObjects: timelineEntry.elements.flatMap((et) => et.objectIds).map(
+          (objectId) => loader.getObjectForId(loader.collectionData, objectId)),
+        elements: elements,
+        eloRatingsAfter: roundEloValues(timelineEntry.eloRatingsAfter),
+        eloRatingsBefore: roundEloValues(timelineEntry.eloRatingsBefore),
+        id: timelineEntry.id,
+        requestTime: timelineEntry.requestTime,
+        userId: timelineEntry.userId,
+        winner: timelineEntry.winner,
+      };
+      return responseElement;
+    });
 };
 
 export const elo = async <CollectionObjectType extends CollectionObject<IdType>,

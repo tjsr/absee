@@ -167,8 +167,9 @@ export const createEloTimelineFromComparisons = <IdType extends CollectionObject
   try {
     const eloRatings:Map<IdType, number> = new Map();
     const objectEvolutions:Map<IdType, number> = new Map();
-    return result.filter((r) => r.elements !== undefined).map(
-      (result: ComparisonResult<IdType>) => resultToEloTimeline(result, eloRatings, objectEvolutions));
+    return result.filter((r) => r.elements !== undefined)
+      .sort((r1, r2) => r1.requestTime.getTime() - r2.requestTime.getTime())
+      .map((result: ComparisonResult<IdType>) => resultToEloTimeline(result, eloRatings, objectEvolutions));
   } catch (err) {
     console.trace(err);
     throw new Error('Error converting result to timeline element');
