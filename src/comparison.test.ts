@@ -1,26 +1,26 @@
+import { CollectionObjectId, SnowflakeType } from './types.js';
 import { ComparableObjectModel, ComparisonModel } from './types/model.js';
 import { describe, expect, test } from '@jest/globals';
 
-import { SnowflakeType } from './types.js';
 import { getSnowflake } from './snowflake.js';
 import { storeComparisonRequest } from './comparison.js';
 import { v4 as uuidv4 } from 'uuid';
 
 describe('comparison', () => {
-  test('Should write a comparison request to the DB', () => {
+  test('Should write a comparison request to the DB', <IdType extends CollectionObjectId>(): void => {
     const comparisonId: SnowflakeType = getSnowflake();
-    const metaa: ComparableObjectModel = {
+    const metaa: ComparableObjectModel<IdType> = {
       elementId: getSnowflake(),
       id: getSnowflake(),
-      objectId: '1',
+      objectId: '1' as IdType,
     };
 
-    const metab: ComparableObjectModel = {
+    const metab: ComparableObjectModel<IdType> = {
       elementId: getSnowflake(),
       id: getSnowflake(),
-      objectId: '2',
+      objectId: '2' as IdType,
     };
-    const comparisonRequest: ComparisonModel = {
+    const comparisonRequest: ComparisonModel<IdType> = {
       a: [metaa],
       b: [metab],
       collectionId: uuidv4(),

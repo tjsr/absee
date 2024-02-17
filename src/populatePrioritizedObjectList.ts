@@ -1,7 +1,11 @@
+import { CollectionObject, CollectionObjectId } from './types.js';
+
 import { CollectionTypeLoader } from './datainfo.js';
 import { retrieveObjectFrequency } from './database/retrieveObjectFrequency.js';
 
-export const populatePrioritizedObjectList = async <T, D>(loader: CollectionTypeLoader<T, D>): Promise<void> => {
+export const populatePrioritizedObjectList = async <
+CollectionObjectType extends CollectionObject<IdType>, D, IdType extends CollectionObjectId>(
+  loader: CollectionTypeLoader<CollectionObjectType, D, IdType>): Promise<void> => {
   const frequencyList: Map<string, number> = await retrieveObjectFrequency(loader.collectionId);
   const occurenceNumberValues = frequencyList.values();
   let maxOccurrences = 0;
@@ -10,9 +14,10 @@ export const populatePrioritizedObjectList = async <T, D>(loader: CollectionType
       maxOccurrences = value;
     }
   }
-  const workingOccurences: string[] = [];
+  const workingOccurences: IdType[] = [];
   for (let i = loader.getNumberOfElements(loader)-1;i >= 0;i--) {
-    const objectForIndex: T = loader.getObjectByIndex((loader as CollectionTypeLoader<T, any>).collectionData, i);
+    const objectForIndex: CollectionObjectType = loader.getObjectByIndex(
+      (loader as CollectionTypeLoader<CollectionObjectType, any, IdType>).collectionData, i);
     const objectId = loader.getObjectId(objectForIndex);
     const instances = maxOccurrences - (frequencyList.get(objectId)?? 0);
     for (let i = 1;i <= instances;i++) {

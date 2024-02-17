@@ -1,4 +1,4 @@
-import { CollectionIdType, ComparisonResult, UserId } from '../types.js';
+import { CollectionIdType, CollectionObject, CollectionObjectId, ComparisonResult, UserId } from '../types.js';
 
 import { ABSeeRequest } from '../session.js';
 import { CollectionTypeLoader } from '../datainfo.js';
@@ -8,17 +8,20 @@ import { getLoader } from '../loaders.js';
 import { getUserId } from '../auth/user.js';
 import { retrieveComparisonResults } from '../database/mysql.js';
 
-const retrieveComparisonsForUser = async <T>(
-  collectionId: string,
+const retrieveComparisonsForUser = async <
+  IdType extends CollectionObjectId>(
+  collectionId: CollectionIdType,
   userId: UserId,
-  maxComparisons?: number): Promise<ComparisonResult[]> => {
+  maxComparisons?: number): Promise<ComparisonResult<IdType>[]> => {
   return retrieveComparisonResults(collectionId, userId, maxComparisons);
 };
 
-export const recent = async <T, D>(request: ABSeeRequest, response: express.Response, loaderId: CollectionIdType) => {
+export const recent = async <
+  CollectionObjectType extends CollectionObject<IdType>, D, IdType extends CollectionObjectId>(
+  request: ABSeeRequest, response: express.Response, loaderId: CollectionIdType) => {
   try {
     const userId: UserId = getUserId(request);
-    const loader: CollectionTypeLoader<T, D> = await getLoader(loaderId);
+    const loader: CollectionTypeLoader<CollectionObjectType, D, IdType> = await getLoader(loaderId);
 
     let maxComparisons: number|undefined;
 
@@ -34,13 +37,13 @@ export const recent = async <T, D>(request: ABSeeRequest, response: express.Resp
       }
     }
 
-    retrieveComparisonsForUser<T>(
+    retrieveComparisonsForUser<IdType>(
       loader.collectionId,
       userId,
       maxComparisons
-    ).then((comparisons: ComparisonResult[]) => {
+    ).then((comparisons: ComparisonResult<IdType>[]) => {
       response.contentType('application/json');
-      const responseJson = createComparisonResultResponse<T>(comparisons, loader);
+      const responseJson = createComparisonResultResponse<CollectionObjectType, IdType>(comparisons, loader);
       response.send(responseJson);
       response.end();
     }).catch((err: Error) => {

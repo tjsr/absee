@@ -3,14 +3,14 @@ import { ComparableObjectModel, ComparisonModel } from './types/model.js';
 
 import { iso8601Now } from './utils.js';
 
-export const createComparisonSelection = (
+export const createComparisonSelection = <IdType extends CollectionIdType>(
   collectionId: CollectionIdType,
   comparisonId: SnowflakeType,
   userId: UserId,
   ipAddress: IPAddress,
-  left: ComparableObjectModel[],
-  right: ComparableObjectModel[]
-): ComparisonModel => {
+  left: ComparableObjectModel<IdType>[],
+  right: ComparableObjectModel<IdType>[]
+): ComparisonModel<IdType> => {
   return {
     a: left,
     b: right,

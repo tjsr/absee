@@ -1,10 +1,17 @@
 import * as EmailValidator from 'email-validator';
 import * as dotenv from 'dotenv';
 
-import { CollectionTypeLoader } from './datainfo.js';
-import { ISO8601Date } from './types.js';
+import { CollectionObject, CollectionObjectId, ISO8601Date } from './types.js';
 
-dotenv.config();
+import { CollectionTypeLoader } from './datainfo.js';
+import os from 'os';
+
+const systemName: string = os.hostname();
+
+const config: dotenv.DotenvConfigOptions = {
+  path: `.env.${systemName}`,
+};
+dotenv.config(config);
 
 export const iso8601Now = (): ISO8601Date => {
   // return (new Date()).toISOString();
@@ -29,14 +36,17 @@ const randomlySelectNumberOfElements = (max: number): number => {
   return list[randomIndex];
 };
 
-const createNewUniqueElementArray = <T>(loader: CollectionTypeLoader<T, any>,
-  max?: number,
-  existingSets?: string[][]): string[] => {
-  const results: string[] = [];
+const createNewUniqueElementArray = <
+  CollectionObjectType extends CollectionObject<IdType>,
+  IdType extends CollectionObjectId
+>(loader: CollectionTypeLoader<CollectionObjectType, any, IdType>,
+    max?: number,
+    existingSets?: string[][]): IdType[] => {
+  const results: IdType[] = [];
 
   let listSize = randomlySelectNumberOfElements(max == undefined ? 4 : max);
   while (listSize > 0) {
-    const randomObjectId: string = getPrioritizedOrRandomObjectId<T>(loader);
+    const randomObjectId: IdType = getPrioritizedOrRandomObjectId<CollectionObjectType, IdType>(loader);
     if (randomObjectId == '0') {
       continue;
     }
@@ -52,14 +62,17 @@ const createNewUniqueElementArray = <T>(loader: CollectionTypeLoader<T, any>,
   return results;
 };
 
-export const createCandidateElementList = <T>(
-  loader: CollectionTypeLoader<T, any>,
-  maxId: number,
-  maxLeft?: number,
-  maxRight?: number
-): [string[], string[]] => {
-  const arra: string[] = createNewUniqueElementArray(loader, maxLeft);
-  const arrb: string[] = createNewUniqueElementArray(loader, maxRight, [arra]);
+export const createCandidateElementList = <
+  CollectionObjectType extends CollectionObject<IdType>,
+  IdType extends CollectionObjectId
+>(
+    loader: CollectionTypeLoader<CollectionObjectType, any, IdType>,
+    maxId: number,
+    maxLeft?: number,
+    maxRight?: number
+  ): [IdType[], IdType[]] => {
+  const arra: IdType[] = createNewUniqueElementArray(loader, maxLeft);
+  const arrb: IdType[] = createNewUniqueElementArray(loader, maxRight, [arra]);
   return [arra, arrb];
 };
 
@@ -91,17 +104,23 @@ export const validateEmailString = (email: string): boolean => {
   return EmailValidator.validate(email);
 };
 
-const getRandomObjectId = <T>(loader: CollectionTypeLoader<T, any>): string => {
+const getRandomObjectId = <
+CollectionObjectType extends CollectionObject<IdType>,
+IdType extends CollectionObjectId
+>(loader: CollectionTypeLoader<CollectionObjectType, any, IdType>): IdType => {
   const randomIndex: number = getRandomId(
     loader.getNumberOfElements(loader)
   );
 
-  const objectForIndex: T = loader.getObjectByIndex(loader.collectionData, randomIndex);
-  const randomObjectId: string = loader.getObjectId(objectForIndex);
+  const objectForIndex: CollectionObjectType = loader.getObjectByIndex(loader.collectionData, randomIndex);
+  const randomObjectId: IdType = loader.getObjectId(objectForIndex);
   return randomObjectId;
 };
 
-const getPrioritizedOrRandomObjectId = <T>(loader: CollectionTypeLoader<T, any>): string => {
+const getPrioritizedOrRandomObjectId = <
+CollectionObjectType extends CollectionObject<IdType>,
+IdType extends CollectionObjectId
+>(loader: CollectionTypeLoader<CollectionObjectType, any, IdType>): IdType => {
   const id = loader.prioritizedObjectIdList?.pop();
   if (id) {
     return id;

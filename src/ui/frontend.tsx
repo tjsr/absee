@@ -10,6 +10,7 @@ import {
 import { AboutPage } from './AboutPage.js';
 import CompareScreen from './CompareScreen.js';
 import Cookies from 'js-cookie';
+import { EloCalculation } from './EloCalculation.js';
 import { slide as Menu } from 'react-burger-menu';
 import { RecentComparisons } from './RecentComparisons.js';
 import { StatsPage } from './StatsPage.js';
@@ -19,10 +20,10 @@ import { submitLogout } from './auth/apicalls.js';
 
 type FrontendProps = {
   collectionId: CollectionIdType;
-}
+};
 
 const getCookieUserId = (): string | undefined => {
-  const userIdValue: string|undefined = Cookies.get('user_id');
+  const userIdValue: string | undefined = Cookies.get('user_id');
   if (userIdValue === 'undefined') {
     return undefined;
   }
@@ -31,7 +32,7 @@ const getCookieUserId = (): string | undefined => {
 
 const DEFAULT_COLLECTION: CollectionIdType = '83fd0b3e-dd08-4707-8135-e5f138a43f00';
 // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-constraint
-const Frontend = ({ collectionId } : FrontendProps): JSX.Element => {
+const Frontend = ({ collectionId }: FrontendProps): JSX.Element => {
   const [isLoggedIn, setLoggedIn] = useState<boolean>(false);
   const [email, setEmail] = useState<EmailAddress | undefined>(undefined);
 
@@ -63,29 +64,36 @@ const Frontend = ({ collectionId } : FrontendProps): JSX.Element => {
             email={email}
             setEmail={setEmail}
             isLoggedIn={isLoggedIn}
-            setLoggedIn={setLoggedIn} />
+            setLoggedIn={setLoggedIn}
+          />
           {/* <RecentComparisons collectionId={DEFAULT_COLLECTION} currentUser={true}/> */}
         </>
       ),
       path: '',
     },
     {
-      element: <CompareScreen
-        collectionId={collectionId}
-        email={email}
-        setEmail={setEmail}
-        isLoggedIn={isLoggedIn}
-        setLoggedIn={setLoggedIn}
-      />,
+      element: (
+        <CompareScreen
+          collectionId={collectionId}
+          email={email}
+          setEmail={setEmail}
+          isLoggedIn={isLoggedIn}
+          setLoggedIn={setLoggedIn}
+        />
+      ),
       path: '/compare/(?<group1>)/(?<group2>)',
     },
     {
-      element: <RecentComparisons collectionId={DEFAULT_COLLECTION} currentUser={true}/>,
+      element: <RecentComparisons collectionId={DEFAULT_COLLECTION} currentUser={true} />,
       path: '/recent/me',
     },
     {
       element: <RecentComparisons collectionId={DEFAULT_COLLECTION} maxComparisons={9999} />,
       path: '/recent',
+    },
+    {
+      element: <EloCalculation collectionId={DEFAULT_COLLECTION} />,
+      path: '/elo',
     },
     {
       element: <StatsPage collectionId={DEFAULT_COLLECTION} />,
@@ -101,15 +109,34 @@ const Frontend = ({ collectionId } : FrontendProps): JSX.Element => {
     <>
       <div id="outer-container">
         <Menu pageWrapId="page-wrap" outerContainerId="outer-container">
-          { email && (<><div className="loggedIn">Logged in as {email}</div>
-            <a id="logout" href="/" className="bm-item menu-item" onClick={() => {
-              doGoogleLogout(setLoggedIn, setEmail);
-              submitLogout();
-            }}>Logout</a></>) }
-          <a id="home" className="menu-item" href="/">Home</a>
-          <a id="about" className="menu-item" href="/about">About</a>
-          <a id="stats" className="menu-item" href="/stats">Stats</a>
-          <a id="recent" className="menu-item" href="/recent">Recent comparisons</a>
+          {email && (
+            <>
+              <div className="loggedIn">Logged in as {email}</div>
+              <a
+                id="logout"
+                href="/"
+                className="bm-item menu-item"
+                onClick={() => {
+                  doGoogleLogout(setLoggedIn, setEmail);
+                  submitLogout();
+                }}
+              >
+                Logout
+              </a>
+            </>
+          )}
+          <a id="home" className="menu-item" href="/">
+            Home
+          </a>
+          <a id="about" className="menu-item" href="/about">
+            About
+          </a>
+          <a id="stats" className="menu-item" href="/stats">
+            Stats
+          </a>
+          <a id="recent" className="menu-item" href="/recent">
+            Recent comparisons
+          </a>
         </Menu>
         <br />
         <br />
@@ -119,7 +146,8 @@ const Frontend = ({ collectionId } : FrontendProps): JSX.Element => {
         <RouterProvider router={router} />
         {/* <CompareScreen collectionId={DEFAULT_COLLECTION}/> */}
       </main>
-    </>);
+    </>
+  );
 };
 
 export default Frontend;

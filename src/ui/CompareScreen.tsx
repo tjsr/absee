@@ -2,7 +2,7 @@ import './CompareScreen.css';
 
 import {
   CollectionObject,
-  CollectionObjectIdType,
+  CollectionObjectId,
   ComparisonSelectionResponse,
   EmailAddress,
   SnowflakeType
@@ -22,34 +22,35 @@ import { useSearchParams } from 'react-router-dom';
 
 type CompareScreenProps = {
   collectionId: string;
-  setEmail: (email: EmailAddress|undefined) => void;
+  setEmail: (email: EmailAddress | undefined) => void;
   email: EmailAddress | undefined;
   isLoggedIn: boolean;
   setLoggedIn: (loggedIn: boolean) => void;
-}
+};
 
 // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-constraint
-const CompareScreen = <CO extends CollectionObject<IdType>, IdType extends CollectionObjectIdType>({
+const CompareScreen = <CO extends CollectionObject<IdType>, IdType extends CollectionObjectId>({
   collectionId,
   setEmail,
   email,
   isLoggedIn,
   setLoggedIn,
-} : CompareScreenProps): JSX.Element => {
+}: CompareScreenProps): JSX.Element => {
   const [comparison, setComparison] = useState<ComparisonSelectionResponse<CO> | undefined>(undefined);
   const [comparisonLoaded, setComparisonLoaded] = useState<boolean>(false);
   const [comparisonLoading, setComparisonLoading] = useState<boolean>(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const fakeEmails = false;
 
-  const dropRef: React.MutableRefObject<HTMLDivElement | null> = useRef<HTMLDivElement|null>(null);
+  const dropRef: React.MutableRefObject<HTMLDivElement | null> = useRef<HTMLDivElement | null>(null);
 
   const queryString = new URLSearchParams(window.location.search);
   const preselectedObjects = queryString.get('objects'); // searchParams.get('options'); // queryString.get('objects');
-  let preselectedObjectArr: string[][]|undefined = undefined;
+  let preselectedObjectArr: string[][] | undefined = undefined;
   if (preselectedObjects) {
-    preselectedObjectArr = preselectedObjects.split(QUERYSTRING_ARRAY_DELIMETER).map(
-      (objectList: string) => objectList.split(QUERYSTRING_ELEMENT_DELIMETER));
+    preselectedObjectArr = preselectedObjects
+      .split(QUERYSTRING_ARRAY_DELIMETER)
+      .map((objectList: string) => objectList.split(QUERYSTRING_ELEMENT_DELIMETER));
     console.log(`Got a preselected list of ${preselectedObjectArr.join(QUERYSTRING_ARRAY_DELIMETER)}`);
   }
   // const params = useParams<{ group1: string, group2: string }>();
@@ -117,7 +118,10 @@ const CompareScreen = <CO extends CollectionObject<IdType>, IdType extends Colle
       <LoginControl
         isLoggedIn={isLoggedIn}
         fakeEmails={fakeEmails}
-        setLoggedIn={setLoggedIn} setEmail={setEmail} email={email} />
+        setLoggedIn={setLoggedIn}
+        setEmail={setEmail}
+        email={email}
+      />
       <div className="elementPickerContent">
         {comparisonLoaded && comparison ? (
           <>
@@ -126,8 +130,9 @@ const CompareScreen = <CO extends CollectionObject<IdType>, IdType extends Colle
               itemSelected={itemSelected}
               dropRef={dropRef}
               leftElement={comparison.a}
-              rightElement={comparison.b} />
-            <ComparisonLink comparison={comparison as ComparisonSelectionResponse<CO>}/>
+              rightElement={comparison.b}
+            />
+            <ComparisonLink comparison={comparison as ComparisonSelectionResponse<CO>} />
             <Link to="/recent">Recent comparisons</Link> (<Link to="/recent/me">mine</Link>)
           </>
         ) : (

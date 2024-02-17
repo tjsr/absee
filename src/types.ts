@@ -18,22 +18,26 @@ export type UserId = uuid5;
 export type EmailAddress = string;
 export type CookieName = string;
 export type CollectionIdType = uuid4;
-export type CollectionObjectIdType = any;
-export type CollectionObject<CollectionObjectIdType> = {
+export type CollectionObjectId = string|uuid;
+export type ComparisonElementId = SnowflakeType;
+export type ComparisonResultId = SnowflakeType;
+export type ComparisonId = SnowflakeType;
+export interface CollectionObject<CollectionObjectIdType extends CollectionObjectId> {
   id: CollectionObjectIdType
-};
+}
+export type CollectionEloMap = Map<CollectionObjectId, number>;
 
 export type ComparableObjectPutBody = {
   id: SnowflakeType;
-  comparisonId: SnowflakeType;
-  elementId: SnowflakeType;
+  comparisonId: ComparisonId;
+  elementId: ComparisonElementId;
   objectId: string;
 };
 
-export type ComparableObjectResponse<CollectionObject> = {
-  elementId: SnowflakeType;
-  objects: string[];
-  data: CollectionObject[];
+export type ComparableObjectResponse<CollectionObjectType> = {
+  elementId: ComparisonElementId;
+  objects: CollectionObjectId[];
+  data: CollectionObjectType[];
 };
 
 export type ComparisonSelectionResponse<CollectionObject> = {
@@ -44,34 +48,58 @@ export type ComparisonSelectionResponse<CollectionObject> = {
   b: ComparableObjectResponse<CollectionObject>;
 };
 
-export type ComparisonElementResponse<CollectionObject> = {
-  elementId: SnowflakeType;
-  data: CollectionObject[];
+export type ComparisonElementResponse<
+  CollectionObjectType extends CollectionObject<IdType>, IdType extends CollectionObjectId> = {
+  elementId: ComparisonElementId;
+  data: CollectionObjectType[];
 }
 
-export type ComparisonElement = {
-  elementId: SnowflakeType;
-  objects: string[];
+export type ComparisonElement<IdType extends CollectionObjectId> = {
+  elementId: ComparisonElementId;
+  objectIds: IdType[];
 }
 
-export type ComparisonResult = {
-  id: SnowflakeType;
+export type ComparisonResult<IdType extends CollectionObjectId> = {
+  id: ComparisonResultId;
   userId: UserId;
-  elements: ComparisonElement[];
-  winner: SnowflakeType;
+  elements: ComparisonElement<IdType>[];
+  winner: ComparisonElementId;
   requestTime: ISO8601Date;
 };
 
-export type ComparisonResultResponse<CollectionObject> = {
+export interface ComparisonResultResponse<CollectionObjectType extends CollectionObject<IdType>,
+  IdType extends CollectionObjectId> {
   id: SnowflakeType;
   userId: UserId;
-  elements: ComparisonElementResponse<CollectionObject>[];
-  winner: SnowflakeType;
+  elements: ComparisonElementResponse<CollectionObjectType, IdType>[];
+  winner: ComparisonElementId;
   requestTime: ISO8601Date;
-};
+}
 
-export interface ClientCollectionType<CO extends CollectionObject<any>, CollectionObjectIdType> {
-  getObjectId: (object: CO) => CollectionObjectIdType;
+export interface CollectionObjectEloRating<IdType extends CollectionObjectId> {
+  objectId: IdType;
+  rating: number;
+}
+
+export interface EloTimeline<CollectionObjectIdType extends CollectionObjectId>
+  extends ComparisonResult<CollectionObjectIdType> {
+  eloRatingsAfter: CollectionObjectEloRating<CollectionObjectIdType>[];
+  eloRatingsBefore: CollectionObjectEloRating<CollectionObjectIdType>[];
+}
+
+export interface EloTimelineResponse<
+CollectionObjectType extends CollectionObject<IdType>, IdType extends CollectionObjectId
+>
+  extends ComparisonResultResponse<CollectionObjectType, IdType> {
+  collectionObjects: CollectionObjectType[];
+  eloRatingsAfter: CollectionObjectEloRating<IdType>[];
+  eloRatingsBefore: CollectionObjectEloRating<IdType>[];
+}
+
+export interface ClientCollectionType<
+  CollectionObjectType extends CollectionObject<IdType>, IdType extends CollectionObjectId
+> {
+  getObjectId: (object: CollectionObjectType) => IdType;
 }
 
 export type { ISO8601Date, SnowflakeType };

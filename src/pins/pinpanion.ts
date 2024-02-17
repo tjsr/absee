@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 
-import { ClientCollectionType, CollectionObject } from '../types.js';
+import { ClientCollectionType, CollectionObject, CollectionObjectId } from '../types.js';
 
 import { CollectionTypeLoader } from '../datainfo.js';
 import events from './eventnames.json' assert { type: 'json' };
@@ -13,6 +13,8 @@ const PIN_LIST_URL =
 let paxs: PAX[] | undefined = undefined;
 let sets: PinSet[] | undefined = undefined;
 
+export type PinIdType = CollectionObjectId;
+
 type PinpanionPin = {
   id: string;
   name: string;
@@ -24,8 +26,8 @@ type PinpanionPin = {
   image_name: string;
 };
 
-export interface Pin extends CollectionObject<number> {
-  id: number;
+export interface Pin extends CollectionObject<PinIdType> {
+  id: PinIdType;
   name: string;
   year: number;
   paxName?: string;
@@ -54,7 +56,7 @@ type PinpanionData = {
 };
 
 export const countPinsInCollection = (
-  currentLoader: CollectionTypeLoader<Pin, PinpanionData>
+  currentLoader: CollectionTypeLoader<Pin, PinpanionData, PinIdType>
 ): number => {
   if (currentLoader.collectionData) {
     return currentLoader.collectionData.pins.length;
@@ -75,7 +77,7 @@ const getPinSetName = (setId: number): string | undefined => {
   }
 };
 
-const getObjectId = (pin: Pin): string => pin.id.toString();
+const getObjectId = (pin: Pin): PinIdType => pin.id;
 
 const convertToDisplayPin = (pin: PinpanionPin): Pin => {
   const cssClass: string | undefined = events.find(
@@ -83,7 +85,7 @@ const convertToDisplayPin = (pin: PinpanionPin): Pin => {
   )?.cssClass;
   const output: Pin = {
     cssClass: cssClass !== undefined ? cssClass : 'unknown',
-    id: parseInt(pin.id),
+    id: pin.id, // parseInt(pin.id),
     imageUrl: pin.image_name.split('?')[0],
     name: pin.name,
     paxId: pin.pax_id,
@@ -111,8 +113,8 @@ const getPinById = (
   return sourceData.pins?.find((p: PinpanionPin) => p.id.toString() === id?.toString());
 };
 
-const getObjectForId = (sourceData: PinpanionData, id: string): Pin => {
-  const sourcePin: PinpanionPin | undefined = getPinById(sourceData, id);
+const getObjectForId = (sourceData: PinpanionData, id: PinIdType): Pin => {
+  const sourcePin: PinpanionPin | undefined = getPinById(sourceData, id.toString());
   if (sourcePin) {
     return convertToDisplayPin(sourcePin);
   }
@@ -125,7 +127,7 @@ const datasourceConvertor = <PinpanionData>(inputData: any): PinpanionData => {
   return inputData;
 };
 
-export const defaultDevPinLoader: CollectionTypeLoader<Pin, PinpanionData> = {
+export const defaultDevPinLoader: CollectionTypeLoader<Pin, PinpanionData, PinIdType> = {
   collectionData: undefined,
   collectionId: '83fd0b3e-dd08-4707-8135-e5f138a43f00',
   convertDatasourceOnLoad: datasourceConvertor,
@@ -138,6 +140,6 @@ export const defaultDevPinLoader: CollectionTypeLoader<Pin, PinpanionData> = {
   name: 'pinpanion_dev',
 };
 
-export const clientPinLoader: ClientCollectionType<Pin, string> = {
+export const clientPinLoader: ClientCollectionType<Pin, PinIdType> = {
   getObjectId: getObjectId,
 };
