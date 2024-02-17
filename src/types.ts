@@ -13,7 +13,6 @@ export type ComparisonRequestPutBody = {
   requestIp: IPAddress;
 };
 
-
 export type UserId = uuid5;
 
 export type EmailAddress = string;
@@ -23,7 +22,7 @@ export type CollectionObjectId = string|uuid;
 export type ComparisonElementId = SnowflakeType;
 export type ComparisonResultId = SnowflakeType;
 export type ComparisonId = SnowflakeType;
-export interface CollectionObject<CollectionObjectIdType> {
+export interface CollectionObject<CollectionObjectIdType extends CollectionObjectId> {
   id: CollectionObjectIdType
 }
 export type CollectionEloMap = Map<CollectionObjectId, number>;
@@ -50,7 +49,7 @@ export type ComparisonSelectionResponse<CollectionObject> = {
 };
 
 export type ComparisonElementResponse<
-  CollectionObjectType extends CollectionObject<IdType>, IdType extends CollectionIdType> = {
+  CollectionObjectType extends CollectionObject<IdType>, IdType extends CollectionObjectId> = {
   elementId: ComparisonElementId;
   data: CollectionObjectType[];
 }

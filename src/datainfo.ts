@@ -41,8 +41,8 @@ CollectionObjectType extends CollectionObject<IdType>, D, IdType extends Collect
   convertDatasourceOnLoad: <D>(data: any) => D;
   getObjectForId: (collectionData: D, id: IdType) => CollectionObjectType;
   getObjectByIndex: (collectionData: D, index: number) => CollectionObjectType;
-  getObjectId: (object: CollectionObjectType) => string;
-  prioritizedObjectIdList?: string[];
+  getObjectId: (object: CollectionObjectType) => IdType;
+  prioritizedObjectIdList?: IdType[];
 };
 
 export const initializeLoader = async <

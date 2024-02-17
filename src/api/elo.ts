@@ -94,9 +94,10 @@ IdType extends CollectionIdType>(
 
     retrieveComparisonResults(
       loader.collectionId, undefined, MAX_ELO_COMPARISONS
-    ).then((comparisons: ComparisonResult<IdType>[]) => {
+    ).then((comparisons: ComparisonResult<string>[]) => {
       response.contentType('application/json');
-      const timelineJson: EloTimeline<IdType>[] = createEloTimelineFromComparisons(comparisons);
+      const timelineJson: EloTimeline<IdType>[] =
+        createEloTimelineFromComparisons(comparisons) as EloTimeline<IdType>[];
       const responseJson: EloTimelineResponse<CollectionObjectType, IdType>[] =
         convertTimelineToResponse(timelineJson, loader);
       response.send(responseJson);

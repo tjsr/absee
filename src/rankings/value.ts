@@ -10,8 +10,8 @@ import {
 // import { getComparableObjectId } from './ids.js";
 const DEFAULT_ELEMENT_VALUE = 15;
 
-const getComparableObjectId = <T extends CollectionObject<IdType>,
-  IdType>(object: T): IdType => {
+const getComparableObjectId = <CollectionObjectType extends CollectionObject<IdType>,
+  IdType extends CollectionObjectId>(object: CollectionObjectType): IdType => {
   return object.id;
 };
 

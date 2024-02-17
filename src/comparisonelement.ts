@@ -1,11 +1,11 @@
-import { ComparableObjectPutBody, SnowflakeType } from './types.js';
+import { CollectionObjectId, ComparableObjectPutBody, SnowflakeType } from './types.js';
 
 import { ComparableObjectModel } from './types/model.js';
 import { basicMySqlInsert } from './database/basicMysqlInsert.js';
 
-export const storeComparisonElement = async (
+export const storeComparisonElement = async <IdType extends CollectionObjectId>(
   comparisonId: SnowflakeType,
-  comparisonElement: ComparableObjectModel
+  comparisonElement: ComparableObjectModel<IdType>
 ): Promise<void> => {
   const postRequest: ComparableObjectPutBody = {
     comparisonId: comparisonId,
@@ -21,9 +21,9 @@ export const storeComparisonElement = async (
   );
 };
 
-export const storeComparisonElements = (
+export const storeComparisonElements = <IdType extends CollectionObjectId>(
   comparisonId: SnowflakeType,
-  comparisonElements: ComparableObjectModel[]
+  comparisonElements: ComparableObjectModel<IdType>[]
 ): Promise<void>[] => {
   const storagePromises: Promise<void>[] = [];
 

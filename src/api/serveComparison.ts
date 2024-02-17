@@ -1,4 +1,11 @@
-import { CollectionIdType, ComparisonSelectionResponse, SnowflakeType, UserId } from '../types.js';
+import {
+  CollectionIdType,
+  CollectionObject,
+  CollectionObjectId,
+  ComparisonSelectionResponse,
+  SnowflakeType,
+  UserId
+} from '../types.js';
 import { ComparableObjectModel, ComparisonModel } from '../types/model.js';
 import { QUERYSTRING_ARRAY_DELIMETER, QUERYSTRING_ELEMENT_DELIMETER } from '../ui/utils.js';
 import { getUserId, getUserIdentificationString } from '../auth/user.js';
@@ -18,7 +25,8 @@ import { storeComparisonRequest } from '../comparison.js';
 
 const MINIMUM_PRIORITIZED_OBJECTS = 100;
 
-export const serveComparison = async <T, D>(
+export const serveComparison = async <
+CollectionObjectType extends CollectionObject<IdType>, D, IdType extends CollectionObjectId>(
   request: express.Request,
   response: express.Response,
   loaderId: CollectionIdType
@@ -30,13 +38,13 @@ export const serveComparison = async <T, D>(
     const comparisonId: SnowflakeType = getSnowflake();
     const objectsQueryString = request.query.objects as string;
     const queryStringGroups:string[] = objectsQueryString?.split(QUERYSTRING_ARRAY_DELIMETER);
-    let leftElements: string[]|undefined = undefined;
-    let rightElements: string[]|undefined = undefined;
+    let leftElements: IdType[]|undefined = undefined;
+    let rightElements: IdType[]|undefined = undefined;
 
-    const loader: CollectionTypeLoader<T, D> = await getLoader(loaderId);
+    const loader: CollectionTypeLoader<CollectionObjectType, D, IdType> = await getLoader(loaderId);
     if (queryStringGroups?.length == 2) {
-      leftElements = queryStringGroups[0].split(QUERYSTRING_ELEMENT_DELIMETER);
-      rightElements = queryStringGroups[1].split(QUERYSTRING_ELEMENT_DELIMETER);
+      leftElements = queryStringGroups[0].split(QUERYSTRING_ELEMENT_DELIMETER) as IdType[];
+      rightElements = queryStringGroups[1].split(QUERYSTRING_ELEMENT_DELIMETER) as IdType[];
       console.debug(`Serving comparison request ${comparisonId} to userId ${userId} (${idString}) `+
         `with predefined set ${leftElements} vs ${rightElements}}`);
     } else {
@@ -47,7 +55,7 @@ export const serveComparison = async <T, D>(
         await populatePrioritizedObjectList(loader);
       }
 
-      const candidateElements: [string[], string[]] = createCandidateElementList(
+      const candidateElements: [IdType[], IdType[]] = createCandidateElementList(
         loader,
         loader.getNumberOfElements(loader),
         loader.maxElementsPerComparison,
@@ -57,13 +65,13 @@ export const serveComparison = async <T, D>(
       rightElements = candidateElements[1];
     }
 
-    const left: ComparableObjectModel[] = createComparableObjectList(
+    const left: ComparableObjectModel<IdType>[] = createComparableObjectList(
       leftElements
     );
-    const right: ComparableObjectModel[] = createComparableObjectList(
+    const right: ComparableObjectModel<IdType>[] = createComparableObjectList(
       rightElements
     );
-    const comparisonRequest: ComparisonModel = createComparisonSelection(
+    const comparisonRequest: ComparisonModel<IdType> = createComparisonSelection(
       loader.collectionId,
       comparisonId,
       userId,
@@ -74,8 +82,8 @@ export const serveComparison = async <T, D>(
     storeComparisonRequest(comparisonRequest)
       .then(() => {
         response.contentType('application/json');
-        const responseJson: ComparisonSelectionResponse<T> =
-          createComparisonSelectionResponse<T>(comparisonRequest, loader);
+        const responseJson: ComparisonSelectionResponse<CollectionObjectType> =
+          createComparisonSelectionResponse<CollectionObjectType, IdType>(comparisonRequest, loader);
         response.send(SuperJSON.stringify(responseJson));
         response.end();
       })

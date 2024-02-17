@@ -1,4 +1,12 @@
-import { ComparisonResult, EmailAddress, SnowflakeType, UserId, uuid5 } from '../types.js';
+import {
+  CollectionIdType,
+  CollectionObjectId,
+  ComparisonResult,
+  EmailAddress,
+  SnowflakeType,
+  UserId,
+  uuid5
+} from '../types.js';
 import { PoolConnection, getConnection } from './mysqlConnections.js';
 
 import { ComparisonRequestResponseBody } from '../types/datasource.js';
@@ -21,17 +29,17 @@ export const getDbUserByEmail = (email: EmailAddress): UserModel => {
 
 // const retrieve
 
-const populateElementsFromDatabase = async (
+const populateElementsFromDatabase = async <IdType extends CollectionObjectId>(
   conn: PoolConnection,
-  comparisonResults: ComparisonResult[]
-): Promise<ComparisonResult[]> => {
+  comparisonResults: ComparisonResult<IdType>[]
+): Promise<ComparisonResult<IdType>[]> => {
   if (comparisonResults.length == 0) {
     const errMessage = `comparisonResult in populateElementsFromDatabase was empty`;
     console.trace(errMessage);
     throw Error(errMessage);
   }
 
-  const resultMap: Map<SnowflakeType, ComparisonResult> = new Map();
+  const resultMap: Map<SnowflakeType, ComparisonResult<IdType>> = new Map();
   comparisonResults.forEach((cr) => {
     resultMap.set(cr.id, cr);
   });
@@ -50,7 +58,7 @@ const populateElementsFromDatabase = async (
           return reject(elementErr);
         }
         elementResults.forEach((elementRow: RowDataPacket) => {
-          const cr: ComparisonResult | undefined = resultMap.get(elementRow.comparisonId);
+          const cr: ComparisonResult<IdType> | undefined = resultMap.get(elementRow.comparisonId);
           if (cr) {
             if (!cr.elements) {
               cr.elements = [];
@@ -71,17 +79,17 @@ const populateElementsFromDatabase = async (
   });
 };
 
-export const retrieveComparisonResults = async (
-  collectionId: string,
+export const retrieveComparisonResults = async <IdType extends CollectionObjectId>(
+  collectionId: CollectionIdType,
   userId?: UserId,
   maxComparisons = 50
-): Promise<ComparisonResult[]> => {
+): Promise<ComparisonResult<IdType>[]> => {
   if (collectionId === undefined) {
     throw Error(`Can't call retrieveComparisonResults when collectionId is undefined`);
   }
   const conn = await getConnection();
 
-  return new Promise<ComparisonResult[]>((resolve, reject) => {
+  return new Promise<ComparisonResult<IdType>[]>((resolve, reject) => {
     try {
       //          ${userId ? 'AND C.userId = ?' : ''}
       //         [userId ? userId : undefined],
@@ -95,7 +103,7 @@ export const retrieveComparisonResults = async (
          ORDER BY C.requestTime DESC
          LIMIT ${maxComparisons}`,
         [collectionId],
-        (comparisonErr, comparisonResults, fields) => {
+        (comparisonErr, comparisonResults) => {
           if (comparisonErr) {
             conn.release();
             console.error(`Failed while retrieving comparison results for collection ${collectionId}`, comparisonErr);
@@ -117,7 +125,7 @@ export const retrieveComparisonResults = async (
               new Error(errorMessage)
             );
           } else {
-            const outputResults: ComparisonResult[] = comparisonResults.map((result: any) => {
+            const outputResults: ComparisonResult<IdType>[] = comparisonResults.map((result: any) => {
               return {
                 id: result.comparisonId,
                 requestTime: result.requestTime,
@@ -153,7 +161,7 @@ export const retrieveComparisonRequest = async (
         FROM Comparison
         WHERE id=?`,
         [comparisonId],
-        (err, results, fields) => {
+        (err, results) => {
           if (err) {
             conn.release();
             return reject(err);
@@ -211,7 +219,7 @@ export const retrieveCollections = async():
       conn.query(
         `SELECT collectionId, name, datasource, description, cachedData, lastUpdateTime, maxElementsPerComparison
         FROM Collection`,
-        (err, results, fields) => {
+        (err, results) => {
           if (err) {
             conn.release();
             return reject(err);

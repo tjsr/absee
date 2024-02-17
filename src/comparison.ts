@@ -1,4 +1,5 @@
 import {
+  CollectionIdType,
   ComparisonRequestPutBody,
   IPAddress,
   SnowflakeType,
@@ -13,8 +14,8 @@ import {
 } from './database/mysql.js';
 import { storeComparisonElements } from './comparisonelement.js';
 
-export const storeComparisonRequest = async <T>(
-  comparisonRequest: ComparisonModel
+export const storeComparisonRequest = async <IdType extends CollectionIdType>(
+  comparisonRequest: ComparisonModel<IdType>
 ): Promise<void> => {
   const postRequest: ComparisonRequestPutBody = {
     collectionId: comparisonRequest.collectionId,
@@ -29,7 +30,7 @@ export const storeComparisonRequest = async <T>(
     basicMySqlInsert('Comparison', Object.keys(postRequest), postRequest),
   ];
   const resolved = Promise.all(allPromises)
-    .then((resolved) => {
+    .then(() => {
       return Promise.resolve();
     })
     .catch((err) => {
