@@ -1,6 +1,7 @@
 import * as dotenv from 'dotenv';
 
 import { ABSeeRequest, mysqlSessionStore } from './session.js';
+import { Options, createProxyMiddleware } from 'http-proxy-middleware';
 import {
   StatsResponse,
   getElementsCompared,
@@ -13,7 +14,6 @@ import { getSession, setUserCookies } from './sessions/getSession.js';
 import { IPAddress } from './types.js';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import { createProxyMiddleware } from 'http-proxy-middleware';
 import { debugHeaders } from './api/debugHeaders.js';
 import { elo } from './api/elo.js';
 import fs from 'fs';
@@ -126,7 +126,7 @@ export const startApp = (): express.Express => {
         usersContributed: results[1],
       };
       const endTime: number = new Date().getTime();
-      console.log(`Retrieving all stats data took ${endTime - startTime}ms}`);
+      console.log(`Retrieving all stats data took ${endTime - startTime}ms`);
       response.send(responseBody);
       response.status(200);
       response.end();
@@ -162,7 +162,7 @@ export const startApp = (): express.Express => {
   const PROXY_HOST = 'localhost';
   const frontendData = `http://${PROXY_HOST}:${PROXY_PORT}`;
 
-  const proxyOptions = {
+  const proxyOptions: Options = {
     changeOrigin: true,
     target: frontendData,
   };
