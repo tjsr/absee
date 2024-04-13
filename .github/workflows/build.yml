@@ -1,10 +1,6 @@
 name: Build A/B See
 run-name: ${{ github.actor }} Running A/B See build.
-on:
-  push:
-    branches-ignore:
-      - actions/*
-
+on: [push]
 jobs:
   build-absee:
     runs-on: ubuntu-latest
