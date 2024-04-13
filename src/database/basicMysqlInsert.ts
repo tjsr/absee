@@ -1,6 +1,6 @@
 import { PoolConnection, getConnection } from './mysqlConnections.js';
 
-export const basicMySqlInsert = (
+export const basicMySqlInsert = async (
   table: string,
   fields: string[],
   values: any
@@ -17,8 +17,10 @@ export const basicMySqlInsert = (
           (err) => {
             conn.release();
             if (err && err.sqlState === '23000') {
-              resolve();
+              console.error('Failed inserting with primary key violation');
+              reject(err);
             } else if (err) {
+              console.error(`Error inserting into ${table}: ${err}`, err);
               reject(err);
             }
             resolve();

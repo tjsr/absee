@@ -1,7 +1,7 @@
 import { CollectionObjectId, SnowflakeType } from './types.js';
-import { describe, expect, test } from '@jest/globals';
 
 import { ComparableObjectModel } from './types/model.js';
+import { closeConnectionPool } from './database/mysqlConnections.js';
 import { getSnowflake } from './snowflake.js';
 import { storeComparisonElement } from './comparisonelement.js';
 
@@ -13,6 +13,8 @@ describe('comparisonelement', () => {
       id: getSnowflake(),
       objectId: '1' as IdType,
     };
-    await expect(storeComparisonElement(comparisonId, meta)).resolves;
+    await expect(storeComparisonElement(comparisonId, meta)).resolves.not.toThrow();
   });
+
+  afterEach(async () => closeConnectionPool(true));
 });

@@ -1,13 +1,13 @@
 import { CollectionObjectId, SnowflakeType } from './types.js';
 import { ComparableObjectModel, ComparisonModel } from './types/model.js';
-import { describe, expect, test } from '@jest/globals';
 
+import { closeConnectionPool } from './database/mysqlConnections.js';
 import { getSnowflake } from './snowflake.js';
 import { storeComparisonRequest } from './comparison.js';
 import { v4 as uuidv4 } from 'uuid';
 
 describe('comparison', () => {
-  test('Should write a comparison request to the DB', <IdType extends CollectionObjectId>(): void => {
+  test('Should write a comparison request to the DB', async <IdType extends CollectionObjectId>(): Promise<void> => {
     const comparisonId: SnowflakeType = getSnowflake();
     const metaa: ComparableObjectModel<IdType> = {
       elementId: getSnowflake(),
@@ -30,6 +30,8 @@ describe('comparison', () => {
       userId: uuidv4(),
     };
 
-    expect(storeComparisonRequest(comparisonRequest)).resolves;
+    await expect(storeComparisonRequest(comparisonRequest)).resolves.not.toThrow();
   });
+
+  afterEach(async () => closeConnectionPool(true));
 });
