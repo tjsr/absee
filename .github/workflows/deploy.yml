@@ -42,7 +42,7 @@ jobs:
         #   docker tag public.ecr.aws/$REGISTRY_ALIAS/$DB_IMAGE_NAME $DB_IMAGE_NAME
         remote_docker_host: ${{ secrets.DEPLOYMENT_HOST }}
         ssh_private_key: ${{ secrets.DEPLOYMENT_SSH_KEY }}
-        ssh_username: ${{ secrets.DEPLOYMENT_USER }}
+        remote_docker_user: ${{ secrets.DEPLOYMENT_USER }}
         docker_image: public.ecr.aws/$REGISTRY_ALIAS/$DB_IMAGE_NAME
         ssh_port: 22
         local_tag: $DB_IMAGE_NAME
@@ -60,7 +60,7 @@ jobs:
         #   docker tag public.ecr.aws/$REGISTRY_ALIAS/$IMAGE_NAME $IMAGE_NAME
         remote_docker_host: ${{ secrets.DEPLOYMENT_HOST }}
         ssh_private_key: ${{ secrets.DEPLOYMENT_SSH_KEY }}
-        ssh_username: ${{ secrets.DEPLOYMENT_USER }}
+        remote_docker_user: ${{ secrets.DEPLOYMENT_USER }}
         docker_image: public.ecr.aws/$REGISTRY_ALIAS/$IMAGE_NAME
         ssh_port: 22
         local_tag: $IMAGE_NAME
