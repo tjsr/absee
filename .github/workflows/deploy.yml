@@ -45,7 +45,7 @@ jobs:
         ssh_username: ${{ secrets.DEPLOYMENT_USER }}
         docker_image: public.ecr.aws/$REGISTRY_ALIAS/$DB_IMAGE_NAME
         ssh_port: 22
-        local_tag: ${{DB_IMAGE_NAME}}
+        local_tag: $DB_IMAGE_NAME
 
     - name: Pull API image on remote.
       uses: tjsr/remote_docker_pull@main
@@ -61,9 +61,9 @@ jobs:
         remote_docker_host: ${{ secrets.DEPLOYMENT_HOST }}
         ssh_private_key: ${{ secrets.DEPLOYMENT_SSH_KEY }}
         ssh_username: ${{ secrets.DEPLOYMENT_USER }}
-        docker_image: public.ecr.aws/$REGISTRY_ALIAS/$$IMAGE_NAME
+        docker_image: public.ecr.aws/$REGISTRY_ALIAS/$IMAGE_NAME
         ssh_port: 22
-        local_tag: ${{IMAGE_NAME}}
+        local_tag: $IMAGE_NAME
 
     - name: Stop containers and apply DB migration script
       uses: appleboy/ssh-action@v0.1.8
