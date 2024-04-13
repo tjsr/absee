@@ -84,13 +84,14 @@ export const closeConnectionPool = async (): Promise<void> => {
       if (connectionPool) {
         connectionPool.end((err) => {
           if (err) {
-            reject(err);
+            return reject(err);
           }
         });
-        reject(new Error('Connection pool already closed when trying to end.'));
+      } else {
+        return reject(new Error('Connection pool already closed when trying to end.'));
       }
       connectionPool = undefined;
-      resolve();
+      return resolve();
     });
   }
 };

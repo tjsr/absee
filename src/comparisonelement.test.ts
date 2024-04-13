@@ -16,5 +16,5 @@ describe('comparisonelement', () => {
     await expect(storeComparisonElement(comparisonId, meta)).resolves.not.toThrow();
   });
 
-  afterEach(async () => closeConnectionPool());
+  afterEach(closeConnectionPool);
 });

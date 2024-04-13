@@ -33,5 +33,5 @@ describe('comparison', () => {
     await expect(storeComparisonRequest(comparisonRequest)).resolves.not.toThrow();
   });
 
-  afterEach(async () => closeConnectionPool());
+  afterEach(closeConnectionPool);
 });

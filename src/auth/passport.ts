@@ -3,7 +3,7 @@ import { EmailAddress, UserId } from '../types.js';
 import { Strategy as GoogleStrategy, Profile } from 'passport-google-oauth20';
 import express, { NextFunction, Response } from 'express';
 
-import { getConnectionPool } from '../database/mysqlConnections.js';
+import { getConnection } from '../database/mysqlConnections.js';
 import { getUserId } from './user.js';
 import passport from 'passport';
 import { requireEnv } from '../utils.js';
@@ -43,12 +43,7 @@ const createUserIdFromEmail = (profile: Profile, googleId: string): Promise<any>
   };
 
   const promise = new Promise<any>((resolve, reject) => {
-    getConnectionPool().getConnection((err, conn) => {
-      if (err) {
-        console.error(`Failed getting connection to check for existing user.`);
-        conn.release();
-        return reject(err);
-      }
+    return getConnection().then((conn) => {
       conn.query('INSERT INTO User SET ?', newUser, (err) => {
         if (err) {
           console.error(`User profile was ${JSON.stringify(newUser)}`);
@@ -60,7 +55,7 @@ const createUserIdFromEmail = (profile: Profile, googleId: string): Promise<any>
         conn.release();
         return resolve(newUser);
       });
-    });
+    }).catch((err) => reject(err));
   });
   return promise;
 };
@@ -115,13 +110,7 @@ export const initialisePassportToExpressApp = (app: express.Express) => {
 
   const retrieveUserById = (id: string): Promise<Profile> => {
     const promise = new Promise<any>((resolve, reject) => {
-      getConnectionPool().getConnection((err, conn) => {
-        if (err) {
-          console.error(`Failed getting connection to check for existing user.`);
-          conn.release();
-          return reject(err);
-        }
-
+      getConnection().then((conn) => {
         conn.query('SELECT id, email, display_name, google_id FROM User WHERE id = ?',
           [id], (_err, rows) => {
             if (rows.length === 0) {
@@ -133,20 +122,14 @@ export const initialisePassportToExpressApp = (app: express.Express) => {
             conn.release();
             return resolve(profile);
           });
-      });
+      }).catch((err) => reject(err));
     });
     return promise;
   };
 
   const retrieveUserByGoogleId = (googleId: string): Promise<Profile> => {
     const promise = new Promise<any>((resolve, reject) => {
-      getConnectionPool().getConnection((err, conn) => {
-        if (err) {
-          console.error(`Failed getting connection to check for existing user.`);
-          conn.release();
-          return reject(err);
-        }
-
+      getConnection().then((conn) => {
         conn.query('SELECT id, email, display_name, google_id FROM User WHERE google_id = ?',
           [googleId], (_err, rows) => {
             cacheGoogleUser(rows[0]);
@@ -154,7 +137,7 @@ export const initialisePassportToExpressApp = (app: express.Express) => {
             conn.release();
             return resolve(profile);
           });
-      });
+      }).catch((err) => reject(err));
     });
     return promise;
   };
