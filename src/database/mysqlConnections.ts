@@ -76,51 +76,21 @@ export const safeReleaseConnection = (connection: PoolConnection): void => {
   }
 };
 
-const getCallerInfo = (stackOffset = 0): string | null => {
-  const err = new Error();
-  const stack = err.stack?.split('\n');
-
-  if (stack && stack.length > 3+stackOffset) {
-    const line = stack[3+stackOffset];
-    const match = line.match(/at (.*?) \((.*?):(\d+):\d+\)$/);
-
-    if (match) {
-      const methodName = match[1];
-      const fileName = match[2];
-      const lineNumber = match[3];
-
-      return `File: ${fileName}, Method: ${methodName}, Line: ${lineNumber}`;
-    }
-  }
-
-  return null;
-}
-
-export const closeConnectionPool = async (afterTests?: boolean): Promise<void> => {
+export const closeConnectionPool = async (): Promise<void> => {
   if (connectionPool === undefined) {
-    if (!afterTests) {
-      console.warn('Attempted to close an undefined connection pool');
-    }
     return Promise.reject(new Error('Attempted to close an undefined connection pool'));
   } else {
-    connectionPool.end((err) => {
-      if (err) {
-        if (err?.stack) {
-          if (!afterTests) {
-            console.error(`Error closing connection pool explicitly: ${err.stack[2]}`);
+    return new Promise((resolve, reject) => {
+      if (connectionPool) {
+        connectionPool.end((err) => {
+          if (err) {
+            reject(err);
           }
-        } else {
-          if (!afterTests) {
-            console.error('Failed closing connection pool.', err);
-          }
-          process.exit(1);
-        }
-      } else if (!afterTests) {
-        const currentStack = getCallerInfo(1);
-        console.log(`Connection pool closed explicitly by ${currentStack}`);
+        });
+        reject(new Error('Connection pool already closed when trying to end.'));
       }
+      connectionPool = undefined;
+      resolve();
     });
-    connectionPool = undefined;
-    return Promise.resolve();
   }
 };
