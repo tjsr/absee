@@ -1,6 +1,6 @@
-ARG NODE_VERSION=20.11.0
+ARG NODE_VERSION=20.12.2
 FROM node:${NODE_VERSION}-alpine3.18 as absee-build-preflight
-ARG NPM_VERSION=10.2.4
+ARG NPM_VERSION=10.5.2
 RUN npm install -g npm@${NPM_VERSION}
 
 RUN mkdir /opt/absee
