@@ -11,15 +11,17 @@ FROM absee-build-preflight as absee-build
 
 COPY package*.json /opt/absee
 COPY .npmrc /opt/absee
-RUN npm i
+RUN npm ci
 
-COPY babel.config.js /opt/absee
+COPY babel.config.cjs /opt/absee
 COPY tsconfig.json /opt/absee
 COPY .eslintrc.json /opt/absee
 COPY public/ /opt/absee/public
 COPY server.ts /opt/absee
 COPY index.html /opt/absee
 COPY src/ /opt/absee/src
+COPY vite.config.ts /opt/absee
+COPY jest.config.ts /opt/absee
 RUN npm run build
 
 FROM absee-build-preflight as absee
@@ -27,7 +29,7 @@ FROM absee-build-preflight as absee
 COPY package*.json /opt/absee
 COPY .npmrc /opt/absee
 
-RUN npm i --production && npm i source-map-support
+RUN npm i --production --omit=dev && npm i source-map-support
 COPY --from=absee-build /opt/absee/dist /opt/absee/dist
 WORKDIR /opt/absee/dist
 RUN mkdir /opt/certs
