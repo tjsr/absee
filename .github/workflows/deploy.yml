@@ -56,8 +56,9 @@ jobs:
         ssh_private_key: ${{ secrets.DEPLOYMENT_SSH_KEY }}
         remote_docker_user: ${{ secrets.DEPLOYMENT_USER }}
         ssh_port: 22
-        container_name: ${{ env.CONTAINER_NAME}}
-        remove: true
+        container_name: ${{ env.CONTAINER_NAME }}
+        remove_container: true
+        remove_image: true
 
     - name: Stop containers and apply DB migration script
       uses: appleboy/ssh-action@v0.1.8
