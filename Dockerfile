@@ -1,7 +1,7 @@
 ARG NODE_VERSION=20.12.2
-FROM node:${NODE_VERSION}-alpine3.18 as absee-build-preflight
+ARG ALPINE_VERSION=3.19
 ARG NPM_VERSION=10.5.2
-RUN npm install -g npm@${NPM_VERSION}
+FROM ghcr.io/tjsr/node_patched_npm:${NODE_VERSION}-alpine${ALPINE_VERSION}-npm${NPM_VERSION} as absee-build-preflight
 
 RUN mkdir /opt/absee
 
