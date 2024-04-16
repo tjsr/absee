@@ -7,7 +7,7 @@ const config: JestConfigWithTsJest = {
     '\\.(css|less)$': '<rootDir>/test/mocks/styleMock.ts',
     '^(\\.{1,2}/.*)\\.js$': '$1',
   },
-  modulePathIgnorePatterns: ['amplify'],
+  modulePathIgnorePatterns: ['amplify', 'dist'],
   // preset: 'ts-jest',
   testEnvironment: 'node',
   transform: {

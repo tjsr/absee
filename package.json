@@ -12,7 +12,7 @@
     "start": "echo Run \"npm run start:ui\" then \"npm run start:server\"",
     "start:prod": "node index.js",
     "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider vite build && tsc",
-    "test": "npx jest --runInBand --detectOpenHandles",
+    "test": "jest --runInBand --detectOpenHandles",
     "db:init:dev": "npx prisma migrate dev --name init",
     "db:upgrade": "npx prisma migrate dev",
     "db:upgrade:deploy": "npx prisma migrate deploy",
