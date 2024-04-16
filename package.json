@@ -32,6 +32,7 @@
     "prettier": "prettier --single-quote --write \"./src/**/*.{ts,tsx}\"",
     "format": "npm run prettier && npm run lint"
   },
+  "test": "jest --runInBand --detectOpenHandles",
   "repository": {
     "type": "git",
     "url": "git+ssh://git@bitbucket.org/tjsrowe/absee.git"

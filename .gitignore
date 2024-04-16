@@ -60,3 +60,5 @@ prisma/migrations_sqlite
 
 .env.local
 .env.*.local
+
+coverage

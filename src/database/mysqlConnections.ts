@@ -1,29 +1,45 @@
 import * as dotenv from 'dotenv-flow';
 
 import mysql from 'mysql';
+import path from 'path';
 import { requireEnv } from '../utils.js';
 
 export type PoolConnection = mysql.PoolConnection;
 
-dotenv.config();
+let poolConfig: mysql.PoolConfig|undefined = undefined;
 
-const config: mysql.PoolConfig = {
-  bigNumberStrings: true,
-  connectTimeout: process.env['MYSQL_CONNECT_TIMEOUT'] ? parseInt(process.env['MYSQL_CONNECT_TIMEOUT']) : 2000,
-  connectionLimit:
-    process.env.MYSQL_CONNECTION_POOL_SIZE !== undefined ?
-      parseInt(process.env.MYSQL_CONNECTION_POOL_SIZE) :
-      5,
-  database: requireEnv('MYSQL_DATABASE'),
-  debug: process.env['MYSQL_DEBUG'] === 'true' ? true : false,
-  host: requireEnv('MYSQL_HOST'),
-  password: requireEnv('MYSQL_PASSWORD'),
-  port: process.env['MYSQL_PORT'] ? parseInt(process.env['MYSQL_PORT']) : 3306,
-  supportBigNumbers: true,
-  user: requireEnv('MYSQL_USER'),
+export const getPoolConfig = (): mysql.PoolConfig => {
+  if (!poolConfig) {
+    const parseResult: dotenv.DotenvFlowConfigResult<dotenv.DotenvFlowParseResult> = dotenv.config();
+    if (process.env.NODE_ENV === 'development') {
+      console.debug(`Loaded dotenv files: ${dotenv.listFiles().map(
+        (file) => file.substring(file.lastIndexOf(path.sep+1))).join(', ')}`);
+    }
+    if (parseResult.error) {
+      throw new Error('Error parsing dotenv file.', parseResult.error);
+    }
+
+    poolConfig = {
+      bigNumberStrings: true,
+      connectTimeout: process.env['MYSQL_CONNECT_TIMEOUT'] ? parseInt(process.env['MYSQL_CONNECT_TIMEOUT']) : 2000,
+      connectionLimit:
+        process.env.MYSQL_CONNECTION_POOL_SIZE !== undefined ?
+          parseInt(process.env.MYSQL_CONNECTION_POOL_SIZE) :
+          5,
+      database: requireEnv('MYSQL_DATABASE'),
+      debug: process.env['MYSQL_DEBUG'] === 'true' ? true : false,
+      host: requireEnv('MYSQL_HOST'),
+      password: requireEnv('MYSQL_PASSWORD'),
+      port: process.env['MYSQL_PORT'] ? parseInt(process.env['MYSQL_PORT']) : 3306,
+      supportBigNumbers: true,
+      user: requireEnv('MYSQL_USER'),
+    } as const;
+  } else {
+    console.debug('Config already loaded');
+  }
+
+  return poolConfig;
 };
-
-export const getPoolConfig = (): mysql.PoolConfig => config;
 
 let connectionPool: mysql.Pool|undefined;
 
@@ -31,7 +47,7 @@ export const getConnectionPool = async (): Promise<mysql.Pool> => {
   return new Promise((resolve, reject) => {
     if (undefined === connectionPool) {
       try {
-        connectionPool = mysql.createPool(config);
+        connectionPool = mysql.createPool(getPoolConfig());
         resolve(connectionPool);
       } catch (err) {
         console.error('Failed creating connection pool.', err);
