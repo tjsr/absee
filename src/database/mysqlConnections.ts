@@ -1,4 +1,4 @@
-import * as dotenv from 'dotenv';
+import * as dotenv from 'dotenv-flow';
 
 import mysql from 'mysql';
 import { requireEnv } from '../utils.js';

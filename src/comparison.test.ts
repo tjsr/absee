@@ -2,9 +2,12 @@ import { CollectionObjectId, SnowflakeType } from './types.js';
 import { ComparableObjectModel, ComparisonModel } from './types/model.js';
 
 import { closeConnectionPool } from './database/mysqlConnections.js';
+import dotenvFlow from 'dotenv-flow';
 import { getSnowflake } from './snowflake.js';
 import { storeComparisonRequest } from './comparison.js';
 import { v4 as uuidv4 } from 'uuid';
+
+dotenvFlow.config();
 
 describe('comparison', () => {
   test('Should write a comparison request to the DB', async <IdType extends CollectionObjectId>(): Promise<void> => {

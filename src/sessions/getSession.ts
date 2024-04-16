@@ -1,4 +1,4 @@
-import * as dotenv from 'dotenv';
+import * as dotenv from 'dotenv-flow';
 import * as expressSession from 'express-session';
 
 import express, { Response } from 'express';

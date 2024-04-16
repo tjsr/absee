@@ -1,5 +1,5 @@
 import * as EmailValidator from 'email-validator';
-import * as dotenv from 'dotenv';
+import * as dotenv from 'dotenv-flow';
 
 import { CollectionObject, CollectionObjectId, ISO8601Date } from './types.js';
 
@@ -8,8 +8,8 @@ import os from 'os';
 
 const systemName: string = os.hostname();
 
-const config: dotenv.DotenvConfigOptions = {
-  path: `.env.${systemName}`,
+const config: dotenv.DotenvFlowConfigOptions = {
+  // path: `.env.${systemName}`,
 };
 dotenv.config(config);
 

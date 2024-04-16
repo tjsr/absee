@@ -57,3 +57,6 @@ build/
 *.key
 
 prisma/migrations_sqlite
+
+.env.local
+.env.*.local

@@ -1,4 +1,4 @@
-import * as dotenv from 'dotenv';
+import * as dotenv from 'dotenv-flow';
 import * as fs from 'fs';
 import * as https from 'https';
 import * as sourcemap from 'source-map-support';

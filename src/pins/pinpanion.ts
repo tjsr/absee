@@ -1,4 +1,4 @@
-import * as dotenv from 'dotenv';
+import * as dotenv from 'dotenv-flow';
 
 import { ClientCollectionType, CollectionObject, CollectionObjectId } from '../types.js';
 

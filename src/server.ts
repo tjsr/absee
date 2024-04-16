@@ -1,4 +1,4 @@
-import * as dotenv from 'dotenv';
+import * as dotenv from 'dotenv-flow';
 
 import { ABSeeRequest, mysqlSessionStore } from './session.js';
 import { Options, createProxyMiddleware } from 'http-proxy-middleware';

@@ -28,6 +28,7 @@
     "docker:restsqlite": "docker run -v h/dev/absee/prisma:/database --env DATABASE=dev.db --name restsqlite -p 8085:8085 --rm -d -t tjsrowe/restsqlite",
     "dev:upgrade": "npm run docker:stop && npm run db:upgrade && npm run docker:restsqlite",
     "lint": "eslint --fix \"./src/**/*.{ts,tsx}\"",
+    "postinstall": "npm run build",
     "prettier": "prettier --single-quote --write \"./src/**/*.{ts,tsx}\"",
     "format": "npm run prettier && npm run lint"
   },
@@ -99,7 +100,7 @@
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "date-to-iso-8601-string": "^2.0.0",
-    "dotenv": "^16.4.5",
+    "dotenv-flow": "^4.1.0",
     "email-validator": "^2.0.4",
     "express": "^4.19.2",
     "express-ip": "^1.0.4",
