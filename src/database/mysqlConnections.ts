@@ -59,15 +59,23 @@ export const getConnectionPool = async (): Promise<mysql.Pool> => {
   });
 };
 
+export const safeReleaseConnection = (connection: PoolConnection): boolean => {
+  if (connection !== undefined) {
+    connection.release();
+    return true;
+  } else {
+    console.trace('Attempted to release an undefined connection object');
+    return false;
+  }
+};
+
 export const getConnection = async (): Promise<PoolConnection> => {
   return new Promise((resolve, reject) => {
     getConnectionPool().then((pool: mysql.Pool) => {
       try {
         pool.getConnection((err, connection) => {
           if (err) {
-            if (connection !== undefined) {
-              connection.release();
-            }
+            safeReleaseConnection(connection);
             reject(err);
           } else {
             resolve(connection);
@@ -82,14 +90,6 @@ export const getConnection = async (): Promise<PoolConnection> => {
       reject(poolError);
     });
   });
-};
-
-export const safeReleaseConnection = (connection: PoolConnection): void => {
-  if (connection !== undefined) {
-    connection.release();
-  } else {
-    console.trace('Attempted to release an undefined connection object');
-  }
 };
 
 export const closeConnectionPool = async (): Promise<void> => {
