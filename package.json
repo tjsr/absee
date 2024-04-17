@@ -28,7 +28,6 @@
     "docker:restsqlite": "docker run -v h/dev/absee/prisma:/database --env DATABASE=dev.db --name restsqlite -p 8085:8085 --rm -d -t tjsrowe/restsqlite",
     "dev:upgrade": "npm run docker:stop && npm run db:upgrade && npm run docker:restsqlite",
     "lint": "eslint --fix \"./src/**/*.{ts,tsx}\"",
-    "postinstall": "npm run build",
     "prettier": "prettier --single-quote --write \"./src/**/*.{ts,tsx}\"",
     "format": "npm run prettier && npm run lint"
   },
