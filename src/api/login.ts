@@ -3,7 +3,7 @@ import { IPAddress, SnowflakeType } from '../types.js';
 import { ABSeeRequest } from '../session.js';
 import { AuthenticationRestResult } from '../types/apicalls.js';
 import { UserModel } from '../types/model.js';
-import { basicMySqlInsert } from '../database/basicMysqlInsert.js';
+import { basicMySqlInsert } from '@tjsr/mysql-pool-utils';
 import express from 'express';
 import { getDbUserByEmail } from '../database/mysql.js';
 import { getIp } from '../server.js';
@@ -21,11 +21,6 @@ export const login = async (req: ABSeeRequest, res: express.Response) => {
     const user: UserModel = await getDbUserByEmail(email);
 
     if (!user) {
-      const result: AuthenticationRestResult = {
-        email: undefined,
-        isLoggedIn: false,
-        message: 'Invalid email',
-      };
       req.session.userId = undefined;
       req.session.email = undefined;
       req.session.save((err) => {

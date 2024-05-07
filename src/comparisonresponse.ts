@@ -1,5 +1,5 @@
 import { SnowflakeType } from './types.js';
-import { basicMySqlInsert } from './database/basicMysqlInsert.js';
+import { basicMySqlInsert } from '@tjsr/mysql-pool-utils';
 
 export const saveComparisonSelection = async (
   comparisonId: SnowflakeType,

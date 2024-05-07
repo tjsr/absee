@@ -1,7 +1,7 @@
 import { CollectionObjectId, ComparableObjectPutBody, SnowflakeType } from './types.js';
 
 import { ComparableObjectModel } from './types/model.js';
-import { basicMySqlInsert } from './database/basicMysqlInsert.js';
+import { basicMySqlInsert } from '@tjsr/mysql-pool-utils';
 
 export const storeComparisonElement = async <IdType extends CollectionObjectId>(
   comparisonId: SnowflakeType,

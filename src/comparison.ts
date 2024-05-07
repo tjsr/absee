@@ -8,7 +8,7 @@ import {
 
 import { ComparisonModel } from './types/model.js';
 import { ComparisonRequestResponseBody } from './types/datasource.js';
-import { basicMySqlInsert } from './database/basicMysqlInsert.js';
+import { basicMySqlInsert } from '@tjsr/mysql-pool-utils';
 import {
   retrieveComparisonRequest
 } from './database/mysql.js';
