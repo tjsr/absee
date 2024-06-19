@@ -92,7 +92,7 @@
     "web-vitals": "^3.5.2"
   },
   "dependencies": {
-    "@prisma/client": "^5.12.1",
+    "@prisma/client": "^5.15.1",
     "@react-oauth/google": "^0.12.1",
     "@react-spring/web": "^9.7.3",
     "@use-gesture/react": "^10.3.1",
