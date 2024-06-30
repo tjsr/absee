@@ -1,4 +1,9 @@
 version: 2
+registries:
+  npm-github:
+    type: npm-registry
+    url: https://npm.pkg.github.com
+    token: ${{secrets.GITHUB_TOKEN}}
 updates:
   - package-ecosystem: 'npm'
     directory: '/'
@@ -6,7 +11,19 @@ updates:
       interval: 'daily'
     assignees:
     - 'tjsr'
-  - package-ecosystem: "github-actions"
+    groups:
+      prisma:
+        applies-to: version-updates
+        patterns:
+        - "prisma*
+        - "@prisma/*"
+      linter:
+        applies-to: version-updates
+        patterns:
+        - "@typescript-eslint/*"
+        - "eslint-*"
+        - "@tjsr/eslint-config"
+  - package-ecosystem: "github-act ions"
     directory: "/"
     schedule:
       # Check for updates to GitHub Actions every week
