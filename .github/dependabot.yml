@@ -23,7 +23,7 @@ updates:
         - "@typescript-eslint/*"
         - "eslint-*"
         - "@tjsr/eslint-config"
-  - package-ecosystem: "github-act ions"
+  - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       # Check for updates to GitHub Actions every week
