@@ -61,7 +61,7 @@ jobs:
         remove_image: true
 
     - name: Stop containers and apply DB migration script
-      uses: appleboy/ssh-action@v0.1.8
+      uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.DEPLOYMENT_HOST }}
         username: ${{ secrets.DEPLOYMENT_USER }}
@@ -71,7 +71,7 @@ jobs:
           docker run -e PRISMA_DATABASE_URL=$PRISMA_DATABASE_URL --rm --name absee-migrate -t $DB_IMAGE_NAME
         
     - name: Re-start API container
-      uses: appleboy/ssh-action@v0.1.8
+      uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.DEPLOYMENT_HOST }}
         username: ${{ secrets.DEPLOYMENT_USER }}
