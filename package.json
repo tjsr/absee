@@ -102,7 +102,7 @@
     "date-to-iso-8601-string": "^2.0.0",
     "dotenv-flow": "^4.1.0",
     "email-validator": "^2.0.4",
-    "express": "^4.19.2",
+    "express": "^4.21.0",
     "express-ip": "^1.0.4",
     "express-mysql-session": "^3.0.2",
     "express-session": "^1.18.0",
