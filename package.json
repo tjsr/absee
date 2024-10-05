@@ -17,7 +17,8 @@
     "db:upgrade": "npx prisma migrate dev",
     "db:upgrade:deploy": "npx prisma migrate deploy",
     "docker:build:deploy": "npm run docker:build:dbmigrate && npm run docker:build:app && npm run docker:tagaws",
-    "docker:build": "docker build -t absee -f Dockerfile .",
+    "docker:build": "tsx bin/docker-build-with-secret.ts tagtool Dockerfile",
+    "docker:build:old": "docker build -t absee -f Dockerfile .",
     "docker:build:dbmigrate": "docker build -t absee-dbmigrate -f Dockerfile.dbmigrate .",
     "docker:tagaws": "docker tag absee-dbmigrate:latest public.ecr.aws/tjsrowe/absee:dbmigrate && docker tag absee:latest public.ecr.aws/tjsrowe/absee:latest",
     "docker:run:test": "docker run --name absee --rm -p 8281:8280 --env-file=.env.test -it absee",
@@ -46,7 +47,7 @@
   },
   "homepage": "./",
   "devDependencies": {
-    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@babel/plugin-transform-private-property-in-object": "^7.25.7",
     "@babel/preset-env": "^7.24.8",
     "@babel/preset-typescript": "^7.24.7",
     "@jest/globals": "^29.7.0",
