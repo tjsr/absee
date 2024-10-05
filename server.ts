@@ -12,9 +12,14 @@ dotenv.config();
 sourcemap.install();
 process.on('unhandledRejection', console.warn);
 
-requireEnv('SESSION_SECRET');
-requireEnv('USERID_UUID_NAMESPACE');
-requireEnv('HTTP_PORT');
+try {
+  requireEnv('SESSION_SECRET');
+  requireEnv('USERID_UUID_NAMESPACE');
+  requireEnv('HTTP_PORT');
+} catch (err: any) {
+  console.error(err.message);
+  process.exit(1);
+}
 
 const SSL_KEY = process.env.SSL_KEY || '/tmp/server.key';
 const SSL_CERT = process.env.SSL_CERT || '/tmp/server.crt';

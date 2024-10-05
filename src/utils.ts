@@ -4,6 +4,7 @@ import * as dotenv from 'dotenv-flow';
 import { CollectionObject, CollectionObjectId, ISO8601Date } from './types.js';
 
 import { CollectionTypeLoader } from './datainfo.js';
+import { RequiredEnvError } from './types/errortypes.js';
 import os from 'os';
 
 const systemName: string = os.hostname();
@@ -95,7 +96,7 @@ export const getRandomId = (max?: number): number => {
 
 export const requireEnv = (val: string): string => {
   if (process.env[val] === undefined) {
-    throw Error(`${val} environment variable not set, which is required.`);
+    throw new RequiredEnvError(val, `${val} environment variable not set, which is required.`);
   }
   return process.env[val] as string;
 };
