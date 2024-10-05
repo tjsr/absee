@@ -1,3 +1,3 @@
-FROM public.ecr.aws/tjsrowe/prisma-generic:5.16.1 AS tagtool-migrate
+FROM public.ecr.aws/tjsrowe/prisma-generic:5.20.0 AS tagtool-migrate
 
 COPY prisma /opt/migrator
