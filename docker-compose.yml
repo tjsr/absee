@@ -45,7 +45,7 @@ services:
     container_name: absee_prismamig
     volumes:
     - ./prisma:/opt/migrator/prisma
-    image: public.ecr.aws/tjsrowe/prisma-generic:5.16.1
+    image: public.ecr.aws/tjsrowe/prisma-generic:5.20.0
     env_file:
       - path: ./.env.test
         required: true
