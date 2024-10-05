@@ -1,18 +1,12 @@
 import * as EmailValidator from 'email-validator';
-import * as dotenv from 'dotenv-flow';
 
 import { CollectionObject, CollectionObjectId, ISO8601Date } from './types.js';
 
 import { CollectionTypeLoader } from './datainfo.js';
 import { RequiredEnvError } from './types/errortypes.js';
-import os from 'os';
+import { loadEnv } from '@tjsr/simple-env-utils';
 
-const systemName: string = os.hostname();
-
-const config: dotenv.DotenvFlowConfigOptions = {
-  // path: `.env.${systemName}`,
-};
-dotenv.config(config);
+loadEnv();
 
 export const iso8601Now = (): ISO8601Date => {
   // return (new Date()).toISOString();

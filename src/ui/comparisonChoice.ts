@@ -11,6 +11,7 @@ import { QUERYSTRING_ARRAY_DELIMETER, QUERYSTRING_ELEMENT_DELIMETER, getServerHo
 import Cookies from 'js-cookie';
 
 export const fetchNewComparison = async (collectionId: string, comparisonObjects?: string[][]) => {
+  const serverHost = getServerHost();
   try {
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
@@ -25,7 +26,7 @@ export const fetchNewComparison = async (collectionId: string, comparisonObjects
         `${QUERYSTRING_ARRAY_DELIMETER}${comparisonObjects[1].join(QUERYSTRING_ELEMENT_DELIMETER)}` : '';
 
     const response = await fetch(
-      `${getServerHost()}/collection/${collectionId}${comparisonParams}`,
+      `${serverHost}/collection/${collectionId}${comparisonParams}`,
       {
         headers,
         method: 'GET',
@@ -35,7 +36,7 @@ export const fetchNewComparison = async (collectionId: string, comparisonObjects
     const json = await response.json();
     return { data: json, success: true };
   } catch (error) {
-    console.log(error);
+    console.error(`Failed fetching from url ${serverHost}`, error);
     return { success: false };
   }
 };

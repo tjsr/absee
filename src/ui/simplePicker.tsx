@@ -29,7 +29,6 @@ interface SwipeComparisonContainerProps<CO extends CollectionObject<IdType>, IdT
 
 const SwipeComparisonContainer = <CO extends CollectionObject<IdType>, IdType extends CollectionObjectId>({
   externalDropRef,
-  itemSelected,
   leftElement,
   rightElement,
   selectElement,
@@ -99,7 +98,8 @@ export const ElementPicker = <CO extends CollectionObject<IdType>, IdType extend
   const localDropRef = useRef<HTMLDivElement | null>(null);
   const externalDropRef: React.MutableRefObject<HTMLDivElement | null> = props.dropRef || localDropRef;
 
-  const onTapSelect = async (elementId: SnowflakeType): Promise<void> => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _onTapSelect = async (elementId: SnowflakeType): Promise<void> => {
     if (tapToSelect) props.selectElement(elementId);
   };
 

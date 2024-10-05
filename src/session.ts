@@ -7,7 +7,10 @@ import mySQLStore, { MySQLStore } from 'express-mysql-session';
 
 import { RequiredEnvError } from './types/errortypes.js';
 import { getPoolConfig } from './database/mysqlConnections.js';
+import { loadEnv } from '@tjsr/simple-env-utils';
 import mysql from 'mysql';
+
+loadEnv({ debug: true});
 
 export interface ABSeeSessionData extends SessionData {
   id: string;

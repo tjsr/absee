@@ -1,4 +1,4 @@
 {
-  "jest.debugMode": true,
-  "jest.enable": true
+  "jest.debugMode": false,
+  "jest.enable": false
 }

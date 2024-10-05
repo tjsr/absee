@@ -1,13 +1,13 @@
-import * as dotenv from 'dotenv-flow';
 import * as fs from 'fs';
 import * as https from 'https';
 import * as sourcemap from 'source-map-support';
 
 import express from 'express';
+import { loadEnv } from '@tjsr/simple-env-utils';
 import { requireEnv } from './src/utils.js';
 import { startApp } from './src/server.js';
 
-dotenv.config();
+loadEnv();
 
 sourcemap.install();
 process.on('unhandledRejection', console.warn);

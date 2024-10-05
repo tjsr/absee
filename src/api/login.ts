@@ -36,7 +36,7 @@ export const login = async (req: ABSeeRequest, res: express.Response) => {
 
       res.statusCode = 403;
       console.error(`User tried to log in with invalid email ${email}`);
-      return res.send({ message: 'Invalid email' });
+      return res.send(result);
     }
 
     const result: AuthenticationRestResult = {
