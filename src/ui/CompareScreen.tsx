@@ -39,6 +39,7 @@ const CompareScreen = <CO extends CollectionObject<IdType>, IdType extends Colle
   const [comparison, setComparison] = useState<ComparisonSelectionResponse<CO> | undefined>(undefined);
   const [comparisonLoaded, setComparisonLoaded] = useState<boolean>(false);
   const [comparisonLoading, setComparisonLoading] = useState<boolean>(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [searchParams, setSearchParams] = useSearchParams();
   const fakeEmails = false;
 

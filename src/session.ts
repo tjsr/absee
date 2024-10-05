@@ -5,8 +5,12 @@ import { EmailAddress, UserId } from './types.js';
 import { Session, SessionData } from 'express-session';
 import mySQLStore, { MySQLStore } from 'express-mysql-session';
 
+import { RequiredEnvError } from './types/errortypes.js';
 import { getPoolConfig } from './database/mysqlConnections.js';
+import { loadEnv } from '@tjsr/simple-env-utils';
 import mysql from 'mysql';
+
+loadEnv({ debug: true});
 
 export interface ABSeeSessionData extends SessionData {
   id: string;
@@ -20,7 +24,18 @@ export interface ABSeeRequest extends Express.Request {
   session: Session & Partial<ABSeeSessionData>;
 }
 
-const poolConfig: mysql.PoolConfig = getPoolConfig();
+let poolConfig: mysql.PoolConfig;
+try {
+  poolConfig = getPoolConfig();
+} catch (err: any) {
+  if (err instanceof RequiredEnvError) {
+    const reqEnv: RequiredEnvError = err;
+    console.error(`Failed getting MySQL pool config: Environment variable ${reqEnv.varname} not set.`);
+    process.exit(1);
+  }
+  console.error(`Failed getting MySQL pool config: ${err.message}`, err);
+  process.exit(2);
+}
 
 const sessionStoreOptions: mySQLStore.Options = {
   createDatabaseTable: true,

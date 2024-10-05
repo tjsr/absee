@@ -1,17 +1,12 @@
 import * as EmailValidator from 'email-validator';
-import * as dotenv from 'dotenv-flow';
 
 import { CollectionObject, CollectionObjectId, ISO8601Date } from './types.js';
 
 import { CollectionTypeLoader } from './datainfo.js';
-import os from 'os';
+import { RequiredEnvError } from './types/errortypes.js';
+import { loadEnv } from '@tjsr/simple-env-utils';
 
-const systemName: string = os.hostname();
-
-const config: dotenv.DotenvFlowConfigOptions = {
-  // path: `.env.${systemName}`,
-};
-dotenv.config(config);
+loadEnv();
 
 export const iso8601Now = (): ISO8601Date => {
   // return (new Date()).toISOString();
@@ -95,7 +90,7 @@ export const getRandomId = (max?: number): number => {
 
 export const requireEnv = (val: string): string => {
   if (process.env[val] === undefined) {
-    throw Error(`${val} environment variable not set, which is required.`);
+    throw new RequiredEnvError(val, `${val} environment variable not set, which is required.`);
   }
   return process.env[val] as string;
 };

@@ -1,14 +1,3 @@
-ARG NODE_VERSION=20.12.2
-ARG ALPINE_VERSION=3.19
-ARG NPM_VERSION=10.5.2
-FROM ghcr.io/tjsr/node_patched_npm:${NODE_VERSION}-alpine${ALPINE_VERSION}-npm${NPM_VERSION} as absee-dbmigrate
+FROM public.ecr.aws/tjsrowe/prisma-generic:5.16.1 AS tagtool-migrate
 
-RUN mkdir /opt/absee
-COPY package.json /opt/absee
-COPY package-lock.json /opt/absee
-COPY prisma /opt/absee
-
-WORKDIR /opt/absee
-RUN npm i
-
-CMD ["npm", "run", "db:upgrade:deploy"]
+COPY prisma /opt/migrator

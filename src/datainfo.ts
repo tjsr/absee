@@ -1,10 +1,9 @@
-import * as dotenv from 'dotenv-flow';
-
 import { CollectionIdType, CollectionObject, CollectionObjectId } from './types.js';
 
 import axios from 'axios';
+import { loadEnv } from '@tjsr/simple-env-utils';
 
-dotenv.config();
+loadEnv();
 
 export const retrieveCollectionData = async <D>(
   existingData: D | undefined,

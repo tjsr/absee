@@ -1,20 +1,25 @@
-import * as dotenv from 'dotenv-flow';
 import * as fs from 'fs';
 import * as https from 'https';
 import * as sourcemap from 'source-map-support';
 
 import express from 'express';
+import { loadEnv } from '@tjsr/simple-env-utils';
 import { requireEnv } from './src/utils.js';
 import { startApp } from './src/server.js';
 
-dotenv.config();
+loadEnv();
 
 sourcemap.install();
 process.on('unhandledRejection', console.warn);
 
-requireEnv('SESSION_SECRET');
-requireEnv('USERID_UUID_NAMESPACE');
-requireEnv('HTTP_PORT');
+try {
+  requireEnv('SESSION_SECRET');
+  requireEnv('USERID_UUID_NAMESPACE');
+  requireEnv('HTTP_PORT');
+} catch (err: any) {
+  console.error(err.message);
+  process.exit(1);
+}
 
 const SSL_KEY = process.env.SSL_KEY || '/tmp/server.key';
 const SSL_CERT = process.env.SSL_CERT || '/tmp/server.crt';

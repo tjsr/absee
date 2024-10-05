@@ -1,4 +1,4 @@
-import * as dotenv from 'dotenv-flow';
+// import * as dotenv from 'dotenv-flow';
 
 import { ABSeeRequest, mysqlSessionStore } from './session.js';
 import { Options, createProxyMiddleware } from 'http-proxy-middleware';
@@ -18,6 +18,7 @@ import { debugHeaders } from './api/debugHeaders.js';
 import { elo } from './api/elo.js';
 import fs from 'fs';
 import { initialisePassportToExpressApp } from './auth/passport.js';
+import { loadEnv } from '@tjsr/simple-env-utils';
 import { login } from './api/login.js';
 import { logout } from './api/logout.js';
 import morgan from 'morgan';
@@ -28,8 +29,7 @@ import { session } from './api/session.js';
 import { submit } from './api/submit.js';
 import { useSessionId } from './sessions/useSessionId.js';
 
-const ASSET_BUILD_DIR = 'dist';
-dotenv.config();
+loadEnv();
 
 const PINNY_ARCADE_DEV_COLLECTION_ID ='83fd0b3e-dd08-4707-8135-e5f138a43f00';
 
@@ -174,7 +174,8 @@ export const startApp = (): express.Express => {
     '/elo(/*)?',
   ];
 
-  const serveIndex = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const serveIndex = (req: express.Request, res: express.Response, _next: express.NextFunction) => {
     res.setHeader('Content-Type', 'text/html');
     res.writeHead(200);
     const __filename = new URL('../index.html', import.meta.url).pathname;

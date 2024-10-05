@@ -1,11 +1,10 @@
-import * as dotenv from 'dotenv-flow';
-
 import { ClientCollectionType, CollectionObject, CollectionObjectId } from '../types.js';
 
 import { CollectionTypeLoader } from '../datainfo.js';
 import events from './eventnames.json' assert { type: 'json' };
+import { loadEnv } from '@tjsr/simple-env-utils';
 
-dotenv.config();
+loadEnv();
 
 const PIN_LIST_URL =
   process.env.PIN_LIST_URL || 'https://pinpanion.com/pins.json';
