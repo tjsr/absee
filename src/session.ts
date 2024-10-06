@@ -10,7 +10,7 @@ import { getPoolConfig } from './database/mysqlConnections.js';
 import { loadEnv } from '@tjsr/simple-env-utils';
 import mysql from 'mysql';
 
-loadEnv({ debug: true});
+loadEnv({ debug: true });
 
 export interface ABSeeSessionData extends SessionData {
   id: string;
