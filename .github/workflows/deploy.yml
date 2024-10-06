@@ -13,21 +13,44 @@ on:
         - test
         - prod
 
+concurrency:
+  group: ${{ github.workflow }}-${{ inputs.environment }}
+  cancel-in-progress: false
+
 jobs:
-  deployment:
+  copy:
     runs-on: ubuntu-latest
+    if: github.actor != 'dependabot[bot]'
     environment:
       name: ${{  inputs.environment }}
-      url: https://dev.pinpare.com
+      url: "https://${{ github.event.inputs.environment }}.pinpare.com"
+
+    steps:
+    - name: Check out repositofy code
+      uses: actions/checkout@v4
+
+    - name: Copy Prisma migration files to remote
+      uses: appleboy/scp-action@master
+      id: prisma-migration-file-copy
+      with:
+        host: ${{ secrets.DEPLOYMENT_HOST }}
+        username: ${{ secrets.DEPLOYMENT_USER }}
+        key: ${{ secrets.DEPLOYMENT_SSH_KEY }}
+        source: prisma
+        strip_components: 1
+        target: /home/ec2-user/absee/migrator/${{ github.sha }}
+
+  pull:
+    runs-on: ubuntu-latest
+    if: github.actor != 'dependabot[bot]'
+    environment:
+      name: ${{  inputs.environment }}
+      url: "https://${{ github.event.inputs.environment }}.pinpare.com"
     env:
-      IMAGE_TAG: ${{ github.sha }}
-      DB_IMAGE_TAG: dbmigrate-${{ github.sha }}
-      IMAGE_NAME: absee:${{ github.sha }}
-      DB_IMAGE_NAME: absee:dbmigrate-${{ github.sha }}
-      REGISTRY_ALIAS: tjsrowe
-      PRISMA_DATABASE_URL: ${{ secrets.PRISMA_DATABASE_URL }}
-      CONTAINER_NAME: ${{ vars.CONTAINER_NAME }}
-      API_PORT: ${{ vars.API_PORT }}
+        IMAGE_NAME: absee:${{ github.sha }}
+        DB_IMAGE_NAME: prisma-generic:5.20.0
+        REGISTRY_ALIAS: tjsrowe
+
     steps:
     - name: Pull DB migration deploy image on remote.
       uses: tjsr/remote_docker_pull@main
@@ -49,32 +72,98 @@ jobs:
         ssh_port: 22
         local_tag: ${{ env.IMAGE_NAME }}
 
+  stop:
+    runs-on: ubuntu-latest
+    if: github.actor != 'dependabot[bot]'
+    environment:
+      name: ${{  inputs.environment }}
+      url: "https://${{ github.event.inputs.environment }}.pinpare.com"
+    needs: [copy, pull]
+
+    steps:
     - name: Stop existing running container
       uses: tjsr/remote_docker_stop@main
+      continue-on-error: true
       with:
         remote_docker_host: ${{ secrets.DEPLOYMENT_HOST }}
         ssh_private_key: ${{ secrets.DEPLOYMENT_SSH_KEY }}
         remote_docker_user: ${{ secrets.DEPLOYMENT_USER }}
         ssh_port: 22
-        container_name: ${{ env.CONTAINER_NAME }}
+        container_name: ${{ vars.CONTAINER_NAME }}
         remove_container: true
         remove_image: true
-
-    - name: Stop containers and apply DB migration script
-      uses: appleboy/ssh-action@v0.1.8
+                    
+  deployment:
+    runs-on: ubuntu-latest
+    if: github.actor != 'dependabot[bot]'
+    needs: stop
+    environment:
+      name: ${{  inputs.environment }}
+      url: "https://${{ github.event.inputs.environment }}.pinpare.com"
+    env:
+      IMAGE_TAG: absee:${{ github.event.inputs.environment }}
+      IMAGE_NAME: absee:${{ github.sha }}
+      DB_IMAGE_NAME: prisma-generic:5.20.0
+      REGISTRY_ALIAS: tjsrowe
+      PRISMA_DATABASE_URL: ${{ secrets.PRISMA_DATABASE_URL }}
+      CONTAINER_NAME: ${{ vars.CONTAINER_NAME }}
+      API_PORT: ${{ vars.API_PORT }}
+    steps:
+    - name: Apply DB migration script
+      uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.DEPLOYMENT_HOST }}
         username: ${{ secrets.DEPLOYMENT_USER }}
         key: ${{ secrets.DEPLOYMENT_SSH_KEY }}
         envs: DB_IMAGE_NAME,PRISMA_DATABASE_URL
         script: |
-          docker run -e PRISMA_DATABASE_URL=$PRISMA_DATABASE_URL --rm --name absee-migrate -t $DB_IMAGE_NAME
-        
+          docker run -e PRISMA_DATABASE_URL=$PRISMA_DATABASE_URL \
+          -v /home/ec2-user/absee/migrator/${{ github.sha }}:/opt/migrator/prisma \
+          --rm --name absee-migrate -t $DB_IMAGE_NAME
+
     - name: Re-start API container
-      uses: appleboy/ssh-action@v0.1.8
+      uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.DEPLOYMENT_HOST }}
         username: ${{ secrets.DEPLOYMENT_USER }}
         key: ${{ secrets.DEPLOYMENT_SSH_KEY }}
         envs: IMAGE_NAME,CONTAINER_NAME,API_PORT
-        script: docker run --name $CONTAINER_NAME --restart=always -p $API_PORT:8280 --env-file=/home/ec2-user/absee/.env.dev -d -t $IMAGE_NAME
+        script: docker run --name $CONTAINER_NAME --restart=always -p $API_PORT:8280 --env-file=/home/ec2-user/absee/.env.${{ github.event.inputs.environment }} -d -t $IMAGE_NAME
+
+  tag:
+    runs-on: ubuntu-latest
+    if: github.actor != 'dependabot[bot]'
+    needs: deployment
+    environment:
+      name: ${{  inputs.environment }}
+      url: "https://${{ github.event.inputs.environment }}.pinpare.com"
+    env:
+      IMAGE_TAG: absee:${{ github.event.inputs.environment }}
+      IMAGE_NAME: absee:${{ github.sha }}
+      REGISTRY_ALIAS: tjsrowe
+    steps:
+    - name: Symlink current instance dir to migration directory used.
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.DEPLOYMENT_HOST }}
+        username: ${{ secrets.DEPLOYMENT_USER }}
+        key: ${{ secrets.DEPLOYMENT_SSH_KEY }}
+        script: |
+          ln -sfn /home/ec2-user/absee/migrator/${{ github.sha }} /home/ec2-user/absee/migrator/${{ github.event.inputs.environment }}
+
+    - name: Login to Amazon ECR Public
+      id: login-ecr-public
+      if: ${{ github.actor != 'dependabot[bot]' }}
+      uses: aws-actions/amazon-ecr-login@v2
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ECR_SECRET_ACCESS_KEY }}
+        AWS_REGION: us-east-1
+      with:
+        registry-type: public
+
+    - name: Tag the API image as being deployed
+      run: |
+        docker pull public.ecr.aws/${{ env.REGISTRY_ALIAS }}/${{ env.IMAGE_NAME }}
+        docker tag public.ecr.aws/${{ env.REGISTRY_ALIAS }}/${{ env.IMAGE_NAME }} public.ecr.aws/${{ env.REGISTRY_ALIAS }}/${{ env.IMAGE_TAG }}
+        docker push public.ecr.aws/${{ env.REGISTRY_ALIAS }}/${{ env.IMAGE_TAG }}
