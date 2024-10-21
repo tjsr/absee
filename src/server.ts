@@ -67,7 +67,7 @@ export const startApp = (): express.Express => {
   app.use(requestIp.mw());
   app.set('trust proxy', true);
 
-  app.use(function (req, res, next) {
+  app.use('*', (_request: express.Request, res: express.Response, next: NextFunction):void => {
     res.header('Access-Control-Expose-Headers', '*');
     next();
   });
@@ -158,7 +158,7 @@ export const startApp = (): express.Express => {
     next();
   });
 
-  const PROXY_PORT = 5173;
+  const PROXY_PORT = 5175;
   const PROXY_HOST = 'localhost';
   const frontendData = `http://${PROXY_HOST}:${PROXY_PORT}`;
 
@@ -175,7 +175,7 @@ export const startApp = (): express.Express => {
   ];
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const serveIndex = (req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  const serveIndex = (_req: express.Request, res: express.Response, _next: express.NextFunction) => {
     res.setHeader('Content-Type', 'text/html');
     res.writeHead(200);
     const __filename = new URL('../index.html', import.meta.url).pathname;

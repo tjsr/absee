@@ -12,9 +12,9 @@ export const logout = async (request: ABSeeRequest, res: express.Response) => {
     isLoggedIn: false,
   };
   try {
-    request.session.userId = undefined;
-    request.session.email = undefined;
-    request.session.username = undefined;
+    delete request.session.userId;
+    delete request.session.email;
+    delete request.session.username;
     request.session.save((err:any) => {
       if (err) {
         console.error(`Failed saving session`, err);

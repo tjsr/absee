@@ -91,22 +91,33 @@ export const retrieveComparisonResults = async <IdType extends CollectionObjectI
 
   return new Promise<ComparisonResult<IdType>[]>((resolve, reject) => {
     try {
-      //          ${userId ? 'AND C.userId = ?' : ''}
-      //         [userId ? userId : undefined],
-      conn.query(
-        `select C.id as comparisonId, C.collectionId, C.userId, C.requestTime, CR.selectedComparisonElementId
+      const queryParams = [collectionId];
+
+      const baseSelect = `select
+        C.id as comparisonId, C.collectionId, C.userId, C.requestTime, CR.selectedComparisonElementId
          FROM Comparison C 
          LEFT JOIN ComparisonResponse CR ON C.id = CR.id 
-         LEFT JOIN User U ON U.id = C.userId
-         WHERE CR.selectedComparisonElementId IS NOT NULL
-          AND C.collectionId = ?
+         LEFT JOIN User U ON U.id = C.userId`;
+      let whereClause = `WHERE CR.selectedComparisonElementId IS NOT NULL
+        AND C.collectionId = ?`;
+      if (userId) {
+        whereClause += ' AND C.userId = ?';
+        queryParams.push(userId);
+      }
+      const query = `${baseSelect} ${whereClause}
          ORDER BY C.requestTime DESC
-         LIMIT ${maxComparisons}`,
-        [collectionId],
+         LIMIT ${maxComparisons}`;
+
+      conn.query(query,
+        queryParams,
         (comparisonErr, comparisonResults) => {
           if (comparisonErr) {
             conn.release();
-            console.error(`Failed while retrieving comparison results for collection ${collectionId}`, comparisonErr);
+            let errMsg = `Failed while retrieving comparison results for collection ${collectionId}`;
+            if (userId) {
+              errMsg += ` and userId ${userId}`;
+            }
+            console.error(errMsg, comparisonErr);
             return reject(comparisonErr);
           }
           // console.log(`Fields: ${JSON.stringify(fields)}`);

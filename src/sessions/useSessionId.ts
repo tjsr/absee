@@ -5,7 +5,7 @@ import { uuid5 } from '../types.js';
 
 export const useSessionId = (
   req: ABSeeRequest,
-  res: express.Response,
+  _res: express.Response,
   next: () => void
 ) => {
   const sessionId = req.header('x-session-id') || req.session.id;

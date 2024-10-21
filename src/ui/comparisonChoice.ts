@@ -12,31 +12,48 @@ import Cookies from 'js-cookie';
 
 export const fetchNewComparison = async (collectionId: string, comparisonObjects?: string[][]) => {
   const serverHost = getServerHost();
+  let connectionUrl: string;
   try {
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json',
-    };
-    const sessionId = Cookies.get('sessionId');
-    if (sessionId !== undefined && sessionId !== 'undefined') {
-      headers['x-session-id'] = sessionId;
-    }
-
     const comparisonParams = comparisonObjects?.length == 2 ?
       `?objects=${comparisonObjects[0].join(QUERYSTRING_ELEMENT_DELIMETER)}`+
         `${QUERYSTRING_ARRAY_DELIMETER}${comparisonObjects[1].join(QUERYSTRING_ELEMENT_DELIMETER)}` : '';
+    connectionUrl = `${serverHost}/collection/${collectionId}${comparisonParams}`;
+  } catch (error) {
+    console.error(`Failed to create connection url for ${serverHost}`, error);
+    return { success: false };
+  }
 
-    const response = await fetch(
-      `${serverHost}/collection/${collectionId}${comparisonParams}`,
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+  };
+  const sessionId = Cookies.get('sessionId');
+  if (sessionId !== undefined && sessionId !== 'undefined') {
+    headers['x-session-id'] = sessionId;
+  }
+
+  try {
+    const response = await fetch(connectionUrl,
       {
         headers,
         method: 'GET',
       }
     );
 
+    console.log(`Received response from ${connectionUrl} with status ${response.status}, returning success.`);
     const json = await response.json();
     return { data: json, success: true };
-  } catch (error) {
-    console.error(`Failed fetching from url ${serverHost}`, error);
+  } catch (error: any) {
+    // if (error.status === 404) {
+    //   throw new CollectionNotFoundError(collectionId);
+    //   return { success: false };
+    // }
+    // if (error instanceof Error) {
+    //   if (error.httpStatus) {
+
+    //   }
+    //   console.error(`Failed fetching from url ${serverHost}`, error);
+    // }
+    console.error(`Failed fetching from url ${serverHost}`, error.message, error);
     return { success: false };
   }
 };

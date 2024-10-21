@@ -62,7 +62,6 @@ export const createCandidateElementList = <
   IdType extends CollectionObjectId
 >(
     loader: CollectionTypeLoader<CollectionObjectType, any, IdType>,
-    maxId: number,
     maxLeft?: number,
     maxRight?: number
   ): [IdType[], IdType[]] => {

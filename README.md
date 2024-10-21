@@ -48,7 +48,7 @@ This assumes you have a running database with database connection details config
 
 ``npm run start``
 
-This will launch both the frontend with react-scripts on port 3000, and a nodemon process for the API server running on port 8280 or another port specified by `HTTP_PORT` in `.env`
+This will launch both the frontend with react-scripts on port 3000, and a nodemon process for the API server running on port 8283 or another port specified by `HTTP_PORT` in `.env`
 
 * To build the Docker containers
 ```

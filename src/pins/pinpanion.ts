@@ -31,7 +31,7 @@ export interface Pin extends CollectionObject<PinIdType> {
   year: number;
   paxName?: string;
   imageUrl: string;
-  setName?: string;
+  setName?: string|undefined;
   paxId: number;
   setId?: number;
   cssClass: string;
@@ -52,6 +52,7 @@ type PinpanionData = {
   pins: PinpanionPin[];
   paxs: PAX[];
   success: boolean;
+  baseImageUrl: string;
 };
 
 export const countPinsInCollection = (
@@ -74,18 +75,21 @@ const getPinSetName = (setId: number): string | undefined => {
   if (set) {
     return set.name;
   }
+  return undefined;
 };
 
 const getObjectId = (pin: Pin): PinIdType => pin.id;
 
-const convertToDisplayPin = (pin: PinpanionPin): Pin => {
+const convertToDisplayPin = (pin: PinpanionPin, baseImageUrl: string): Pin => {
   const cssClass: string | undefined = events.find(
     (e) => e.id == pin.pax_id
   )?.cssClass;
+  const fullPinImageUrl = `${baseImageUrl}/${pin.image_name.split('?')[0]}`;
+
   const output: Pin = {
     cssClass: cssClass !== undefined ? cssClass : 'unknown',
     id: pin.id, // parseInt(pin.id),
-    imageUrl: pin.image_name.split('?')[0],
+    imageUrl: fullPinImageUrl,
     name: pin.name,
     paxId: pin.pax_id,
     paxName: convertPaxIdToPaxName(pin.pax_id),
@@ -102,7 +106,7 @@ const getObjectForIndex = (
   sourceData: PinpanionData,
   index: number
 ): Pin => {
-  return convertToDisplayPin(sourceData.pins[index]);
+  return convertToDisplayPin(sourceData.pins[index], sourceData.baseImageUrl);
 };
 
 const getPinById = (
@@ -114,8 +118,9 @@ const getPinById = (
 
 const getObjectForId = (sourceData: PinpanionData, id: PinIdType): Pin => {
   const sourcePin: PinpanionPin | undefined = getPinById(sourceData, id.toString());
+
   if (sourcePin) {
-    return convertToDisplayPin(sourcePin);
+    return convertToDisplayPin(sourcePin, sourceData.baseImageUrl);
   }
   throw new Error(`Couldn't find pin for (${typeof id}) id [${id}]`);
 };

@@ -55,5 +55,7 @@ export const recent = async <
     response.status(500);
     response.send({ message: 'error' });
     response.end();
+  } finally {
+    return;
   }
 };

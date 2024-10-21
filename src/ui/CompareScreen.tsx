@@ -92,7 +92,7 @@ const CompareScreen = <CO extends CollectionObject<IdType>, IdType extends Colle
         setComparisonLoaded(false);
         const res = await fetchNewComparison(collectionId, preselectedObjectArr);
         if (res.success) {
-          console.log(`Loaded ${SuperJSON.stringify(res.data)}`);
+          console.log(`Successfully loaded ${SuperJSON.stringify(res.data)}`);
           const comparisonRequest: ComparisonSelectionResponse<CO> = res.data.json;
           setComparison(comparisonRequest);
           setComparisonLoaded(true);
@@ -100,7 +100,7 @@ const CompareScreen = <CO extends CollectionObject<IdType>, IdType extends Colle
         setComparisonLoading(false);
       }
     })();
-  }, [comparisonLoaded]);
+  }, [comparisonLoaded, collectionId, comparisonLoading, preselectedObjectArr]);
 
   const itemSelected = (side: number) => {
     if (!comparison) {

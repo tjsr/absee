@@ -1,16 +1,19 @@
 import { IPAddress, SnowflakeType } from '../types.js';
+import express, { NextFunction } from 'express';
 
 import { ABSeeRequest } from '../session.js';
 import { AuthenticationRestResult } from '../types/apicalls.js';
 import { UserModel } from '../types/model.js';
 import { basicMySqlInsert } from '../database/basicMysqlInsert.js';
-import express from 'express';
 import { getDbUserByEmail } from '../database/mysql.js';
 import { getIp } from '../server.js';
 import { getSnowflake } from '../snowflake.js';
 import { validateEmailString } from '../utils.js';
 
-export const login = async (req: ABSeeRequest, res: express.Response) => {
+export const login = async (
+  req: ABSeeRequest,
+  res: express.Response,
+  next: NextFunction) => {
   try {
     const email: string = req.body.email;
     if (!validateEmailString(email)) {
@@ -26,8 +29,8 @@ export const login = async (req: ABSeeRequest, res: express.Response) => {
         isLoggedIn: false,
         message: 'Invalid email',
       };
-      req.session.userId = undefined;
-      req.session.email = undefined;
+      delete req.session.userId;
+      delete req.session.email;
       req.session.save((err) => {
         if (err) {
           console.error(`Failed saving session`, err);
@@ -68,8 +71,10 @@ export const login = async (req: ABSeeRequest, res: express.Response) => {
     res.status(500);
     console.log(e);
     res.send();
+    next(e);
   } finally {
     res.end();
+    return;
   }
 };
 export const saveUserLogin =
