@@ -1,9 +1,6 @@
 import { CollectionIdType, CollectionObject, CollectionObjectId } from './types.js';
 
 import axios from 'axios';
-import { loadEnv } from '@tjsr/simple-env-utils';
-
-loadEnv();
 
 export const retrieveCollectionData = async <D>(
   existingData: D | undefined,
@@ -28,6 +25,18 @@ export const retrieveCollectionData = async <D>(
 
 // type IdType = string;
 
+export class CollectionDataValidationError extends Error {
+  private _collectionId: CollectionIdType;
+  constructor(collectionId: CollectionIdType, errorMessage: string) {
+    super(`Collection data for ${collectionId} is invalid: ${errorMessage}.`);
+    this._collectionId = collectionId;
+  }
+
+  get collectionId(): CollectionIdType {
+    return this._collectionId;
+  }
+}
+
 export type CollectionTypeLoader<
 CollectionObjectType extends CollectionObject<IdType>, D, IdType extends CollectionObjectId> = {
   collectionId: CollectionIdType;
@@ -41,6 +50,7 @@ CollectionObjectType extends CollectionObject<IdType>, D, IdType extends Collect
   getObjectForId: (collectionData: D, id: IdType) => CollectionObjectType;
   getObjectByIndex: (collectionData: D, index: number) => CollectionObjectType;
   getObjectId: (object: CollectionObjectType) => IdType;
+  validateData: (collectionId: CollectionIdType, collectionName: string, collectionData: D|undefined) => boolean;
   prioritizedObjectIdList?: IdType[];
 };
 

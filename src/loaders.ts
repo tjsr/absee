@@ -1,11 +1,9 @@
+import { CollectionDataValidationError, CollectionTypeLoader, initializeLoader } from './datainfo.js';
 import { CollectionIdType, CollectionObject, CollectionObjectId } from './types.js';
 import { CollectionTypeData, retrieveCollections } from './database/mysql.js';
-import { CollectionTypeLoader, initializeLoader } from './datainfo.js';
 
 import { LoaderNotFoundError } from './types/errortypes.js';
 import { defaultDevPinLoader } from '../src/pins/pinpanion.js';
-
-// import { loader as pinLoader } from '../src/pins/pinpanion';
 
 const predefinedLoaders = new Map<string, CollectionTypeLoader<any, any, CollectionObjectId>>();
 predefinedLoaders.set('pinpanion', defaultDevPinLoader);
@@ -44,6 +42,10 @@ DataList, IdType extends CollectionObjectId>(id: CollectionIdType):
 
   if (loader === undefined) {
     throw new LoaderNotFoundError(id);
+  }
+
+  if (!loader.validateData(loader.collectionId, loader.name, loader.collectionData)) {
+    throw new CollectionDataValidationError(loader.collectionId, 'Unknown error validating collection data');
   }
 
   if (!loader!.collectionData) {

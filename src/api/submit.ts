@@ -1,9 +1,9 @@
-import { IPAddress, UserId } from '../types.js';
 import express, { NextFunction } from 'express';
-import { getUserId, getUserIdentificationString } from '../auth/user.js';
 
 import { ABSeeRequest } from '../session.js';
+import { IPAddress } from '../types.js';
 import { getIp } from '../server.js';
+import { getUserIdentificationString } from '../auth/user.js';
 import { isSnowflake } from '../validate.js';
 import { saveComparisonSelection } from '../comparisonresponse.js';
 import { verifyComparisonOwner } from '../comparison.js';
@@ -11,7 +11,7 @@ import { verifyComparisonOwner } from '../comparison.js';
 export const submit = (request: ABSeeRequest, response: express.Response, next: NextFunction) => {
   try {
     // const comparisonId = request.params.comparisonId;
-    const userId: UserId = getUserId(request);
+    const userId = request.session.userId;
     const ipAddress: IPAddress = getIp(request);
     const comparisonId = request.body.comparisonId;
 

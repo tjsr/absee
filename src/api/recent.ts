@@ -5,7 +5,6 @@ import { CollectionTypeLoader } from '../datainfo.js';
 import { createComparisonResultResponse } from '../restresponse.js';
 import express from 'express';
 import { getLoader } from '../loaders.js';
-import { getUserId } from '../auth/user.js';
 import { retrieveComparisonResults } from '../database/mysql.js';
 
 const retrieveComparisonsForUser = async <
@@ -20,7 +19,7 @@ export const recent = async <
   CollectionObjectType extends CollectionObject<IdType>, D, IdType extends CollectionObjectId>(
   request: ABSeeRequest, response: express.Response, loaderId: CollectionIdType) => {
   try {
-    const userId: UserId = getUserId(request);
+    const userId: UserId = request.session.userId;
     const loader: CollectionTypeLoader<CollectionObjectType, D, IdType> = await getLoader(loaderId);
 
     let maxComparisons: number|undefined;

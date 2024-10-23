@@ -39,6 +39,7 @@ const CompareScreen = <CO extends CollectionObject<IdType>, IdType extends Colle
   const [comparison, setComparison] = useState<ComparisonSelectionResponse<CO> | undefined>(undefined);
   const [comparisonLoaded, setComparisonLoaded] = useState<boolean>(false);
   const [comparisonLoading, setComparisonLoading] = useState<boolean>(false);
+  const [comparisonLoadingFailure, setComparisonLoadingFailure] = useState<number|undefined>(undefined);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [searchParams, setSearchParams] = useSearchParams();
   const fakeEmails = false;
@@ -76,10 +77,12 @@ const CompareScreen = <CO extends CollectionObject<IdType>, IdType extends Colle
     if (result.success) {
       setSearchParams(optionsParam);
       setComparisonLoaded(false);
+      setComparisonLoadingFailure(undefined);
       console.debug(`Successfully submitted choice of ${elementId} for comparison ${comparison!.id}`);
     } else {
       setSearchParams(optionsParam);
       setComparisonLoaded(false);
+      setComparisonLoadingFailure(result.success ? undefined : (result.status || 503));
       console.warn(`Failed selecting element ${elementId} for comparison ${comparison?.id}`);
       throw new Error(`Failed with HTTP status ${result.status}`);
     }
@@ -87,7 +90,7 @@ const CompareScreen = <CO extends CollectionObject<IdType>, IdType extends Colle
 
   useEffect(() => {
     (async () => {
-      if (!comparisonLoading && !comparisonLoaded) {
+      if (!comparisonLoading && !comparisonLoaded && !comparisonLoadingFailure) {
         setComparisonLoading(true);
         setComparisonLoaded(false);
         const res = await fetchNewComparison(collectionId, preselectedObjectArr);
@@ -96,11 +99,15 @@ const CompareScreen = <CO extends CollectionObject<IdType>, IdType extends Colle
           const comparisonRequest: ComparisonSelectionResponse<CO> = res.data.json;
           setComparison(comparisonRequest);
           setComparisonLoaded(true);
+          setComparisonLoadingFailure(undefined);
+          setComparisonLoaded(false);
+        } else {
+          setComparisonLoadingFailure(res.success ? undefined : (res.status || 503));
         }
         setComparisonLoading(false);
       }
     })();
-  }, [comparisonLoaded, collectionId, comparisonLoading, preselectedObjectArr]);
+  }, [comparisonLoaded, collectionId, comparisonLoading, preselectedObjectArr, comparisonLoadingFailure]);
 
   const itemSelected = (side: number) => {
     if (!comparison) {

@@ -9,8 +9,10 @@ import {
 import { QUERYSTRING_ARRAY_DELIMETER, QUERYSTRING_ELEMENT_DELIMETER, getServerHost } from './utils.js';
 
 import Cookies from 'js-cookie';
+import { SESSION_ID_HEADER } from '../api/apiUtils.js';
 
-export const fetchNewComparison = async (collectionId: string, comparisonObjects?: string[][]) => {
+export const fetchNewComparison = async (collectionId: string, comparisonObjects?: string[][]):
+Promise<RestCallResult> => {
   const serverHost = getServerHost();
   let connectionUrl: string;
   try {
@@ -20,7 +22,7 @@ export const fetchNewComparison = async (collectionId: string, comparisonObjects
     connectionUrl = `${serverHost}/collection/${collectionId}${comparisonParams}`;
   } catch (error) {
     console.error(`Failed to create connection url for ${serverHost}`, error);
-    return { success: false };
+    return { status: null, success: false };
   }
 
   const headers: HeadersInit = {
@@ -28,9 +30,10 @@ export const fetchNewComparison = async (collectionId: string, comparisonObjects
   };
   const sessionId = Cookies.get('sessionId');
   if (sessionId !== undefined && sessionId !== 'undefined') {
-    headers['x-session-id'] = sessionId;
+    headers[`${SESSION_ID_HEADER}`] = sessionId;
   }
 
+  let status = null;
   try {
     const response = await fetch(connectionUrl,
       {
@@ -38,11 +41,16 @@ export const fetchNewComparison = async (collectionId: string, comparisonObjects
         method: 'GET',
       }
     );
+    status = response.status;
 
-    console.log(`Received response from ${connectionUrl} with status ${response.status}, returning success.`);
-    const json = await response.json();
-    return { data: json, success: true };
+    const success = status < 400;
+    console.log(`Received response from ${connectionUrl} with status ${status}, returning success=${success}.`);
+    const json = success ? await response.json() : undefined;
+    return { data: json, status: status, success: success };
   } catch (error: any) {
+    if (error.status) {
+      status = error.status;
+    }
     // if (error.status === 404) {
     //   throw new CollectionNotFoundError(collectionId);
     //   return { success: false };
@@ -54,7 +62,7 @@ export const fetchNewComparison = async (collectionId: string, comparisonObjects
     //   console.error(`Failed fetching from url ${serverHost}`, error);
     // }
     console.error(`Failed fetching from url ${serverHost}`, error.message, error);
-    return { success: false };
+    return { status: status, success: false };
   }
 };
 

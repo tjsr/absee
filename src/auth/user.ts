@@ -1,4 +1,4 @@
-import { EmailAddress, UserId, uuid5 } from '../types.js';
+import { EmailAddress, uuid5 } from '../types.js';
 
 import { ABSeeRequest } from '../session.js';
 import { getSnowflake } from '../snowflake.js';
@@ -13,21 +13,6 @@ export const createUserIdFromEmail = (email: EmailAddress): uuid5 => {
 
 export const createRandomUserId = (): uuid5 => {
   return uuidv5(getSnowflake().toString(), USERID_UUID_NAMESPACE);
-};
-
-export const getUserId = (request: ABSeeRequest): UserId => {
-  if (request.session && request.session.userId) {
-    // console.log('Got a session for current call');
-    return request.session.userId;
-  } else if (!request.session) {
-    throw new Error('No session');
-  } else {
-    const userId: UserId = createRandomUserId();
-    console.log(`Generated new userId ${userId}`);
-    request.session.userId = userId;
-    request.session.save();
-    return request.session.userId;
-  }
 };
 
 export const getUserIdentificationString = (request: ABSeeRequest): string => {

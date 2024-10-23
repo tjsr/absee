@@ -2,13 +2,23 @@ import * as fs from 'fs';
 import * as https from 'https';
 import * as sourcemap from 'source-map-support';
 
-import express from 'express';
-import { loadEnv } from '@tjsr/simple-env-utils';
-import { requireEnv } from './src/utils.js';
-import { startApp } from './src/server.js';
+import { DEFAULT_HTTP_PORT, startApp } from './src/server.js';
+import { UserSessionOptions, getMysqlSessionStore } from '@tjsr/user-session-middleware';
+import { intEnv, loadEnv } from '@tjsr/simple-env-utils';
 
-console.log('Starting server...');
+import { CorsOptions } from 'cors';
+import { SESSION_ID_HEADER } from './src/api/apiUtils.js';
+import express from 'express';
+import { requireEnv } from './src/utils.js';
+
 loadEnv();
+
+const corsOptions: CorsOptions | any = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Expose-Headers': '*',
+  'optionsSuccessStatus': 200,
+  'origin': '*',
+};
 
 sourcemap.install();
 process.on('unhandledRejection', console.warn);
@@ -26,10 +36,24 @@ try {
 const SSL_KEY = process.env.SSL_KEY || '/tmp/server.key';
 const SSL_CERT = process.env.SSL_CERT || '/tmp/server.crt';
 
-const HTTP_PORT: number =
-  process.env.HTTP_PORT !== undefined ? parseInt(process.env.HTTP_PORT!) : 8283;
+const HTTP_PORT: number = intEnv('HTTP_PORT', DEFAULT_HTTP_PORT);
 
-const app: express.Express = startApp();
+let sessionStore;
+try {
+  console.log('Starting A/B See server. Getting session store connection...');
+  sessionStore = await getMysqlSessionStore();
+} catch (err) {
+  console.error('Error getting session store', err);
+  process.exit(1);
+}
+
+const sessionOptions: Partial<UserSessionOptions> = {
+  name: SESSION_ID_HEADER,
+  skipExposeHeaders: false,
+  store: sessionStore,
+};
+
+const app: express.Express = startApp({ cors: corsOptions, sessionOptions });
 if (fs.existsSync(SSL_CERT) && fs.existsSync(SSL_KEY)) {
   https.createServer({
     cert: fs.readFileSync(SSL_CERT),
