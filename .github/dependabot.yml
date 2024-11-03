@@ -29,6 +29,11 @@ updates:
         - "@typescript-eslint/*"
         - "eslint-*"
         - "@tjsr/eslint-config"
+      vitest:
+        applies-to: version-updates
+        patterns:
+        - "vitest"
+        - "@vitest/*"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
