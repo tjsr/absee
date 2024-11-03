@@ -1,4 +1,3 @@
-import { AbseeUserSessionData } from '../types.js';
 import { SESSION_ID_HEADER } from './apiUtils.js';
 import express from 'express';
 import session from 'express-session';
@@ -14,8 +13,11 @@ describe('API tests for tags', () => {
     const memoryStore = new session.MemoryStore();
     memoryStore.set(testSessionId, {
       cookie: new session.Cookie(),
+      email: 'test@test.com',
+      hasLoggedOut: false,
+      newId: false,
       userId: testUserId,
-    } as AbseeUserSessionData);
+    });
     app = startApp({ sessionOptions: { name: SESSION_ID_HEADER, store: memoryStore } });
     return;
   });

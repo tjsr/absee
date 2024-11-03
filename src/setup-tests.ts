@@ -2,8 +2,7 @@ import { loadEnv } from '@tjsr/simple-env-utils';
 
 loadEnv(
   {
-    debug: true,
+    debug: false,
     path: process.env.DOTENV_FLOW_PATH || process.cwd(),
-    silent: false,
   }
 );
