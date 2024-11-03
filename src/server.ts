@@ -49,9 +49,11 @@ export const startApp = (config: Partial<AbseeConfig>): express.Express => {
       ...config,
       sessionOptions: {
         ...config.sessionOptions,
-        name: SESSION_ID_HEADER,
       },
     };
+  if (useConfig.sessionOptions?.name === undefined) {
+    useConfig.sessionOptions!.name = SESSION_ID_HEADER;
+  }
   const expressHelper = new ExpressServerHelper(useConfig);
 
   const app: express.Express = expressHelper.init().app();
