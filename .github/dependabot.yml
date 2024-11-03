@@ -18,6 +18,9 @@ updates:
       interval: 'daily'
     assignees:
     - 'tjsr'
+    ignore:
+      - dependency-name: '@types/node'
+        update-types: ["version-update:semver-major"]
     groups:
       prisma:
         applies-to: version-updates
