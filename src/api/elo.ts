@@ -87,7 +87,7 @@ CollectionObjectType extends CollectionObject<IdType>, IdType extends Collection
 
 export const elo = async <CollectionObjectType extends CollectionObject<IdType>,
 IdType extends CollectionIdType>(
-  request: ABSeeRequest, response: express.Response, loaderId: CollectionIdType
+  _request: ABSeeRequest, response: express.Response, loaderId: CollectionIdType
 ) => {
   try {
     const loader: CollectionTypeLoader<CollectionObjectType, any, IdType> = await getLoader(loaderId);

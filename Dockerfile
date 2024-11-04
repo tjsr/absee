@@ -11,7 +11,7 @@ FROM absee-build-preflight AS absee-build
 
 COPY package*.json /opt/absee
 
-COPY [ "tsconfig.json", ".npmrc", "vite.config.ts", "server.ts", "index.html", ".eslintrc.json", "/opt/absee/" ]
+COPY [ "tsconfig.json", ".npmrc", "vite.config.ts", "vitest.config.ts", "server.ts", "index.html", ".eslintrc.json", "/opt/absee/" ]
 
 COPY public/ /opt/absee/public
 COPY src/ /opt/absee/src
@@ -38,6 +38,6 @@ WORKDIR /opt/absee/dist
 RUN mkdir /opt/certs
 ENV STATIC_CONTENT=/opt/absee/dist
 
-EXPOSE 8280
+EXPOSE 8283
 
 CMD ["node", "-r", "source-map-support/register", "--experimental-specifier-resolution=node", "server.js"]

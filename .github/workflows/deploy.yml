@@ -128,7 +128,7 @@ jobs:
         username: ${{ secrets.DEPLOYMENT_USER }}
         key: ${{ secrets.DEPLOYMENT_SSH_KEY }}
         envs: IMAGE_NAME,CONTAINER_NAME,API_PORT
-        script: docker run --name $CONTAINER_NAME --restart=always -p $API_PORT:8280 --env-file=/home/ec2-user/absee/.env.${{ github.event.inputs.environment }} -d -t $IMAGE_NAME
+        script: docker run --name $CONTAINER_NAME --restart=always -p $API_PORT:8283 --env-file=/home/ec2-user/absee/.env.${{ github.event.inputs.environment }} -d -t $IMAGE_NAME
 
   tag:
     runs-on: ubuntu-latest

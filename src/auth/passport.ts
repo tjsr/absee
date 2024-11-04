@@ -4,11 +4,10 @@ import { Strategy as GoogleStrategy, Profile } from 'passport-google-oauth20';
 import express, { NextFunction, Response } from 'express';
 
 import { getConnection } from '../database/mysqlConnections.js';
-import { getUserId } from './user.js';
 import passport from 'passport';
 import { requireEnv } from '../utils.js';
 import { saveUserLogin } from '../api/login.js';
-import { setUserCookies } from '../sessions/getSession.js';
+import { setUserCookies } from '../sessions/setUserCookies.js';
 
 // Configure Google authentication strategy
 const GOOGLE_CLIENT_ID = requireEnv('GOOGLE_CLIENT_ID');
@@ -200,12 +199,12 @@ export const initialisePassportToExpressApp = (app: express.Express) => {
         session.accessToken = (user as any).accessToken;
       }
       console.log('User info in /auth/google/callback:' + JSON.stringify(request.user));
-      saveUserLogin(getUserId(request), session.username, session.id, request.ip).then(() => {
+      saveUserLogin(session.userId, session.username, session.id, request.ip).then(() => {
         console.log(`Saved user login for ${session.username} with userId ${session.userId}`);
       }).catch((err) => {
         console.error(`Failed saving user login`, err);
       });
-      setUserCookies(session.id, getUserId(request), session.username, response);
+      setUserCookies(session.userId, session.username, response);
       sendRedirectPage(response);
     }
   );
@@ -247,7 +246,7 @@ export const initialisePassportToExpressApp = (app: express.Express) => {
       if (session.username === undefined) {
         console.warn(`Session ${session.id} had no username when posting to /`);
       }
-      setUserCookies(session.id, session.userId!, session.username!, response);
+      setUserCookies(session.userId!, session.username!, response);
 
       // response.set('Set-Cookie', `user_id=${req.session.userId}`);
       console.info('Got authentication request, redirecting to /', reqData);
@@ -262,10 +261,14 @@ export const initialisePassportToExpressApp = (app: express.Express) => {
     next: NextFunction):void => {
     console.error(err.stack); // Log the error for debugging
     (req as any).session = undefined;
-
-    res.status(500).send('Something went wrong'); // Respond with an appropriate error message
-    next();
-    // res.end();
-    // res.redirect('/');
+    if (!res.headersSent) {
+      res.status(500).send('Something went wrong'); // Respond with an appropriate error message
+      next();
+      // res.end();
+      // res.redirect('/');
+    } else {
+      const existingStatus = res.statusCode;
+      console.warn(`Headers already sent with ${existingStatus} status, not sending additional error message`);
+    }
   });
 };

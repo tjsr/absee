@@ -1,3 +1,8 @@
-import * as dotenvFlow from 'dotenv-flow';
+import { loadEnv } from '@tjsr/simple-env-utils';
 
-dotenvFlow.config({ path: process.cwd() });
+loadEnv(
+  {
+    debug: false,
+    path: process.env.DOTENV_FLOW_PATH || process.cwd(),
+  }
+);

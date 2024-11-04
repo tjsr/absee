@@ -3,14 +3,13 @@ import {
   CollectionObject,
   CollectionObjectId,
   ComparisonSelectionResponse,
-  SnowflakeType,
-  UserId
+  SnowflakeType
 } from '../types.js';
 import { ComparableObjectModel, ComparisonModel } from '../types/model.js';
 import { QUERYSTRING_ARRAY_DELIMETER, QUERYSTRING_ELEMENT_DELIMETER } from '../ui/utils.js';
-import { getUserId, getUserIdentificationString } from '../auth/user.js';
 
 import { CollectionTypeLoader } from '../datainfo.js';
+import { LoaderNotFoundError } from '../types/errortypes.js';
 import SuperJSON from 'superjson';
 import { createCandidateElementList } from '../utils.js';
 import { createComparableObjectList } from '../comparableobjects.js';
@@ -20,6 +19,7 @@ import express from 'express';
 import { getIp } from '../server.js';
 import { getLoader } from '../loaders.js';
 import { getSnowflake } from '../snowflake.js';
+import { getUserIdentificationString } from '../auth/user.js';
 import { populatePrioritizedObjectList } from '../populatePrioritizedObjectList.js';
 import { storeComparisonRequest } from '../comparison.js';
 
@@ -32,16 +32,17 @@ CollectionObjectType extends CollectionObject<IdType>, D, IdType extends Collect
   loaderId: CollectionIdType
 ) => {
   try {
-    const userId: UserId = getUserId(request);
+    const userId = request.session.userId;
     const idString: string = getUserIdentificationString(request);
     const ipAddress = getIp(request);
+
+    const loader: CollectionTypeLoader<CollectionObjectType, D, IdType> = await getLoader(loaderId);
     const comparisonId: SnowflakeType = getSnowflake();
     const objectsQueryString = request.query.objects as string;
     const queryStringGroups:string[] = objectsQueryString?.split(QUERYSTRING_ARRAY_DELIMETER);
     let leftElements: IdType[]|undefined = undefined;
     let rightElements: IdType[]|undefined = undefined;
 
-    const loader: CollectionTypeLoader<CollectionObjectType, D, IdType> = await getLoader(loaderId);
     if (queryStringGroups?.length == 2) {
       leftElements = queryStringGroups[0].split(QUERYSTRING_ELEMENT_DELIMETER) as IdType[];
       rightElements = queryStringGroups[1].split(QUERYSTRING_ELEMENT_DELIMETER) as IdType[];
@@ -57,7 +58,6 @@ CollectionObjectType extends CollectionObject<IdType>, D, IdType extends Collect
 
       const candidateElements: [IdType[], IdType[]] = createCandidateElementList(
         loader,
-        loader.getNumberOfElements(loader),
         loader.maxElementsPerComparison,
         loader.maxElementsPerComparison
       );
@@ -90,13 +90,26 @@ CollectionObjectType extends CollectionObject<IdType>, D, IdType extends Collect
       .catch((err: Error) => {
         console.error('Failed while storing comparisonRequest in DB');
         console.error(SuperJSON.stringify(comparisonRequest));
+        response.contentType('application/json');
         response.status(500);
         console.error(err);
         response.send(err.message);
         response.end();
       });
     // Return two random options from the configured collection.
-  } catch (err) {
+  } catch (err: unknown) {
+    if (err instanceof LoaderNotFoundError) {
+      console.warn(`Client tried to access loader for collection id ${loaderId}, but it wasn't found in the Database.`);
+      response.status(404);
+      response.send({
+        errType: 'LoaderNotFoundError',
+        loaderId: loaderId,
+        message: err.message,
+      });
+      response.end();
+      return;
+    }
+
     response.status(500);
     response.send();
     response.end();
