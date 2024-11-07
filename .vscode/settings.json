@@ -1,4 +1,5 @@
 {
   "jest.debugMode": true,
-  "jest.enable": true
+  "jest.enable": true,
+  "npm.packageManager": "npm"
 }
