@@ -1,13 +1,21 @@
 import { CollectionObjectId, SnowflakeType } from './types.js';
 import { ComparableObjectModel, ComparisonModel } from './types/model.js';
+import { PoolConnection, closeConnectionPool, getConnection } from '@tjsr/mysql-pool-utils';
 
-import { closeConnectionPool } from './database/mysqlConnections.js';
+import { TaskContext } from 'vitest';
 import { getSnowflake } from './snowflake.js';
 import { storeComparisonRequest } from './comparison.js';
 import { v4 as uuidv4 } from 'uuid';
 
-describe('comparison', () => {
-  test('Should write a comparison request to the DB', async <IdType extends CollectionObjectId>(): Promise<void> => {
+type ConnectionTaskContext = TaskContext & { conn: Promise<PoolConnection> };
+
+describe('comparison', async () => {
+  beforeEach<ConnectionTaskContext>((ctx) => {
+    ctx.conn = getConnection(ctx.task.name);
+  });
+
+  test<ConnectionTaskContext>('Should write a comparison request to the DB',
+    async <IdType extends CollectionObjectId>(ctx: ConnectionTaskContext): Promise<void> => {
     const comparisonId: SnowflakeType = getSnowflake();
     const metaa: ComparableObjectModel<IdType> = {
       elementId: getSnowflake(),
@@ -30,8 +38,8 @@ describe('comparison', () => {
       userId: uuidv4(),
     };
 
-    await expect(storeComparisonRequest(comparisonRequest)).resolves.not.toThrow();
+    await expect(storeComparisonRequest(ctx.conn, comparisonRequest)).resolves.not.toThrow();
   });
 
-  afterEach(closeConnectionPool);
+  afterEach((ctx) => closeConnectionPool(ctx.task.name));
 });

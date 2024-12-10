@@ -2,6 +2,7 @@ import { ISO8601Date, SnowflakeType } from './types/mysqltypes.js';
 import { SessionStoreDataType, UserSessionData } from '@tjsr/user-session-middleware';
 
 import { ExpressServerConfig } from '@tjsr/express-server-helper';
+import { getConnection } from '@tjsr/mysql-pool-utils';
 
 export type uuid = string;
 export type uuid5 = uuid;
@@ -114,3 +115,5 @@ export interface AbseeConfig extends ExpressServerConfig {
 export interface AbseeUserSessionData extends UserSessionData {}
 
 export interface AbseeSessionStoreDataType extends SessionStoreDataType {}
+
+export type DatabaseConnection = ReturnType<typeof getConnection>;

@@ -1,20 +1,31 @@
 import {
   CollectionIdType,
   CollectionObjectId,
+  ComparisonElementId,
+  ComparisonId,
   ComparisonResult,
+  DatabaseConnection,
   EmailAddress,
   SnowflakeType,
   UserId,
   uuid5
 } from '../types.js';
-import { PoolConnection, getConnection } from './mysqlConnections.js';
+import { Comparison, ComparisonResponse } from '@prisma/client';
+import { FieldPacket, PoolConnection, QueryResult, getConnection, mysqlQuery, safeReleaseConnection } from '@tjsr/mysql-pool-utils';
 
 import { ComparisonRequestResponseBody } from '../types/datasource.js';
-import { RowDataPacket } from 'mysql2';
 import { UserModel } from '../types/model.js';
 import { createUserIdFromEmail } from '../auth/user.js';
 
-export type { PoolConnection };
+type ComparisonElementsQueryResult = [ComparisonId, CollectionObjectId, ComparisonElementId, ComparisonElementId];
+type ComparisonResponseQueryResultRow = Pick<Comparison, 'id' | 'collectionId' | 'userId' | 'requestTime'> & ComparisonResponse['selectedComparisonElementId'];
+type ComparisonResponseQueryResult = [ComparisonResponseQueryResultRow['id'],
+ComparisonResponseQueryResultRow['collectionId'],
+ComparisonResponseQueryResultRow['userId'],
+ComparisonResponseQueryResultRow['requestTime'],
+ComparisonResponse['selectedComparisonElementId']];
+
+//CE.comparisonId, CE.objectId, CE.elementId, CE.id as comparisonElementId 
 
 const snowflakeToSqlId = (snowflake: SnowflakeType): BigInt => {
   return BigInt(snowflake);
@@ -26,8 +37,6 @@ export const getDbUserByEmail = (email: EmailAddress): UserModel => {
     userId: createUserIdFromEmail(email),
   };
 };
-
-// const retrieve
 
 const populateElementsFromDatabase = async <IdType extends CollectionObjectId>(
   conn: PoolConnection,
@@ -47,34 +56,37 @@ const populateElementsFromDatabase = async <IdType extends CollectionObjectId>(
   const comparisonIds: BigInt[] = comparisonResults.map((cr) => snowflakeToSqlId(cr.id));
   return new Promise((resolve, reject) => {
     const ids: string = comparisonIds.join(',');
-    conn.query(
+    mysqlQuery(
       `SELECT CE.comparisonId, CE.objectId, CE.elementId, CE.id as comparisonElementId 
        FROM ComparisonElement CE
-       WHERE CE.comparisonId IN (${ids})`,
-      (elementErr: any, elementResults: any[]) => {
-        if (elementErr) {
-          console.error(`Error while retrieving elements for comparison IDs ${comparisonIds}`, elementErr);
-          conn.release();
-          return reject(elementErr);
-        }
-        elementResults.forEach((elementRow: RowDataPacket) => {
-          const cr: ComparisonResult<IdType> | undefined = resultMap.get(elementRow.comparisonId);
+       WHERE CE.comparisonId IN (${ids})`, [])
+       .then(([queryResults, _fieldPacket]: [QueryResult, FieldPacket[]]) => {
+        const elementResults: ComparisonElementsQueryResult[] = queryResults as ComparisonElementsQueryResult[];
+
+        elementResults.map((elementRow: ComparisonElementsQueryResult) => {
+          const cr: ComparisonResult<IdType> | undefined = resultMap.get(elementRow[0]);
           if (cr) {
             if (!cr.elements) {
               cr.elements = [];
             }
-            const element = cr?.elements.find((element) => element.elementId == elementRow.elementId);
+            const element = cr?.elements.find((element) => element.elementId == elementRow[2]);
             if (element) {
-              element.objectIds.push(elementRow.objectId);
+              element.objectIds.push(elementRow[1] as IdType);
             } else {
               cr?.elements.push({
-                elementId: elementRow.elementId,
-                objectIds: [elementRow.objectId],
+                elementId: elementRow[2],
+                objectIds: [elementRow[1] as IdType],
               });
             }
           }
         });
         return resolve(comparisonResults);
+      }).catch((elementErr) => {
+        if (elementErr) {
+          console.error(`Error while retrieving elements for comparison IDs ${comparisonIds}`, elementErr);
+          conn.release();
+          return reject(elementErr);
+        }
       });
   });
 };
@@ -87,14 +99,15 @@ export const retrieveComparisonResults = async <IdType extends CollectionObjectI
   if (collectionId === undefined) {
     throw Error(`Can't call retrieveComparisonResults when collectionId is undefined`);
   }
-  const conn = await getConnection();
+  const useConn = getConnection();
+  const conn = await useConn;
 
   return new Promise<ComparisonResult<IdType>[]>((resolve, reject) => {
     try {
       const queryParams = [collectionId];
 
       const baseSelect = `select
-        C.id as comparisonId, C.collectionId, C.userId, C.requestTime, CR.selectedComparisonElementId
+        C.id, C.collectionId, C.userId, C.requestTime, CR.selectedComparisonElementId
          FROM Comparison C 
          LEFT JOIN ComparisonResponse CR ON C.id = CR.id 
          LEFT JOIN User U ON U.id = C.userId`;
@@ -108,28 +121,13 @@ export const retrieveComparisonResults = async <IdType extends CollectionObjectI
          ORDER BY C.requestTime DESC
          LIMIT ${maxComparisons}`;
 
-      conn.query(query,
-        queryParams,
-        (comparisonErr, comparisonResults) => {
-          if (comparisonErr) {
-            conn.release();
-            let errMsg = `Failed while retrieving comparison results for collection ${collectionId}`;
-            if (userId) {
-              errMsg += ` and userId ${userId}`;
-            }
-            console.error(errMsg, comparisonErr);
-            return reject(comparisonErr);
-          }
+      mysqlQuery(query,
+        queryParams, useConn)
+        .then(([queryResult, _fieldPacket]: [QueryResult, FieldPacket[]]) => {
+          const comparisonResults: ComparisonResponseQueryResult[] = queryResult as ComparisonResponseQueryResult[];
+        // (comparisonErr, comparisonResults) => {
           // console.log(`Fields: ${JSON.stringify(fields)}`);
-          if (comparisonResults == undefined) {
-            conn.release();
-            return reject(
-              new Error(
-                `Retrieving comparison results was undefined.`
-              )
-            );
-          } else if (comparisonResults.length == 0) {
-            conn.release();
+          if (comparisonResults.length == 0) {
             const errorMessage = `No comparison results were returned for collection ${collectionId}.`;
             console.error(errorMessage);
             return reject(
@@ -138,6 +136,7 @@ export const retrieveComparisonResults = async <IdType extends CollectionObjectI
           } else {
             const outputResults: ComparisonResult<IdType>[] = comparisonResults.map((result: any) => {
               return {
+                elements: [],
                 id: result.comparisonId,
                 requestTime: result.requestTime,
                 userId: result.userId,
@@ -153,7 +152,17 @@ export const retrieveComparisonResults = async <IdType extends CollectionObjectI
             });
           }
         }
-      );
+      ).catch((comparisonErr) => {
+        if (comparisonErr) {
+          safeReleaseConnection(conn)
+          let errMsg = `Failed while retrieving comparison results for collection ${collectionId}`;
+          if (userId) {
+            errMsg += ` and userId ${userId}`;
+          }
+          console.error(errMsg, comparisonErr);
+          return reject(comparisonErr);
+        }
+      });
     } catch (err) {
       reject(err);
     }
@@ -161,53 +170,30 @@ export const retrieveComparisonResults = async <IdType extends CollectionObjectI
 };
 
 export const retrieveComparisonRequest = async (
+  conn: DatabaseConnection,
   comparisonId: SnowflakeType
 ): Promise<ComparisonRequestResponseBody> => {
-  const conn = await getConnection();
-
-  return new Promise((resolve, reject) => {
-    try {
-      conn.query(
-        `SELECT id, collectionId, userId, requestTime, requestIp
-        FROM Comparison
-        WHERE id=?`,
-        [comparisonId],
-        (err, results) => {
-          if (err) {
-            conn.release();
-            return reject(err);
-          }
-          if (results == undefined) {
-            conn.release();
-            return reject(
-              new Error(
-                `Retrieving by comparisonId ${comparisonId} results was undefined.`
-              )
-            );
-          }
-          if (results.length != 1) {
-            conn.release();
-            return reject(
-              new Error(
-                `Retrieving by comparisonId ${comparisonId} should only ever ` +
-                  `return a single row, got ${results.length}`
-              )
-            );
-          }
-          const data: ComparisonRequestResponseBody = {
-            collectionId: results[0].collectionId,
-            id: results[0].id,
-            requestIp: results[0].requestIp,
-            requestTime: results[0].requestTime,
-            userId: results[0].userId,
-          };
-          resolve(data);
-          conn.release();
-        }
+  return mysqlQuery(
+    `SELECT id, collectionId, userId, requestTime, requestIp
+    FROM Comparison
+    WHERE id=?`,
+    [comparisonId], conn).then(([queryResult, _fieldPacket]: [QueryResult, FieldPacket[]]) => {
+    // (err, results) => {
+    const results = queryResult as Comparison[];
+    if (results.length != 1) {
+      throw new Error(
+        `Retrieving by comparisonId ${comparisonId} should only ever ` +
+          `return a single row, got ${results.length}`
       );
-    } catch (err) {
-      reject(err);
     }
+    const data: ComparisonRequestResponseBody = {
+      collectionId: results[0].collectionId,
+      id: results[0].id,
+      requestIp: results[0].requestIp,
+      requestTime: results[0].requestTime,
+      userId: results[0].userId,
+    };
+    return data;
   });
 };
 
@@ -227,14 +213,12 @@ export const retrieveCollections = async():
 
   return new Promise((resolve, reject) => {
     try {
-      conn.query(
+      mysqlQuery(
         `SELECT collectionId, name, datasource, description, cachedData, lastUpdateTime, maxElementsPerComparison
-        FROM Collection`,
-        (err, results) => {
-          if (err) {
-            conn.release();
-            return reject(err);
-          }
+        FROM Collection`, [])
+      .then(([queryResult, _fieldPacket]: [QueryResult, FieldPacket[]]) => {
+        const results = queryResult as any[];
+       // (err, results) => {        
           if (results == undefined || results.length <= 0) {
             conn.release();
             return reject(
@@ -250,15 +234,18 @@ export const retrieveCollections = async():
                 collectionId: result.collectionId,
                 datasource: result.datasource,
                 description: result.description,
-                lastUpdatedTime: result.lastUpdatedTime,
+                lastUpdateTime: new Date(result.lastUpdateTime),
                 maxElementsPerComparison: result.maxElementsPerComparison,
                 name: result.name,
               };
             });
-          conn.release();
+          safeReleaseConnection(conn);
           resolve(collectionConfigs);
         }
-      );
+      ).catch((err)  => {
+        safeReleaseConnection(conn);
+        return reject(err);
+      });
     } catch (err) {
       reject(err);
     }

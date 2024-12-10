@@ -1,7 +1,6 @@
-// import * as dotenv from 'dotenv-flow';
-
 import { AbseeConfig, IPAddress } from './types.js';
 import { Options, createProxyMiddleware } from 'http-proxy-middleware';
+import { Pool, safeReleaseConnection } from '@tjsr/mysql-pool-utils';
 import {
   StatsResponse,
   getElementsCompared,
@@ -18,6 +17,7 @@ import express from 'express';
 import fs from 'fs';
 import { getUser } from './api/user.js';
 import { initialisePassportToExpressApp } from './auth/passport.js';
+import onFinished from 'on-finished';
 import { recent } from './api/recent.js';
 import { serveComparison } from './api/serveComparison.js';
 import { submit } from './api/submit.js';
@@ -43,7 +43,24 @@ export const getIp = (req: express.Request): IPAddress => {
   return (req as any).clientIp;
 };
 
-export const startApp = (config: Partial<AbseeConfig>): express.Express => {
+const getRequestConnectionPromise = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  const pool: Pool = req.app.locals.connectionPool;
+  if(!pool) {
+    return next(new Error('No connection pool available'));
+  }
+
+  const conn = pool.getConnection();
+  if (!res.locals) {
+    return next(new Error('No locals object on response'));
+  }
+  res.locals.connectionPromise = conn;
+  onFinished(res, async (_err, finishedResponse) => {
+    safeReleaseConnection(await finishedResponse.locals.connectionPromise);
+  });
+  next();
+};
+
+export const startApp = (config: Partial<AbseeConfig>, connectionPool: Pool): express.Express => {
   const useConfig = config?.sessionOptions?.name ? config :
     {
       ...config,
@@ -57,6 +74,8 @@ export const startApp = (config: Partial<AbseeConfig>): express.Express => {
   const expressHelper = new ExpressServerHelper(useConfig);
 
   const app: express.Express = expressHelper.init().app();
+  app.locals.connectionPool = connectionPool;
+  app.use(getRequestConnectionPromise);
 
   initialisePassportToExpressApp(app);
 
@@ -86,10 +105,11 @@ export const startApp = (config: Partial<AbseeConfig>): express.Express => {
   app.get('/api/stats/elementsCompared(/:collectionId)?', async (request: ABSeeRequest, response: express.Response) => {
     const collectionId = request.params.collectionId;
     const startTime: number = new Date().getTime();
+    const connPromise = connectionPool.getConnection();
     Promise.all([
-      getElementsCompared(collectionId),
-      getUniqueContibutingUserCount(collectionId),
-      getMostFrequentlyComparedElement(collectionId),
+      getElementsCompared(connPromise, collectionId),
+      getUniqueContibutingUserCount(connPromise, collectionId),
+      getMostFrequentlyComparedElement(connPromise, collectionId),
     ]).then((results) => {
       const responseBody: StatsResponse = {
         elementsCompared: results[0],
@@ -102,7 +122,7 @@ export const startApp = (config: Partial<AbseeConfig>): express.Express => {
       response.send(responseBody);
       response.status(200);
       response.end();
-    });
+    }).finally(() => connPromise.then((conn) => safeReleaseConnection(conn)));
   });
   app.get(
     '/collection/:collectionId',

@@ -1,14 +1,13 @@
 import { CollectionObjectId, SnowflakeType } from './types.js';
+import { closeConnectionPool, getConnectionPool } from '@tjsr/mysql-pool-utils';
 
 import { ComparableObjectModel } from './types/model.js';
-import { closeConnectionPool } from './database/mysqlConnections.js';
-import dotenvFlow from 'dotenv-flow';
+import { TaskContext } from 'vitest';
 import { getSnowflake } from './snowflake.js';
 import { storeComparisonElement } from './comparisonelement.js';
 
-dotenvFlow.config();
-
 describe('comparisonelement', () => {
+  beforeEach((ctx: TaskContext) => getConnectionPool(ctx.task.name));
   test('Should write an element to the DB', async <IdType extends CollectionObjectId>():Promise<void> => {
     const comparisonId: SnowflakeType = getSnowflake();
     const meta: ComparableObjectModel<IdType> = {
@@ -19,5 +18,5 @@ describe('comparisonelement', () => {
     await expect(storeComparisonElement(comparisonId, meta)).resolves.not.toThrow();
   });
 
-  afterEach(closeConnectionPool);
+  afterEach((ctx: TaskContext) => closeConnectionPool(ctx.task.name));
 });

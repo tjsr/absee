@@ -1,31 +1,32 @@
-import { getConnection } from './mysqlConnections.js';
+import { FieldPacket, mysqlQuery, QueryResult } from '@tjsr/mysql-pool-utils';
+import { ComparisonElement } from '@prisma/client';
+import { DatabaseConnection } from '../types.js';
 
-export const retrieveObjectFrequency = async(collectionId: string): Promise<Map<string, number>> => {
-  const conn = await getConnection();
-  return new Promise((resolve, reject) => {
-    try {
-      conn.query(
-        `SELECT CE.objectId, count(*) AS ComparisonCount
-        FROM ComparisonElement CE
-        LEFT JOIN Comparison C ON CE.comparisonId = C.id
-        WHERE C.collectionId = ?
-        GROUP BY objectId ORDER BY COUNT(CE.objectId) ASC`,
-        [collectionId],
-        (elementErr: any, elementResults: any[]) => {
-          if (elementErr) {
-            console.error(`Error while retrieving object frequency for collection ${collectionId}`, elementErr);
-            conn.release();
-            return reject(elementErr);
-          }
-          const result: Map<string, number> = new Map<string, number>;
-          elementResults.forEach((row) => {
-            result.set(row.objectId, parseInt(row.ComparisonCount));
-          });
-          conn.release();
-          resolve(result);
-        });
-    } catch (err) {
-      reject(err);
-    }
+type ComparisonElementsCountQueryResult = {
+  objectId: ComparisonElement['objectId'];
+  ComparisonCount: number;
+};
+
+export const retrieveObjectFrequency = async(
+  conn: DatabaseConnection, collectionId: string
+): Promise<Map<string, number>> => {
+  return mysqlQuery(
+    `SELECT CE.objectId, count(*) AS ComparisonCount
+    FROM ComparisonElement CE
+    LEFT JOIN Comparison C ON CE.comparisonId = C.id
+    WHERE C.collectionId = ?
+    GROUP BY objectId ORDER BY COUNT(CE.objectId) ASC`,
+    [collectionId], conn)
+    .then(([queryResults, _fieldPacket]: [QueryResult, FieldPacket[]]) => {
+      const elementResults: ComparisonElementsCountQueryResult[] = queryResults as ComparisonElementsCountQueryResult[];
+      const result: Map<string, number> = new Map<string, number>;
+      elementResults.forEach((row) => {
+        result.set(row.objectId, row.ComparisonCount);
+      });
+      return result;
+
+    }).catch((elementErr) => {
+      console.error(`Error while retrieving object frequency for collection ${collectionId}`, elementErr);
+      throw elementErr;
   });
 };

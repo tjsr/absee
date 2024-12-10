@@ -2,13 +2,12 @@ import * as Express from 'express';
 import * as expressSession from 'express-session';
 
 import { EmailAddress, UserId } from './types.js';
+import { PoolOptions, getPoolConfig } from '@tjsr/mysql-pool-utils';
 import { Session, SessionData } from 'express-session';
 import mySQLStore, { MySQLStore } from 'express-mysql-session';
 
 import { RequiredEnvError } from './types/errortypes.js';
-import { getPoolConfig } from './database/mysqlConnections.js';
 import { loadEnv } from '@tjsr/simple-env-utils';
-import mysql from 'mysql';
 
 loadEnv({ debug: true });
 
@@ -24,7 +23,7 @@ export interface ABSeeRequest extends Express.Request {
   session: Session & Partial<ABSeeSessionData>;
 }
 
-let poolConfig: mysql.PoolConfig;
+let poolConfig: PoolOptions;
 try {
   poolConfig = getPoolConfig();
 } catch (err: any) {
