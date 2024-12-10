@@ -91,8 +91,10 @@ IdType extends CollectionIdType>(
 ) => {
   try {
     const loader: CollectionTypeLoader<CollectionObjectType, any, IdType> = await getLoader(loaderId);
+    const conn = response.locals.connectionPromise;
 
     retrieveComparisonResults(
+      conn,
       loader.collectionId, undefined, MAX_ELO_COMPARISONS
     ).then((comparisons: ComparisonResult<string>[]) => {
       response.contentType('application/json');
@@ -109,7 +111,7 @@ IdType extends CollectionIdType>(
     });
 
     // return retrieveComparisonResults(collectionId, userId, maxComparisons);
-  } catch (err) {
+  } catch (_err) {
     response.status(500);
     response.send({ message: 'error' });
     response.end();

@@ -38,14 +38,14 @@ export const getIp = (req: express.Request): IPAddress => {
       }
     }
   } catch (err) {
-    console.warn('Got part of forwarded header, but couldn\'t parse it.');
+    console.warn('Got part of forwarded header, but couldn\'t parse it.', err);
   }
   return (req as any).clientIp;
 };
 
 const getRequestConnectionPromise = (req: express.Request, res: express.Response, next: express.NextFunction) => {
   const pool: Pool = req.app.locals.connectionPool;
-  if(!pool) {
+  if (!pool) {
     return next(new Error('No connection pool available'));
   }
 
@@ -61,8 +61,8 @@ const getRequestConnectionPromise = (req: express.Request, res: express.Response
 };
 
 export const startApp = (config: Partial<AbseeConfig>, connectionPool: Pool): express.Express => {
-  const useConfig = config?.sessionOptions?.name ? config :
-    {
+  const useConfig = config?.sessionOptions?.name ? config
+    : {
       ...config,
       sessionOptions: {
         ...config.sessionOptions,

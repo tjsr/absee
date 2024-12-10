@@ -2,6 +2,7 @@ import express, { NextFunction } from 'express';
 
 import { ABSeeRequest } from '../session.js';
 import { IPAddress } from '../types.js';
+import { getConnection } from '@tjsr/mysql-pool-utils';
 import { getIp } from '../server.js';
 import { getUserIdentificationString } from '../auth/user.js';
 import { isSnowflake } from '../validate.js';
@@ -33,9 +34,11 @@ export const submit = (request: ABSeeRequest, response: express.Response, next: 
     };
 
     try {
-      verifyComparisonOwner(comparisonId, userId, ipAddress)
+      const conn = getConnection();
+
+      verifyComparisonOwner(conn, comparisonId, userId, ipAddress)
         .then(() => {
-          saveComparisonSelection(comparisonId, elementId);
+          saveComparisonSelection(conn, comparisonId, elementId);
           const idString: string = getUserIdentificationString(request);
 
           console.debug(

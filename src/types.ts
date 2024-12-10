@@ -112,8 +112,7 @@ export interface AbseeConfig extends ExpressServerConfig {
   initConnections?: boolean;
 }
 
-export interface AbseeUserSessionData extends UserSessionData {}
-
-export interface AbseeSessionStoreDataType extends SessionStoreDataType {}
+export type AbseeUserSessionData = UserSessionData;
+export type AbseeSessionStoreDataType = SessionStoreDataType;
 
 export type DatabaseConnection = ReturnType<typeof getConnection>;

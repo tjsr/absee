@@ -62,7 +62,7 @@ export const initialisePassportToExpressApp = (app: express.Express) => {
     throw new Error('No connection pool available');
   }
   pd('Initialising passport middleware');
-  
+
   // Set up passport middleware
   app.use(passport.initialize());
   app.use(passport.session());
@@ -95,13 +95,13 @@ export const initialisePassportToExpressApp = (app: express.Express) => {
                 return done(null, user);
               }
               // User does not exist, create a new user in the database
-  
+
               createUserIdFromEmail(useConn, profile, id).then((newUser: any) => {
                 return done(null, newUser);
               });
             }).finally(() => {
               safeReleaseConnection(conn);
-               // TODO: Is this called twice??
+              // TODO: Is this called twice??
               done(null, profile);
             });
           });
@@ -118,7 +118,7 @@ export const initialisePassportToExpressApp = (app: express.Express) => {
 
   const retrieveUserById = (conn: DatabaseConnection, id: string): Promise<Profile> => {
     return mysqlQuery('SELECT id, email, display_name, google_id FROM User WHERE id = ?',
-        [id], conn).then(([userRows, _packets]: [QueryResult, FieldPacket[]]) => {
+      [id], conn).then(([userRows, _packets]: [QueryResult, FieldPacket[]]) => {
       const rows = userRows as any;
       if (rows.length === 0) {
         return null;
@@ -135,12 +135,12 @@ export const initialisePassportToExpressApp = (app: express.Express) => {
       'SELECT id, email, display_name, google_id FROM User WHERE google_id = ?',
       [googleId],
       conn)
-    .then(([userRows, _packets]: [QueryResult, FieldPacket[]]) => {
-      const rows = userRows as any;
-      cacheGoogleUser(rows[0]);
-      const profile: Profile|any = { ...rows[0] };
-      return profile;
-    });
+      .then(([userRows, _packets]: [QueryResult, FieldPacket[]]) => {
+        const rows = userRows as any;
+        cacheGoogleUser(rows[0]);
+        const profile: Profile|any = { ...rows[0] };
+        return profile;
+      });
   };
 
   const isGoogleId = (id: string): boolean => {
@@ -148,8 +148,8 @@ export const initialisePassportToExpressApp = (app: express.Express) => {
   };
 
   const retrieveUserByGenericId = (conn: DatabaseConnection, id: string): Promise<Profile> => {
-    return isGoogleId(id) ?
-      retrieveUserByGoogleId(conn, id) : retrieveUserById(conn, id);
+    return isGoogleId(id)
+      ? retrieveUserByGoogleId(conn, id) : retrieveUserById(conn, id);
   };
 
   passport.deserializeUser((googleId: string, done: (error: Error | null, user?: Profile) => void) => {

@@ -14,6 +14,7 @@ const getUserAsync: UserSessionMiddlewareRequestHandler = async (
 ): Promise<void> => {
   const idNamespace: IdNamespace = getAppUserIdNamespace(request.app);
   const userId: UserId | undefined = await getUserIdFromSession(idNamespace, request.session);
+  console.debug(getUserAsync, 'Getting user data for userId:', userId);
   if (userId === undefined) {
     return endWithJsonMessage(response, HttpStatusCode.UNAUTHORIZED, 'Invalid user', next);
   }

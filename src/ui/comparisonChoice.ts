@@ -16,8 +16,8 @@ Promise<RestCallResult> => {
   const serverHost = getServerHost();
   let connectionUrl: string;
   try {
-    const comparisonParams = comparisonObjects?.length == 2 ?
-      `?objects=${comparisonObjects[0].join(QUERYSTRING_ELEMENT_DELIMETER)}`+
+    const comparisonParams = comparisonObjects?.length == 2
+      ? `?objects=${comparisonObjects[0].join(QUERYSTRING_ELEMENT_DELIMETER)}`+
         `${QUERYSTRING_ARRAY_DELIMETER}${comparisonObjects[1].join(QUERYSTRING_ELEMENT_DELIMETER)}` : '';
     connectionUrl = `${serverHost}/collection/${collectionId}${comparisonParams}`;
   } catch (error) {

@@ -8,8 +8,8 @@ export const basicMySqlInsert = async (
 ): Promise<void> => {
   const params: string[] = Array(fields.length).fill('?');
   const queryString = `insert into ${table} (${fields.join(', ')}) values (${params.join(
-          ', '
-        )})`;
+    ', '
+  )})`;
   const queryParams = Object.keys(values).map((v) => values[v]);
   return mysqlQuery(queryString, queryParams, conn).then(() => {
     return;
@@ -21,5 +21,5 @@ export const basicMySqlInsert = async (
       console.error(`Error inserting into ${table}: ${err}`, err);
       throw err;
     }
-    });
+  });
 };

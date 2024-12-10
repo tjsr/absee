@@ -1,4 +1,4 @@
-import { FieldPacket, mysqlQuery, QueryResult } from '@tjsr/mysql-pool-utils';
+import { FieldPacket, QueryResult, mysqlQuery } from '@tjsr/mysql-pool-utils';
 import { ComparisonElement } from '@prisma/client';
 import { DatabaseConnection } from '../types.js';
 
@@ -24,9 +24,8 @@ export const retrieveObjectFrequency = async(
         result.set(row.objectId, row.ComparisonCount);
       });
       return result;
-
     }).catch((elementErr) => {
       console.error(`Error while retrieving object frequency for collection ${collectionId}`, elementErr);
       throw elementErr;
-  });
+    });
 };

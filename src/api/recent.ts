@@ -1,4 +1,11 @@
-import { CollectionIdType, CollectionObject, CollectionObjectId, ComparisonResult, UserId } from '../types.js';
+import {
+  CollectionIdType,
+  CollectionObject,
+  CollectionObjectId,
+  ComparisonResult,
+  DatabaseConnection,
+  UserId
+} from '../types.js';
 
 import { ABSeeRequest } from '../session.js';
 import { CollectionTypeLoader } from '../datainfo.js';
@@ -9,10 +16,11 @@ import { retrieveComparisonResults } from '../database/mysql.js';
 
 const retrieveComparisonsForUser = async <
   IdType extends CollectionObjectId>(
+  conn: DatabaseConnection,
   collectionId: CollectionIdType,
   userId: UserId,
   maxComparisons?: number): Promise<ComparisonResult<IdType>[]> => {
-  return retrieveComparisonResults(collectionId, userId, maxComparisons);
+  return retrieveComparisonResults(conn, collectionId, userId, maxComparisons);
 };
 
 export const recent = async <
@@ -21,6 +29,7 @@ export const recent = async <
   try {
     const userId: UserId = request.session.userId;
     const loader: CollectionTypeLoader<CollectionObjectType, D, IdType> = await getLoader(loaderId);
+    const connectionPromise: DatabaseConnection = request.app.locals.connectionPromise;
 
     let maxComparisons: number|undefined;
 
@@ -31,12 +40,13 @@ export const recent = async <
           return response.status(400).send({ message: 'max must be a number' });
         }
         maxComparisons = parsedMax;
-      } catch (err) {
+      } catch (_err) {
         return response.status(400).send({ message: 'max must be a number' });
       }
     }
 
-    retrieveComparisonsForUser<IdType>(
+    return await retrieveComparisonsForUser<IdType>(
+      connectionPromise,
       loader.collectionId,
       userId,
       maxComparisons
@@ -44,17 +54,11 @@ export const recent = async <
       response.contentType('application/json');
       const responseJson = createComparisonResultResponse<CollectionObjectType, IdType>(comparisons, loader);
       response.send(responseJson);
-      response.end();
+      return response.end();
     }).catch((err: Error) => {
-      response.status(500);
-      response.send({ message: err.message });
-      response.end();
+      return response.status(500).send({ message: err.message }).end();
     });
-  } catch (err) {
-    response.status(500);
-    response.send({ message: 'error' });
-    response.end();
-  } finally {
-    return;
+  } catch (_err) {
+    return response.status(500).send({ message: 'error' }).end();
   }
 };

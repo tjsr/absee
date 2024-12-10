@@ -6,6 +6,7 @@ import {
   SnowflakeType
 } from '../types.js';
 import { ComparableObjectModel, ComparisonModel } from '../types/model.js';
+import { PoolConnection, getConnection, safeReleaseConnection } from '@tjsr/mysql-pool-utils';
 import { QUERYSTRING_ARRAY_DELIMETER, QUERYSTRING_ELEMENT_DELIMETER } from '../ui/utils.js';
 
 import { CollectionTypeLoader } from '../datainfo.js';
@@ -31,6 +32,7 @@ CollectionObjectType extends CollectionObject<IdType>, D, IdType extends Collect
   response: express.Response,
   loaderId: CollectionIdType
 ) => {
+  let conn: PoolConnection|undefined = undefined;
   try {
     const userId = request.session.userId;
     const idString: string = getUserIdentificationString(request);
@@ -43,6 +45,9 @@ CollectionObjectType extends CollectionObject<IdType>, D, IdType extends Collect
     let leftElements: IdType[]|undefined = undefined;
     let rightElements: IdType[]|undefined = undefined;
 
+    const useConn = getConnection();
+    conn = await getConnection();
+
     if (queryStringGroups?.length == 2) {
       leftElements = queryStringGroups[0].split(QUERYSTRING_ELEMENT_DELIMETER) as IdType[];
       rightElements = queryStringGroups[1].split(QUERYSTRING_ELEMENT_DELIMETER) as IdType[];
@@ -53,7 +58,18 @@ CollectionObjectType extends CollectionObject<IdType>, D, IdType extends Collect
 
       if (loader.prioritizedObjectIdList === undefined ||
         loader.prioritizedObjectIdList.length <= MINIMUM_PRIORITIZED_OBJECTS) {
-        await populatePrioritizedObjectList(loader);
+        try {
+          await populatePrioritizedObjectList(useConn, loader);
+        } catch (err: any) {
+          safeReleaseConnection(conn);
+          console.error('Failed geting object list from DB');
+          response.contentType('application/json');
+          response.status(500);
+          console.error(err);
+          response.send(err.message);
+          response.end();
+          return;
+        }
       }
 
       const candidateElements: [IdType[], IdType[]] = createCandidateElementList(
@@ -79,7 +95,7 @@ CollectionObjectType extends CollectionObject<IdType>, D, IdType extends Collect
       left,
       right
     );
-    storeComparisonRequest(comparisonRequest)
+    storeComparisonRequest(useConn, comparisonRequest)
       .then(() => {
         response.contentType('application/json');
         const responseJson: ComparisonSelectionResponse<CollectionObjectType> =
@@ -88,6 +104,7 @@ CollectionObjectType extends CollectionObject<IdType>, D, IdType extends Collect
         response.end();
       })
       .catch((err: Error) => {
+        safeReleaseConnection(conn);
         console.error('Failed while storing comparisonRequest in DB');
         console.error(SuperJSON.stringify(comparisonRequest));
         response.contentType('application/json');
@@ -98,6 +115,7 @@ CollectionObjectType extends CollectionObject<IdType>, D, IdType extends Collect
       });
     // Return two random options from the configured collection.
   } catch (err: unknown) {
+    safeReleaseConnection(conn);
     if (err instanceof LoaderNotFoundError) {
       console.warn(`Client tried to access loader for collection id ${loaderId}, but it wasn't found in the Database.`);
       response.status(404);
