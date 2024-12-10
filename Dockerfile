@@ -15,6 +15,7 @@ COPY [ "tsconfig.json", ".npmrc", "vite.config.ts", "vitest.config.ts", "server.
 
 COPY public/ /opt/absee/public
 COPY src/ /opt/absee/src
+COPY prisma/schema.prisma /opt/absee/prisma/schema.prisma
 
 RUN --mount=type=secret,id=github --mount=type=cache,target=/root/.npm  \
   echo "//npm.pkg.github.com/:_authToken=$(cat /run/secrets/github)" >> /root/.npmrc && \
@@ -26,6 +27,7 @@ FROM absee-build-preflight AS absee
 
 COPY package*.json /opt/absee
 COPY .npmrc /opt/absee
+COPY prisma/schema.prisma /opt/absee/prisma/schema.prisma
 
 RUN --mount=type=secret,id=github --mount=type=cache,target=/root/.npm \
   echo "//npm.pkg.github.com/:_authToken=$(cat /run/secrets/github)" >> /root/.npmrc && \
