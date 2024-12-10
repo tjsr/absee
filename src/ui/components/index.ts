@@ -15,16 +15,16 @@ export type HEX = `#${string}`;
 export type Color = RGB | RGBA | HEX;
 
 export interface SwiperSharedProps {
-  boxMinHeight?: number;
-  boxMinWidth?: number;
-  maxRotationDistance?: number;
-  maxRotationDegrees?: number;
-  moveDistanceBeforeRotate?: number;
-  selectGlowColor?: Color;
-  selectBackgroundColor?: Color;
-  selectGrowScale?: number;
-  swipeDelay?: number;
-  swipeDistance?: number;
-  swipeDuration?: number;
-  swipeThreshold?: number;
+  boxMinHeight?: number | undefined;
+  boxMinWidth?: number | undefined;
+  maxRotationDistance?: number | undefined;
+  maxRotationDegrees?: number | undefined;
+  moveDistanceBeforeRotate?: number | undefined;
+  selectGlowColor?: Color | undefined;
+  selectBackgroundColor?: Color | undefined;
+  selectGrowScale?: number | undefined;
+  swipeDelay?: number | undefined;
+  swipeDistance?: number | undefined;
+  swipeDuration?: number | undefined;
+  swipeThreshold?: number | undefined;
 }

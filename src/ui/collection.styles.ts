@@ -14,8 +14,8 @@ justify-content: space-evenly;
 margin: auto;
 padding-left: ${({ paddingLeft }) => paddingLeft !== undefined ? paddingLeft : 0.5}rem;
 padding-right: ${({ paddingRight }) => paddingRight !== undefined ? paddingRight : 0.5}rem;
-${({ isHighlighted, selectGlowColor }) => isHighlighted ?
-    `boxShadow: 0px 0px 40px 20px ${selectGlowColor ?? '#0f3'};` : ''}
+${({ isHighlighted, selectGlowColor }) => isHighlighted
+    ? `boxShadow: 0px 0px 40px 20px ${selectGlowColor ?? '#0f3'};` : ''}
 `;
 
 // const makeGlow = (ref: MutableRefObject<HTMLDivElement | null>): void => {

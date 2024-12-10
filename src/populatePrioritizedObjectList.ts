@@ -1,12 +1,13 @@
-import { CollectionObject, CollectionObjectId } from './types.js';
+import { CollectionObject, CollectionObjectId, DatabaseConnection } from './types.js';
 
 import { CollectionTypeLoader } from './datainfo.js';
 import { retrieveObjectFrequency } from './database/retrieveObjectFrequency.js';
 
 export const populatePrioritizedObjectList = async <
 CollectionObjectType extends CollectionObject<IdType>, D, IdType extends CollectionObjectId>(
+  conn: DatabaseConnection,
   loader: CollectionTypeLoader<CollectionObjectType, D, IdType>): Promise<void> => {
-  const frequencyList: Map<string, number> = await retrieveObjectFrequency(loader.collectionId);
+  const frequencyList: Map<string, number> = await retrieveObjectFrequency(conn, loader.collectionId);
   const occurenceNumberValues = frequencyList.values();
   let maxOccurrences = 0;
   for (const value of occurenceNumberValues) {

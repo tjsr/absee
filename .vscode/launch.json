@@ -10,7 +10,7 @@
       "request": "launch",
       "name": "Launch backend server",
       "skipFiles": ["<node_internals>/**"],
-      "program": "${workspaceFolder}\\index.ts",
+      "program": "${workspaceFolder}\\server.ts",
       //"preLaunchTask": "tsc: build - tsconfig.json",
       "restart": true,
       "runtimeExecutable": "nodemon",
