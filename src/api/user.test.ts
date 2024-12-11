@@ -1,6 +1,7 @@
 import { SESSION_ID_HEADER } from './apiUtils.js';
 import express from 'express';
 import { getConnectionPool } from '@tjsr/mysql-pool-utils';
+import { getGoogleAuthSettings } from '../auth/settings.js';
 import session from 'express-session';
 import { setSessionCookie } from '@tjsr/testutils';
 import { startApp } from '../server.js';
@@ -22,12 +23,13 @@ describe('API tests for tags', () => {
       userId: testUserId,
     });
     const sessionOptions = {
-      name: SESSION_ID_HEADER, secret: ctx.task.name, store: memoryStore,
+      connectionPool, name: SESSION_ID_HEADER, secret: ctx.task.name, store: memoryStore,
     };
 
     app = startApp({
       sessionOptions,
-    }, connectionPool);
+      googleAuthSettings: getGoogleAuthSettings(),
+    });
 
     const eh: express.ErrorRequestHandler = (
       err: Error,

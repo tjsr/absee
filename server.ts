@@ -2,13 +2,16 @@ import * as fs from 'fs';
 import * as https from 'https';
 import * as sourcemap from 'source-map-support';
 
+import { AbseeConfig, AbseeMinimumConfig } from './src/types.js';
 import { DEFAULT_HTTP_PORT, startApp } from './src/server.js';
+import { GoogleAuthSettings, getGoogleAuthSettings } from './src/auth/index.js';
 import { UserSessionOptions, getMysqlSessionStore } from '@tjsr/user-session-middleware';
 import { intEnv, loadEnv } from '@tjsr/simple-env-utils';
 
 import { CorsOptions } from 'cors';
 import { SESSION_ID_HEADER } from './src/api/apiUtils.js';
 import express from 'express';
+import { getConnectionPool } from '@tjsr/mysql-pool-utils';
 import { requireEnv } from './src/utils.js';
 
 loadEnv();
@@ -22,11 +25,15 @@ const corsOptions: CorsOptions | any = {
 
 sourcemap.install();
 process.on('unhandledRejection', console.warn);
+let googleAuthSettings: GoogleAuthSettings;
 
 try {
   requireEnv('SESSION_SECRET');
   requireEnv('USERID_UUID_NAMESPACE');
   requireEnv('HTTP_PORT');
+
+  // Configure Google authentication strategy
+  googleAuthSettings = getGoogleAuthSettings();
 } catch (err: any) {
   console.log('Got error while requiring env vars');
   console.error(err.message);
@@ -41,19 +48,24 @@ const HTTP_PORT: number = intEnv('HTTP_PORT', DEFAULT_HTTP_PORT);
 let sessionStore;
 try {
   console.log('Starting A/B See server. Getting session store connection...');
-  sessionStore = await getMysqlSessionStore();
+  sessionStore = getMysqlSessionStore();
 } catch (err) {
   console.error('Error getting session store', err);
   process.exit(1);
 }
 
-const sessionOptions: Partial<UserSessionOptions> = {
-  name: SESSION_ID_HEADER,
+const abseeOptions: Partial<AbseeConfig & UserSessionOptions> & { googleAuthSettings: GoogleAuthSettings } = {
+  connectionPool: await getConnectionPool('absee.pool'),
+  cors: corsOptions,
+  sessionOptions: {
+    name: SESSION_ID_HEADER,
+    store: sessionStore,
+  },
   skipExposeHeaders: false,
-  store: sessionStore,
+  googleAuthSettings: googleAuthSettings,
 };
 
-const app: express.Express = startApp({ cors: corsOptions, sessionOptions });
+const app: express.Express = startApp(abseeOptions);
 if (fs.existsSync(SSL_CERT) && fs.existsSync(SSL_KEY)) {
   https.createServer({
     cert: fs.readFileSync(SSL_CERT),

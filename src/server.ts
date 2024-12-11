@@ -1,6 +1,6 @@
 import { AbseeConfig, IPAddress } from './types.js';
 import { Options, createProxyMiddleware } from 'http-proxy-middleware';
-import { Pool, safeReleaseConnection } from '@tjsr/mysql-pool-utils';
+import { Pool, PoolConnection, safeReleaseConnection } from '@tjsr/mysql-pool-utils';
 import {
   StatsResponse,
   getElementsCompared,
@@ -10,7 +10,9 @@ import {
 
 import { ABSeeRequest } from './session.js';
 import { ExpressServerHelper } from '@tjsr/express-server-helper';
+import { GoogleAuthSettings } from './auth/types.js';
 import { SESSION_ID_HEADER } from './api/apiUtils.js';
+import { UserSessionOptions } from '@tjsr/user-session-middleware';
 import { debugHeaders } from './api/debugHeaders.js';
 import { elo } from './api/elo.js';
 import express from 'express';
@@ -60,7 +62,7 @@ const getRequestConnectionPromise = (req: express.Request, res: express.Response
   next();
 };
 
-export const startApp = (config: Partial<AbseeConfig>, connectionPool: Pool): express.Express => {
+export const startApp = (config: Partial<AbseeConfig & UserSessionOptions> & { googleAuthSettings: GoogleAuthSettings }): express.Express => {
   const useConfig = config?.sessionOptions?.name ? config
     : {
       ...config,
@@ -72,12 +74,15 @@ export const startApp = (config: Partial<AbseeConfig>, connectionPool: Pool): ex
     useConfig.sessionOptions!.name = SESSION_ID_HEADER;
   }
   const expressHelper = new ExpressServerHelper(useConfig);
+  if (!config.googleAuthSettings) {
+    throw new Error('Google auth settings must be provided');
+  }
 
   const app: express.Express = expressHelper.init().app();
-  app.locals.connectionPool = connectionPool;
+  app.locals.connectionPool = config.connectionPool;
   app.use(getRequestConnectionPromise);
 
-  initialisePassportToExpressApp(app);
+  initialisePassportToExpressApp(app, config.googleAuthSettings);
 
   app.get('/debugHeaders', debugHeaders);
   app.get('/api/recent(/:collectionId)?(/me)?',
@@ -105,7 +110,7 @@ export const startApp = (config: Partial<AbseeConfig>, connectionPool: Pool): ex
   app.get('/api/stats/elementsCompared(/:collectionId)?', async (request: ABSeeRequest, response: express.Response) => {
     const collectionId = request.params.collectionId;
     const startTime: number = new Date().getTime();
-    const connPromise = connectionPool.getConnection();
+    const connPromise = response.locals.connectionPool.getConnection();
     Promise.all([
       getElementsCompared(connPromise, collectionId),
       getUniqueContibutingUserCount(connPromise, collectionId),
@@ -122,7 +127,7 @@ export const startApp = (config: Partial<AbseeConfig>, connectionPool: Pool): ex
       response.send(responseBody);
       response.status(200);
       response.end();
-    }).finally(() => connPromise.then((conn) => safeReleaseConnection(conn)));
+    }).finally(() => connPromise.then((conn: PoolConnection) => safeReleaseConnection(conn)));
   });
   app.get(
     '/collection/:collectionId',

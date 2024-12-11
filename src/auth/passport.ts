@@ -4,19 +4,14 @@ import { FieldPacket, PoolConnection, QueryResult, mysqlQuery, safeReleaseConnec
 import { Strategy as GoogleStrategy, Profile } from 'passport-google-oauth20';
 import express, { NextFunction, Response } from 'express';
 
+import { GoogleAuthSettings } from './index.js';
 import debug from 'debug';
 import { getConnection } from '@tjsr/mysql-pool-utils';
 import passport from 'passport';
-import { requireEnv } from '../utils.js';
 import { saveUserLogin } from '../api/login.js';
 import { setUserCookies } from '../sessions/setUserCookies.js';
 
 const pd = debug('absee:passport');
-
-// Configure Google authentication strategy
-const GOOGLE_CLIENT_ID = requireEnv('GOOGLE_CLIENT_ID');
-const GOOGLE_CLIENT_SECRET = requireEnv('GOOGLE_CLIENT_SECRET');
-const SERVER_PREFIX = requireEnv('SERVER_PREFIX');
 
 const getDisplayNameFromProfile = (profile: Profile): string => {
   return profile.displayName || (profile.emails && profile.emails.length > 0 ? profile.emails[0].value : '');
@@ -57,7 +52,7 @@ const createUserIdFromEmail = (conn: DatabaseConnection, profile: Profile, googl
   });
 };
 
-export const initialisePassportToExpressApp = (app: express.Express) => {
+export const initialisePassportToExpressApp = (app: express.Express, authSettings: GoogleAuthSettings) => {
   if (!app.locals.connectionPool) {
     throw new Error('No connection pool available');
   }
@@ -70,9 +65,9 @@ export const initialisePassportToExpressApp = (app: express.Express) => {
   passport.use(
     new GoogleStrategy(
       {
-        callbackURL: SERVER_PREFIX + '/auth/google/callback',
-        clientID: GOOGLE_CLIENT_ID,
-        clientSecret: GOOGLE_CLIENT_SECRET,
+        callbackURL: authSettings.serverPrefix + '/auth/google/callback' || authSettings.callbackUrl,
+        clientID: authSettings.id,
+        clientSecret: authSettings.secret,
       },
       (
         _accessToken: string,
@@ -179,7 +174,7 @@ export const initialisePassportToExpressApp = (app: express.Express) => {
     response.status(200);
     response.send(`<!DOCTYPE html>
     <html>
-    <head><meta http-equiv="refresh" content="0; url='${SERVER_PREFIX}/'"></head>
+    <head><meta http-equiv="refresh" content="0; url='${authSettings.serverPrefix}/'"></head>
     <body></body>
     </html>`);
     response.end();
@@ -219,7 +214,7 @@ export const initialisePassportToExpressApp = (app: express.Express) => {
       failureRedirect: '/loginFailed',
       scope: 'https://www.googleapis.com/auth/userinfo.email' }),
     function(_req, res) {
-      res.redirect(SERVER_PREFIX + '/');
+      res.redirect(authSettings.serverPrefix + '/');
     });
 
   app.post('/',
