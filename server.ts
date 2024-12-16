@@ -57,12 +57,13 @@ try {
 const abseeOptions: Partial<AbseeConfig & UserSessionOptions> & { googleAuthSettings: GoogleAuthSettings } = {
   connectionPool: await getConnectionPool('absee.pool'),
   cors: corsOptions,
+  googleAuthSettings: googleAuthSettings,
   sessionOptions: {
     name: SESSION_ID_HEADER,
     store: sessionStore,
+    userIdNamespace: requireEnv('USERID_UUID_NAMESPACE'),
   },
   skipExposeHeaders: false,
-  googleAuthSettings: googleAuthSettings,
 };
 
 const app: express.Express = startApp(abseeOptions);
