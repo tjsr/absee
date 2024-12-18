@@ -143,9 +143,10 @@ const CompareScreen = <CO extends CollectionObject<IdType>, IdType extends Colle
             <ComparisonLink comparison={comparison as ComparisonSelectionResponse<CO>} />
             <Link to="/recent">Recent comparisons</Link> (<Link to="/recent/me">mine</Link>)
           </>
-        ) : (
+        ) : comparisonLoadingFailure === 404 ? <div>Couldn't find collection {collectionId}</div> :
+          comparisonLoadingFailure ? <div>Failed to load comparison: {comparisonLoadingFailure}</div> :
           <div>Loading...</div>
-        )}
+        }
       </div>
     </>
   );
