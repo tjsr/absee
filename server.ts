@@ -2,12 +2,12 @@ import * as fs from 'fs';
 import * as https from 'https';
 import * as sourcemap from 'source-map-support';
 
-import { AbseeConfig, AbseeMinimumConfig } from './src/types.js';
 import { DEFAULT_HTTP_PORT, startApp } from './src/server.js';
 import { GoogleAuthSettings, getGoogleAuthSettings } from './src/auth/index.js';
 import { UserSessionOptions, getMysqlSessionStore } from '@tjsr/user-session-middleware';
 import { intEnv, loadEnv } from '@tjsr/simple-env-utils';
 
+import { AbseeConfig } from './src/types.js';
 import { CorsOptions } from 'cors';
 import { SESSION_ID_HEADER } from './src/api/apiUtils.js';
 import express from 'express';
@@ -60,6 +60,7 @@ const abseeOptions: Partial<AbseeConfig & UserSessionOptions> & { googleAuthSett
   googleAuthSettings: googleAuthSettings,
   sessionOptions: {
     name: SESSION_ID_HEADER,
+    secret: requireEnv('SESSION_SECRET'),
     store: sessionStore,
     userIdNamespace: requireEnv('USERID_UUID_NAMESPACE'),
   },
