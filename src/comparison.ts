@@ -1,6 +1,7 @@
 import {
   CollectionIdType,
   ComparisonRequestPutBody,
+  DatabaseConnection,
   IPAddress,
   SnowflakeType,
   UserId
@@ -15,6 +16,7 @@ import {
 import { storeComparisonElements } from './comparisonelement.js';
 
 export const storeComparisonRequest = async <IdType extends CollectionIdType>(
+  conn: DatabaseConnection,
   comparisonRequest: ComparisonModel<IdType>
 ): Promise<void> => {
   const postRequest: ComparisonRequestPutBody = {
@@ -27,7 +29,7 @@ export const storeComparisonRequest = async <IdType extends CollectionIdType>(
   const allPromises: Promise<void>[] = [
     ...storeComparisonElements(comparisonRequest.id, comparisonRequest.a),
     ...storeComparisonElements(comparisonRequest.id, comparisonRequest.b),
-    basicMySqlInsert('Comparison', Object.keys(postRequest), postRequest),
+    basicMySqlInsert(conn, 'Comparison', Object.keys(postRequest), postRequest),
   ];
   const resolved = Promise.all(allPromises)
     .then(() => {
@@ -49,12 +51,13 @@ const ipAddressMatches = (first: IPAddress, second: IPAddress): boolean => {
 };
 
 export const verifyComparisonOwner = async (
+  conn: DatabaseConnection,
   comparisonId: SnowflakeType,
   userId: UserId,
   requestIpAddress: IPAddress
 ): Promise<void> => {
   return new Promise((resolve, reject) => {
-    retrieveComparisonRequest(comparisonId).then(
+    retrieveComparisonRequest(conn, comparisonId).then(
       (response: ComparisonRequestResponseBody) => {
         if (!ipAddressMatches(response.requestIp, requestIpAddress)) {
           reject(
