@@ -1,9 +1,11 @@
+import { generateUserIdForTestName, setSessionCookie } from '@tjsr/testutils';
+
 import { SESSION_ID_HEADER } from './apiUtils.js';
+import { UserSessionOptions } from '@tjsr/user-session-middleware';
 import express from 'express';
 import { getConnectionPool } from '@tjsr/mysql-pool-utils';
 import { getGoogleAuthSettings } from '../auth/settings.js';
 import session from 'express-session';
-import { setSessionCookie } from '@tjsr/testutils';
 import { startApp } from '../server.js';
 import supertest from 'supertest';
 
@@ -22,13 +24,17 @@ describe('API tests for tags', () => {
       newId: false,
       userId: testUserId,
     });
-    const sessionOptions = {
-      connectionPool, name: SESSION_ID_HEADER, secret: ctx.task.name, store: memoryStore,
+    const sessionOptions: Partial<UserSessionOptions> = {
+      name: SESSION_ID_HEADER,
+      secret: ctx.task.name,
+      store: memoryStore,
+      userIdNamespace: generateUserIdForTestName(ctx.task.name),
     };
 
     app = startApp({
-      sessionOptions,
+      connectionPool,
       googleAuthSettings: getGoogleAuthSettings(),
+      sessionOptions,
     });
 
     const eh: express.ErrorRequestHandler = (
