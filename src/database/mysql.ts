@@ -7,19 +7,17 @@ import {
   DatabaseConnection,
   EmailAddress,
   SnowflakeType,
-  UserId,
-  uuid5
+  UserId
 } from '../types.js';
 import { Comparison, ComparisonResponse } from '@prisma/client';
 import {
   FieldPacket,
-  PoolConnection,
   QueryResult,
-  getConnection,
   mysqlQuery,
   safeReleaseConnection
 } from '@tjsr/mysql-pool-utils';
 
+import { Collection } from '@prisma/client';
 import { ComparisonRequestResponseBody } from '../types/datasource.js';
 import { UserModel } from '../types/model.js';
 import { createUserIdFromEmail } from '../auth/user.js';
@@ -53,7 +51,7 @@ export const getDbUserByEmail = (email: EmailAddress): UserModel => {
 };
 
 const populateElementsFromDatabase = async <IdType extends CollectionObjectId>(
-  conn: PoolConnection,
+  useConn: DatabaseConnection,
   comparisonResults: ComparisonResult<IdType>[]
 ): Promise<ComparisonResult<IdType>[]> => {
   if (comparisonResults.length == 0) {
@@ -68,41 +66,39 @@ const populateElementsFromDatabase = async <IdType extends CollectionObjectId>(
   });
 
   const comparisonIds: bigint[] = comparisonResults.map((cr) => snowflakeToSqlId(cr.id));
-  return new Promise((resolve, reject) => {
-    const ids: string = comparisonIds.join(',');
-    mysqlQuery(
-      `SELECT CE.comparisonId, CE.objectId, CE.elementId, CE.id as comparisonElementId 
-       FROM ComparisonElement CE
-       WHERE CE.comparisonId IN (${ids})`, [])
-      .then(([queryResults, _fieldPacket]: [QueryResult, FieldPacket[]]) => {
-        const elementResults: ComparisonElementsQueryResult[] = queryResults as ComparisonElementsQueryResult[];
+  const ids: string = comparisonIds.join(',');
+  return mysqlQuery(
+    `SELECT CE.comparisonId, CE.objectId, CE.elementId, CE.id as comparisonElementId 
+      FROM ComparisonElement CE
+      WHERE CE.comparisonId IN (${ids})`, [], useConn)
+    .then(([queryResults, _fieldPacket]: [QueryResult, FieldPacket[]]) => {
+      const elementResults: ComparisonElementsQueryResult[] = queryResults as ComparisonElementsQueryResult[];
 
-        elementResults.map((elementRow: ComparisonElementsQueryResult) => {
-          const cr: ComparisonResult<IdType> | undefined = resultMap.get(elementRow[0]);
-          if (cr) {
-            if (!cr.elements) {
-              cr.elements = [];
-            }
-            const element = cr?.elements.find((element) => element.elementId == elementRow[2]);
-            if (element) {
-              element.objectIds.push(elementRow[1] as IdType);
-            } else {
-              cr?.elements.push({
-                elementId: elementRow[2],
-                objectIds: [elementRow[1] as IdType],
-              });
-            }
+      elementResults.map((elementRow: ComparisonElementsQueryResult) => {
+        const cr: ComparisonResult<IdType> | undefined = resultMap.get(elementRow[0]);
+        if (cr) {
+          if (!cr.elements) {
+            cr.elements = [];
           }
-        });
-        return resolve(comparisonResults);
-      }).catch((elementErr) => {
-        if (elementErr) {
-          console.error(`Error while retrieving elements for comparison IDs ${comparisonIds}`, elementErr);
-          conn.release();
-          return reject(elementErr);
+          const element = cr?.elements.find((element) => element.elementId == elementRow[2]);
+          if (element) {
+            element.objectIds.push(elementRow[1] as IdType);
+          } else {
+            cr?.elements.push({
+              elementId: elementRow[2],
+              objectIds: [elementRow[1] as IdType],
+            });
+          }
         }
       });
-  });
+      return comparisonResults;
+      // return resolve(comparisonResults);
+    }).catch((elementErr) => {
+      if (elementErr) {
+        console.error(`Error while retrieving elements for comparison IDs ${comparisonIds}`, elementErr);
+      }
+      throw elementErr;
+    });
 };
 
 export const retrieveComparisonResults = async <IdType extends CollectionObjectId>(
@@ -152,7 +148,7 @@ export const retrieveComparisonResults = async <IdType extends CollectionObjectI
           winner: result.selectedComparisonElementId,
         };
       });
-      return populateElementsFromDatabase(conn, outputResults);
+      return populateElementsFromDatabase(useConn, outputResults);
     }).catch((comparisonErr) => {
       safeReleaseConnection(conn);
       let errMsg = `Failed while retrieving comparison results for collection ${collectionId}`;
@@ -192,57 +188,14 @@ export const retrieveComparisonRequest = async (
   });
 };
 
-export type CollectionTypeData = {
-  collectionId: uuid5;
-  name: string,
-  datasource: string;
-  description: string;
-  cachedData: string;
-  lastUpdateTime: Date;
-  maxElementsPerComparison: number;
-}
+export type CollectionTypeData = Collection;
+// {
+//   collectionId: uuid5;
+//   name: string,
+//   datasource: string;
+//   description: string;
+//   cachedData: string;
+//   lastUpdateTime: Date;
+//   maxElementsPerComparison: number;
+// }
 
-export const retrieveCollections = async():
-  Promise<CollectionTypeData[]> => {
-  const conn = await getConnection();
-
-  return new Promise((resolve, reject) => {
-    try {
-      mysqlQuery(
-        `SELECT collectionId, name, datasource, description, cachedData, lastUpdateTime, maxElementsPerComparison
-        FROM Collection`, [])
-        .then(([queryResult, _fieldPacket]: [QueryResult, FieldPacket[]]) => {
-          const results = queryResult as any[];
-          // (err, results) => {
-          if (results == undefined || results.length <= 0) {
-            conn.release();
-            return reject(
-              new Error(
-                `No Collections were present in config table.`
-              )
-            );
-          }
-          const collectionConfigs: CollectionTypeData[] =
-            results.map((result: any) => {
-              return {
-                cachedData: result.cachedData,
-                collectionId: result.collectionId,
-                datasource: result.datasource,
-                description: result.description,
-                lastUpdateTime: new Date(result.lastUpdateTime),
-                maxElementsPerComparison: result.maxElementsPerComparison,
-                name: result.name,
-              };
-            });
-          safeReleaseConnection(conn);
-          resolve(collectionConfigs);
-        }
-        ).catch((err) => {
-          safeReleaseConnection(conn);
-          return reject(err);
-        });
-    } catch (err) {
-      reject(err);
-    }
-  });
-};

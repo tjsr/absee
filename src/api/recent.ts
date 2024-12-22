@@ -11,7 +11,7 @@ import { ABSeeRequest } from '../session.js';
 import { CollectionTypeLoader } from '../datainfo.js';
 import { createComparisonResultResponse } from '../restresponse.js';
 import express from 'express';
-import { getLoader } from '../loaders.js';
+import { getLoaderFromPrisma } from '../loaders.js';
 import { retrieveComparisonResults } from '../database/mysql.js';
 
 const retrieveComparisonsForUser = async <
@@ -28,7 +28,9 @@ export const recent = async <
   request: ABSeeRequest, response: express.Response, loaderId: CollectionIdType) => {
   try {
     const userId: UserId = request.session.userId;
-    const loader: CollectionTypeLoader<CollectionObjectType, D, IdType> = await getLoader(loaderId);
+    const loader: CollectionTypeLoader<CollectionObjectType, D, IdType> = await getLoaderFromPrisma(
+      request.app.locals.prismaClient, loaderId
+    );
     const connectionPromise: DatabaseConnection = request.app.locals.connectionPromise;
 
     let maxComparisons: number|undefined;

@@ -1,4 +1,5 @@
 import { AbseeConfig, IPAddress } from './types.js';
+import { ExpressServerConfig, ExpressServerHelper } from '@tjsr/express-server-helper';
 import { Options, createProxyMiddleware } from 'http-proxy-middleware';
 import { Pool, PoolConnection, safeReleaseConnection } from '@tjsr/mysql-pool-utils';
 import {
@@ -9,10 +10,9 @@ import {
 } from './api/stats/stats.js';
 
 import { ABSeeRequest } from './session.js';
-import { ExpressServerHelper } from '@tjsr/express-server-helper';
 import { GoogleAuthSettings } from './auth/types.js';
+import { PrismaClient } from '@prisma/client';
 import { SESSION_ID_HEADER } from './api/apiUtils.js';
-import { UserSessionOptions } from '@tjsr/user-session-middleware';
 import { debugHeaders } from './api/debugHeaders.js';
 import { elo } from './api/elo.js';
 import express from 'express';
@@ -62,8 +62,18 @@ const getRequestConnectionPromise = (req: express.Request, res: express.Response
   next();
 };
 
-export const startApp = (config: Partial<AbseeConfig & UserSessionOptions> & { googleAuthSettings: GoogleAuthSettings }): express.Express => {
-  const useConfig = config?.sessionOptions?.name ? config
+export const startApp = (
+  config: Partial<AbseeConfig> & { googleAuthSettings: GoogleAuthSettings }
+): express.Express => {
+  if (config.sessionOptions && config.sessionOptions.userIdNamespace === undefined) {
+    throw new Error('userIdNamespace must be provided on sessionOptions');
+  } else if (!config.sessionOptions) {
+    throw new Error('sessionOptions must be provided on ABSee Config');
+  }
+  if (!config.connectionPool) {
+    throw new Error('Connection pool must be provided');
+  }
+  const useConfig: Partial<ExpressServerConfig> = config?.sessionOptions?.name ? config
     : {
       ...config,
       sessionOptions: {
@@ -73,6 +83,9 @@ export const startApp = (config: Partial<AbseeConfig & UserSessionOptions> & { g
   if (useConfig.sessionOptions?.name === undefined) {
     useConfig.sessionOptions!.name = SESSION_ID_HEADER;
   }
+  if (!config.sessionOptions.secret) {
+    throw new Error('Session secret must be provided');
+  }
   const expressHelper = new ExpressServerHelper(useConfig);
   if (!config.googleAuthSettings) {
     throw new Error('Google auth settings must be provided');
@@ -80,6 +93,7 @@ export const startApp = (config: Partial<AbseeConfig & UserSessionOptions> & { g
 
   const app: express.Express = expressHelper.init().app();
   app.locals.connectionPool = config.connectionPool;
+  app.locals.prismaClient = new PrismaClient();
   app.use(getRequestConnectionPromise);
 
   initialisePassportToExpressApp(app, config.googleAuthSettings);

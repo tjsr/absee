@@ -102,7 +102,8 @@ CollectionObjectType extends CollectionObject<IdType>, IdType extends Collection
 }
 
 export interface ClientCollectionType<
-  CollectionObjectType extends CollectionObject<IdType>, IdType extends CollectionObjectId
+  IdType extends CollectionObjectId,
+  CollectionObjectType extends CollectionObject<IdType>
 > {
   getObjectId: (object: CollectionObjectType) => IdType;
 }

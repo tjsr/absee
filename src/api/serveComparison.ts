@@ -9,8 +9,8 @@ import { ComparableObjectModel, ComparisonModel } from '../types/model.js';
 import { PoolConnection, getConnection, safeReleaseConnection } from '@tjsr/mysql-pool-utils';
 import { QUERYSTRING_ARRAY_DELIMETER, QUERYSTRING_ELEMENT_DELIMETER } from '../ui/utils.js';
 
-import { CollectionTypeLoader } from '../datainfo.js';
 import { LoaderNotFoundError } from '../types/errortypes.js';
+import { PrismaClient } from '@prisma/client';
 import SuperJSON from 'superjson';
 import { createCandidateElementList } from '../utils.js';
 import { createComparableObjectList } from '../comparableobjects.js';
@@ -18,7 +18,7 @@ import { createComparisonSelection } from '../datastore.js';
 import { createComparisonSelectionResponse } from '../restresponse.js';
 import express from 'express';
 import { getIp } from '../server.js';
-import { getLoader } from '../loaders.js';
+import { getLoaderFromPrisma } from '../loaders.js';
 import { getSnowflake } from '../snowflake.js';
 import { getUserIdentificationString } from '../auth/user.js';
 import { populatePrioritizedObjectList } from '../populatePrioritizedObjectList.js';
@@ -27,10 +27,10 @@ import { storeComparisonRequest } from '../comparison.js';
 const MINIMUM_PRIORITIZED_OBJECTS = 100;
 
 export const serveComparison = async <
-CollectionObjectType extends CollectionObject<IdType>, D, IdType extends CollectionObjectId>(
+CollectionObjectType extends CollectionObject<IdType>, _D, IdType extends CollectionObjectId>(
   request: express.Request,
   response: express.Response,
-  loaderId: CollectionIdType
+  collectionId: CollectionIdType
 ) => {
   let conn: PoolConnection|undefined = undefined;
   try {
@@ -38,7 +38,17 @@ CollectionObjectType extends CollectionObject<IdType>, D, IdType extends Collect
     const idString: string = getUserIdentificationString(request);
     const ipAddress = getIp(request);
 
-    const loader: CollectionTypeLoader<CollectionObjectType, D, IdType> = await getLoader(loaderId);
+    const prisma = request.app.locals.prismaClient || new PrismaClient();
+    const loader = await getLoaderFromPrisma(prisma.collection, collectionId);
+    
+    // const collection: CollectionTypeLoader<CollectionObjectType, D, IdType> =
+    //   await request.app.locals.prismaClient.collections.findUnique({
+    //     where: {
+    //       collectionId,
+    //     },
+    //   });
+    // const collectionDs = new PrismaCollectionDataSource(prisma);
+    // const collection = await collectionDs.getById(collectionId);
     const comparisonId: SnowflakeType = getSnowflake();
     const objectsQueryString = request.query.objects as string;
     const queryStringGroups:string[] = objectsQueryString?.split(QUERYSTRING_ARRAY_DELIMETER);
@@ -117,11 +127,14 @@ CollectionObjectType extends CollectionObject<IdType>, D, IdType extends Collect
   } catch (err: unknown) {
     safeReleaseConnection(conn);
     if (err instanceof LoaderNotFoundError) {
-      console.warn(`Client tried to access loader for collection id ${loaderId}, but it wasn't found in the Database.`);
+      console.warn(
+        `Client tried to access loader for collection id ${collectionId}, but it wasn't found in the Database.`,
+        err
+      );
       response.status(404);
       response.send({
         errType: 'LoaderNotFoundError',
-        loaderId: loaderId,
+        loaderId: collectionId,
         message: err.message,
       });
       response.end();

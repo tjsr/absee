@@ -38,42 +38,47 @@ export class CollectionDataValidationError extends Error {
 }
 
 export type CollectionTypeLoader<
-CollectionObjectType extends CollectionObject<IdType>, D, IdType extends CollectionObjectId> = {
+  IdType extends CollectionObjectId = CollectionObjectId,
+  CollectionObjectType extends CollectionObject<IdType> = CollectionObject<IdType>,
+  D = any,
+> = {
   collectionId: CollectionIdType;
   datasourceUrl: string;
   collectionData: D | undefined;
   maxElementsPerComparison: number;
   name: string;
-  getNumberOfElements: (loader: CollectionTypeLoader<CollectionObjectType, D, IdType>) => number;
+  getNumberOfElements: (loader: CollectionTypeLoader<IdType, CollectionObjectType, D>) => number;
   // defaultElementCounter;
   convertDatasourceOnLoad: <D>(data: any) => D;
   getObjectForId: (collectionData: D, id: IdType) => CollectionObjectType;
   getObjectByIndex: (collectionData: D, index: number) => CollectionObjectType;
   getObjectId: (object: CollectionObjectType) => IdType;
   validateData: (collectionId: CollectionIdType, collectionName: string, collectionData: D|undefined) => boolean;
-  prioritizedObjectIdList?: IdType[];
+  prioritizedObjectIdList?: IdType[] | undefined;
 };
 
 export const initializeLoader = async <
-CollectionObjectType extends CollectionObject<IdType>, D, IdType extends CollectionIdType>(
-  loader: CollectionTypeLoader<CollectionObjectType, D, IdType>
-): Promise<D> => {
-  return new Promise((resolve, reject) => {
-    retrieveCollectionData(
+IdType extends CollectionIdType,
+CollectionObjectType extends CollectionObject<IdType>,
+DataType = any>(
+  loader: CollectionTypeLoader<IdType, CollectionObjectType, DataType>
+): Promise<DataType> => {
+  return retrieveCollectionData(
       loader.collectionData,
       loader.datasourceUrl,
       loader.convertDatasourceOnLoad
     )
-      .then((data: D) => {
-        loader.collectionData = data;
-        resolve(data);
-      })
-      .catch((err) => reject(err));
-  });
+    .then((data: DataType) => {
+      loader.collectionData = data;
+      return data;
+    });
 };
 
 export const dataFromLoader = <
-CollectionObjectType extends CollectionObject<IdType>, D, IdType extends CollectionIdType>(
-    loader: CollectionTypeLoader<CollectionObjectType, D, IdType>): D => {
+  IdType extends CollectionIdType,
+  CollectionObjectType extends CollectionObject<IdType>,
+  DataType
+>(
+    loader: CollectionTypeLoader<IdType, CollectionObjectType, DataType>): DataType => {
   return loader.collectionData!;
 };

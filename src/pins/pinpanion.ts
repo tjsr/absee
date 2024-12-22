@@ -46,6 +46,9 @@ export type PAX = {
 };
 
 type PinpanionData = {
+  categories: any[];
+  sets: any[];
+  events: any[];
   pins: PinpanionPin[];
   paxs: PAX[];
   success: boolean;
@@ -53,7 +56,7 @@ type PinpanionData = {
 };
 
 export const countPinsInCollection = (
-  currentLoader: CollectionTypeLoader<Pin, PinpanionData, PinIdType>
+  currentLoader: CollectionTypeLoader<PinIdType, Pin, PinpanionData>
 ): number => {
   if (currentLoader.collectionData) {
     return currentLoader.collectionData.pins.length;
@@ -138,19 +141,23 @@ const datasourceConvertor = <PinpanionData>(inputData: any): PinpanionData => {
   return inputData;
 };
 
-
 export const validatePinCollectionData = (
   collectionId: CollectionIdType,
   collectionName: string,
   collectionData: PinpanionData|undefined
 ): boolean => {
+  if (collectionData === undefined) {
+    throw new PinCollectionDataValidationError(collectionId, 'Pin collection data not yet loaded for collection ' + collectionName);
+  }
+
   if (!collectionData?.baseImageUrl) {
+    console.warn('When validating pin collection', { ...collectionData, categories: [], events: [], groups: [], pins: [], paxs: [], sets: [], pax: [] });
     throw new PinCollectionImageBaseUrlMissing(collectionId, collectionName);
   }
   return true;
 };
 
-export const defaultDevPinLoader: CollectionTypeLoader<Pin, PinpanionData, PinIdType> = {
+export const defaultDevPinLoader: CollectionTypeLoader<PinIdType, Pin, PinpanionData> = {
   collectionData: undefined,
   collectionId: '83fd0b3e-dd08-4707-8135-e5f138a43f00',
   convertDatasourceOnLoad: datasourceConvertor,
@@ -164,7 +171,7 @@ export const defaultDevPinLoader: CollectionTypeLoader<Pin, PinpanionData, PinId
   validateData: validatePinCollectionData,
 };
 
-export const clientPinLoader: ClientCollectionType<Pin, PinIdType> = {
+export const clientPinLoader: ClientCollectionType<PinIdType, Pin> = {
   getObjectId: getObjectId,
 };
 
