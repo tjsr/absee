@@ -146,6 +146,9 @@ const datasourceConvertor = <PinpanionData>(inputData: PinpanionV1ProdData): Pin
   sets = inputData.sets;
   return {
     ...inputData,
+    paxs,
+    pins,
+    sets,
   } as PinpanionData;
 };
 
