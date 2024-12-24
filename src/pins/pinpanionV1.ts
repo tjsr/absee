@@ -10,7 +10,6 @@ const PIN_LIST_URL =
 
 let paxs: PAX[] | undefined = undefined;
 let sets: PinSet[] | undefined = undefined;
-// @ts-expect-error: TS6133
 let pins: PinpanionPin[] | undefined = undefined;
 
 export type PinIdType = CollectionObjectId;
