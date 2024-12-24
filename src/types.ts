@@ -54,17 +54,19 @@ export type ComparisonSelectionResponse<CollectionObject> = {
 };
 
 export type ComparisonElementResponse<
-  CollectionObjectType extends CollectionObject<IdType>, IdType extends CollectionObjectId> = {
+  CollectionObjectType extends CollectionObject<IdType>,
+  IdType extends CollectionObjectId = CollectionObjectId
+> = {
   elementId: ComparisonElementId;
   data: CollectionObjectType[];
 }
 
-export type ComparisonElement<IdType extends CollectionObjectId> = {
+export type ComparisonElement<IdType extends CollectionObjectId = CollectionObjectId> = {
   elementId: ComparisonElementId;
   objectIds: IdType[];
 }
 
-export type ComparisonResult<IdType extends CollectionObjectId> = {
+export type ComparisonResult<IdType extends CollectionObjectId = CollectionObjectId> = {
   id: ComparisonResultId;
   userId: UserId;
   elements: ComparisonElement<IdType>[];
@@ -72,8 +74,10 @@ export type ComparisonResult<IdType extends CollectionObjectId> = {
   requestTime: ISO8601Date;
 };
 
-export interface ComparisonResultResponse<CollectionObjectType extends CollectionObject<IdType>,
-  IdType extends CollectionObjectId> {
+export interface ComparisonResultResponse<
+  CollectionObjectType extends CollectionObject<IdType>,
+  IdType extends CollectionObjectId = CollectionObjectId,
+> {
   id: SnowflakeType;
   userId: UserId;
   elements: ComparisonElementResponse<CollectionObjectType, IdType>[];
@@ -81,19 +85,20 @@ export interface ComparisonResultResponse<CollectionObjectType extends Collectio
   requestTime: ISO8601Date;
 }
 
-export interface CollectionObjectEloRating<IdType extends CollectionObjectId> {
+export interface CollectionObjectEloRating<IdType extends CollectionObjectId = CollectionObjectId> {
   objectId: IdType;
   rating: number;
 }
 
-export interface EloTimeline<CollectionObjectIdType extends CollectionObjectId>
+export interface EloTimeline<CollectionObjectIdType extends CollectionObjectId = CollectionObjectId>
   extends ComparisonResult<CollectionObjectIdType> {
   eloRatingsAfter: CollectionObjectEloRating<CollectionObjectIdType>[];
   eloRatingsBefore: CollectionObjectEloRating<CollectionObjectIdType>[];
 }
 
 export interface EloTimelineResponse<
-CollectionObjectType extends CollectionObject<IdType>, IdType extends CollectionObjectId
+  CollectionObjectType extends CollectionObject<IdType>,
+  IdType extends CollectionObjectId = CollectionObjectId,
 >
   extends ComparisonResultResponse<CollectionObjectType, IdType> {
   collectionObjects: CollectionObjectType[];

@@ -57,7 +57,7 @@ const roundEloValues = <ET extends CollectionObjectEloRating<IdType>[], IdType e
 
 const convertTimelineToResponse = <
 CollectionObjectType extends CollectionObject<IdType>, IdType extends CollectionObjectId>
-  (timeline: EloTimeline<IdType>[], loader: CollectionTypeLoader<CollectionObjectType, any, IdType>):
+  (timeline: EloTimeline<IdType>[], loader: CollectionTypeLoader<IdType, CollectionObjectType, any>):
   EloTimelineResponse<CollectionObjectType, IdType>[] => {
   return timeline
     .sort((te1, te2) => te1.requestTime.getTime() - te2.requestTime.getTime())
@@ -86,13 +86,15 @@ CollectionObjectType extends CollectionObject<IdType>, IdType extends Collection
     });
 };
 
-export const elo = async <CollectionObjectType extends CollectionObject<IdType>,
-IdType extends CollectionIdType>(
+export const elo = async <
+CollectionObjectType extends CollectionObject<IdType>,
+IdType extends CollectionIdType = CollectionIdType,
+>(
   request: ABSeeRequest, response: express.Response, loaderId: CollectionIdType
 ) => {
   try {
     const prismaClient = request.app.locals.prismaClient || new PrismaClient();
-    const loader: CollectionTypeLoader<CollectionObjectType, any, IdType> = await getLoaderFromPrisma(prismaClient, loaderId);
+    const loader: CollectionTypeLoader<IdType, CollectionObjectType, any> = await getLoaderFromPrisma(prismaClient, loaderId);
     const conn = response.locals.connectionPromise;
 
     retrieveComparisonResults(

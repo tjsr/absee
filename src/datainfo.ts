@@ -37,23 +37,24 @@ export class CollectionDataValidationError extends Error {
   }
 }
 
-export type CollectionTypeLoader<
+export interface CollectionTypeLoader<
   IdType extends CollectionObjectId = CollectionObjectId,
   CollectionObjectType extends CollectionObject<IdType> = CollectionObject<IdType>,
-  D = any,
-> = {
+  ProcessedCollectionData = any,
+  InputData = any
+> {
   collectionId: CollectionIdType;
   datasourceUrl: string;
-  collectionData: D | undefined;
+  collectionData: ProcessedCollectionData | undefined;
   maxElementsPerComparison: number;
   name: string;
-  getNumberOfElements: (loader: CollectionTypeLoader<IdType, CollectionObjectType, D>) => number;
+  getNumberOfElements: (loader: CollectionTypeLoader<IdType, CollectionObjectType, ProcessedCollectionData>) => number;
   // defaultElementCounter;
-  convertDatasourceOnLoad: <D>(data: any) => D;
-  getObjectForId: (collectionData: D, id: IdType) => CollectionObjectType;
-  getObjectByIndex: (collectionData: D, index: number) => CollectionObjectType;
+  convertDatasourceOnLoad: <D>(data: InputData) => D;
+  getObjectForId: (collectionData: ProcessedCollectionData, id: IdType, collectionId?: CollectionIdType, collectionName?: string) => CollectionObjectType;
+  getObjectByIndex: (collectionData: ProcessedCollectionData, index: number, collectionId: CollectionIdType, collectionName: string) => CollectionObjectType;
   getObjectId: (object: CollectionObjectType) => IdType;
-  validateData: (collectionId: CollectionIdType, collectionName: string, collectionData: D|undefined) => boolean;
+  validateData: (collectionId: CollectionIdType, collectionName: string, collectionData: ProcessedCollectionData|undefined) => boolean;
   prioritizedObjectIdList?: IdType[] | undefined;
 };
 

@@ -2,15 +2,19 @@ import * as fs from 'fs';
 import * as https from 'https';
 import * as sourcemap from 'source-map-support';
 
+import { AbseeConfig, CollectionObject, CollectionObjectId } from './src/types.js';
+import { CollectionTypeLoader, initializeLoader } from './src/datainfo.js';
 import { DEFAULT_HTTP_PORT, startApp } from './src/server.js';
 import { GoogleAuthSettings, getGoogleAuthSettings } from './src/auth/index.js';
+import { LoaderDataSource, LoaderPrismaDataSource } from './src/store/loader.js';
 import { UserSessionOptions, getMysqlSessionStore } from '@tjsr/user-session-middleware';
 import { intEnv, loadEnv } from '@tjsr/simple-env-utils';
 
-import { AbseeConfig } from './src/types.js';
 import { CorsOptions } from 'cors';
+import { PrismaClient } from '@prisma/client';
 import { SESSION_ID_HEADER } from './src/api/apiUtils.js';
 import express from 'express';
+import { getCollectionLoaders } from './src/loaders.js';
 import { getConnectionPool } from '@tjsr/mysql-pool-utils';
 import { requireEnv } from './src/utils.js';
 
@@ -67,7 +71,15 @@ const abseeOptions: Partial<AbseeConfig & UserSessionOptions> & { googleAuthSett
   skipExposeHeaders: false,
 };
 
+const prismaClient = new PrismaClient();
+const loaders = await getCollectionLoaders(prismaClient).catch((err) => {
+  console.error('Error getting loaders', err);
+  process.exit(1);
+});
+
 const app: express.Express = startApp(abseeOptions);
+app.locals.loaders = loaders;
+
 if (fs.existsSync(SSL_CERT) && fs.existsSync(SSL_KEY)) {
   https.createServer({
     cert: fs.readFileSync(SSL_CERT),

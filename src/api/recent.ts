@@ -24,11 +24,11 @@ const retrieveComparisonsForUser = async <
 };
 
 export const recent = async <
-  CollectionObjectType extends CollectionObject<IdType>, D, IdType extends CollectionObjectId>(
+IdType extends CollectionObjectId, CollectionObjectType extends CollectionObject<IdType>>(
   request: ABSeeRequest, response: express.Response, loaderId: CollectionIdType) => {
   try {
     const userId: UserId = request.session.userId;
-    const loader: CollectionTypeLoader<CollectionObjectType, D, IdType> = await getLoaderFromPrisma(
+    const loader: CollectionTypeLoader<IdType, CollectionObjectType> = await getLoaderFromPrisma(
       request.app.locals.prismaClient, loaderId
     );
     const connectionPromise: DatabaseConnection = request.app.locals.connectionPromise;
@@ -54,7 +54,7 @@ export const recent = async <
       maxComparisons
     ).then((comparisons: ComparisonResult<IdType>[]) => {
       response.contentType('application/json');
-      const responseJson = createComparisonResultResponse<CollectionObjectType, IdType>(comparisons, loader);
+      const responseJson = createComparisonResultResponse<IdType, CollectionObjectType>(comparisons, loader);
       response.send(responseJson);
       return response.end();
     }).catch((err: Error) => {

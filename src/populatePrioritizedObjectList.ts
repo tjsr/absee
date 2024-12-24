@@ -4,9 +4,12 @@ import { CollectionTypeLoader } from './datainfo.js';
 import { retrieveObjectFrequency } from './database/retrieveObjectFrequency.js';
 
 export const populatePrioritizedObjectList = async <
-CollectionObjectType extends CollectionObject<IdType>, D, IdType extends CollectionObjectId>(
+CollectionObjectType extends CollectionObject<IdType>, DataType, IdType extends CollectionObjectId>(
   conn: DatabaseConnection,
-  loader: CollectionTypeLoader<CollectionObjectType, D, IdType>): Promise<void> => {
+  loader: CollectionTypeLoader<IdType, CollectionObjectType, DataType>): Promise<void> => {
+  if (!loader.collectionData) {
+    throw new Error('Collection data must be loaded before prioritized object list can be populated');
+  }
   const frequencyList: Map<string, number> = await retrieveObjectFrequency(conn, loader.collectionId);
   const occurenceNumberValues = frequencyList.values();
   let maxOccurrences = 0;
@@ -18,7 +21,11 @@ CollectionObjectType extends CollectionObject<IdType>, D, IdType extends Collect
   const workingOccurences: IdType[] = [];
   for (let i = loader.getNumberOfElements(loader)-1;i >= 0;i--) {
     const objectForIndex: CollectionObjectType = loader.getObjectByIndex(
-      (loader as CollectionTypeLoader<CollectionObjectType, any, IdType>).collectionData, i);
+      (loader as CollectionTypeLoader<IdType, CollectionObjectType, DataType>).collectionData!,
+      i,
+      loader.collectionId,
+      loader.name
+    );
     const objectId = loader.getObjectId(objectForIndex);
     const instances = maxOccurrences - (frequencyList.get(objectId)?? 0);
     for (let i = 1;i <= instances;i++) {

@@ -45,7 +45,7 @@ export class LoaderPrismaDataSource<
       collectionId: collection.collectionId,
       datasourceUrl: collection.datasource,
       maxElementsPerComparison: collection.maxElementsPerComparison,
-      name: predefinedLoader?.name || collection.name,
+      name: collection.name || predefinedLoader?.name,
     } as unknown as Loader;
 
     // if (!loader!.collectionData) {

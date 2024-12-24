@@ -1,13 +1,17 @@
 import { ClientCollectionType, CollectionIdType, CollectionObject, CollectionObjectId } from '../types.js';
 
-import { CollectionDataValidationError, CollectionTypeLoader } from '../datainfo.js';
+import { CollectionTypeLoader } from '../datainfo.js';
 import events from './eventnames.json' assert { type: 'json' };
+import { PinCollectionDataValidationError } from './pinpanionShared.js';
+import { PAX, PinpanionData } from './pinpanionTypes.js';
 
 const PIN_LIST_URL =
   process.env.PIN_LIST_URL || 'https://pinpanion.com/pins.json';
 
 let paxs: PAX[] | undefined = undefined;
 let sets: PinSet[] | undefined = undefined;
+// @ts-ignore: TS6133
+let pins: PinpanionPin[] | undefined = undefined;
 
 export type PinIdType = CollectionObjectId;
 
@@ -40,23 +44,20 @@ export type PinSet = {
   year: number;
 };
 
-export type PAX = {
-  id: number;
-  name: string;
-};
+type LowercasePaxShortname = string;
 
-type PinpanionData = {
-  categories: any[];
-  sets: any[];
-  events: any[];
+export type PninpanionV1PAX = {
+  shortName: LowercasePaxShortname;
+} & PAX;
+
+type PinpanionV1ProdData = {
   pins: PinpanionPin[];
-  paxs: PAX[];
-  success: boolean;
-  baseImageUrl: string;
-};
+  pax: PAX[];
+  sets: PinSet[];
+} & PinpanionData;
 
 export const countPinsInCollection = (
-  currentLoader: CollectionTypeLoader<PinIdType, Pin, PinpanionData>
+  currentLoader: CollectionTypeLoader<PinIdType, Pin, PinpanionV1ProdData>
 ): number => {
   if (currentLoader.collectionData) {
     return currentLoader.collectionData.pins.length;
@@ -106,27 +107,31 @@ const convertToDisplayPin = (pin: PinpanionPin, baseImageUrl: string): Pin => {
 };
 
 const getObjectByIndex = (
-  sourceData: PinpanionData,
+  sourceData: PinpanionV1ProdData,
   index: number
 ): Pin => {
   if (sourceData.baseImageUrl === undefined) {
-    throw new Error('baseImageUrl in sourceData is undefined and is required to location images data.');
+    const err = new Error('baseImageUrl in V1 sourceData is undefined and is required to location images data.');
+    console.debug(getObjectByIndex, 'v1', 'baseImageUrl is undefined', err);
+    throw err;
   }
   return convertToDisplayPin(sourceData.pins[index], sourceData.baseImageUrl);
 };
 
 const getPinById = (
-  sourceData: PinpanionData,
+  sourceData: PinpanionV1ProdData,
   id: string
 ): PinpanionPin | undefined => {
   if (sourceData.baseImageUrl === undefined) {
-    throw new Error('baseImageUrl in sourceData is undefined and is required to location images data.');
+    const err = new Error('baseImageUrl in V1 sourceData is undefined and is required to location images data.');
+    console.debug(getPinById, 'v1', 'baseImageUrl is undefined', err);
+    throw err;
   }
 
   return sourceData.pins?.find((p: PinpanionPin) => p.id.toString() === id?.toString());
 };
 
-const getObjectForId = (sourceData: PinpanionData, id: PinIdType): Pin => {
+const getObjectForId = (sourceData: PinpanionV1ProdData, id: PinIdType): Pin => {
   const sourcePin: PinpanionPin | undefined = getPinById(sourceData, id.toString());
 
   if (sourcePin) {
@@ -135,31 +140,32 @@ const getObjectForId = (sourceData: PinpanionData, id: PinIdType): Pin => {
   throw new Error(`Couldn't find pin for (${typeof id}) id [${id}]`);
 };
 
-const datasourceConvertor = <PinpanionData>(inputData: any): PinpanionData => {
+const datasourceConvertor = <PinpanionData>(inputData: PinpanionV1ProdData): PinpanionData => {
   paxs = inputData.pax;
+  pins = inputData.pins;
   sets = inputData.sets;
-  return inputData;
+  return {
+    ...inputData,
+  } as PinpanionData;
 };
 
-export const validatePinCollectionData = (
+export const validateV1PinCollectionData = (
   collectionId: CollectionIdType,
   collectionName: string,
-  collectionData: PinpanionData|undefined
+  collectionData: PinpanionV1ProdData|undefined
 ): boolean => {
   if (collectionData === undefined) {
     throw new PinCollectionDataValidationError(collectionId, 'Pin collection data not yet loaded for collection ' + collectionName);
   }
 
-  if (!collectionData?.baseImageUrl) {
-    console.warn('When validating pin collection', { ...collectionData, categories: [], events: [], groups: [], pins: [], paxs: [], sets: [], pax: [] });
-    throw new PinCollectionImageBaseUrlMissing(collectionId, collectionName);
-  }
+
   return true;
+  // verifyBaseImageUrl(collectionData, collectionId, collectionName);
 };
 
-export const defaultDevPinLoader: CollectionTypeLoader<PinIdType, Pin, PinpanionData> = {
+export const defaultProdPinpanionLoader: CollectionTypeLoader<PinIdType, Pin, PinpanionV1ProdData> = {
   collectionData: undefined,
-  collectionId: '83fd0b3e-dd08-4707-8135-e5f138a43f00',
+  collectionId: 'bbd20717-662c-4eb4-8809-a75d2bb320d2',
   convertDatasourceOnLoad: datasourceConvertor,
   datasourceUrl: PIN_LIST_URL,
   getNumberOfElements: countPinsInCollection,
@@ -168,21 +174,9 @@ export const defaultDevPinLoader: CollectionTypeLoader<PinIdType, Pin, Pinpanion
   getObjectId: getObjectId,
   maxElementsPerComparison: 3,
   name: 'pinpanion_dev',
-  validateData: validatePinCollectionData,
+  validateData: validateV1PinCollectionData,
 };
 
 export const clientPinLoader: ClientCollectionType<PinIdType, Pin> = {
   getObjectId: getObjectId,
 };
-
-class PinCollectionDataValidationError extends CollectionDataValidationError {
-  constructor(collectionId: string, errorMessage: string) {
-    super(collectionId, errorMessage);
-  }
-}
-
-export class PinCollectionImageBaseUrlMissing extends PinCollectionDataValidationError {
-  constructor(collectionId: string, collectionName: string) {
-    super(collectionId, 'No URL for pin image locations provided on collection ' + collectionName);
-  }
-}

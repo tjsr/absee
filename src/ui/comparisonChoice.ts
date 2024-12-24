@@ -14,14 +14,14 @@ import { SESSION_ID_HEADER } from '../api/apiUtils.js';
 export const fetchNewComparison = async (collectionId: string, comparisonObjects?: string[][]):
 Promise<RestCallResult> => {
   const serverHost = getServerHost();
-  let connectionUrl: string;
+  let connectionUrl: string|undefined;
   try {
     const comparisonParams = comparisonObjects?.length == 2
       ? `?objects=${comparisonObjects[0].join(QUERYSTRING_ELEMENT_DELIMETER)}`+
         `${QUERYSTRING_ARRAY_DELIMETER}${comparisonObjects[1].join(QUERYSTRING_ELEMENT_DELIMETER)}` : '';
     connectionUrl = `${serverHost}/collection/${collectionId}${comparisonParams}`;
   } catch (error) {
-    console.error(`Failed to create connection url for ${serverHost}`, error);
+    console.error(`Failed to create connection url for ${serverHost}`, connectionUrl, error);
     return { status: null, success: false };
   }
 
@@ -61,7 +61,7 @@ Promise<RestCallResult> => {
     //   }
     //   console.error(`Failed fetching from url ${serverHost}`, error);
     // }
-    console.error(`Failed fetching from url ${serverHost}`, error.message, error);
+    console.error(`Failed fetching from url ${connectionUrl}`, error);
     return { status: status, success: false };
   }
 };

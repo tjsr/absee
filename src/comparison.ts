@@ -26,9 +26,10 @@ export const storeComparisonRequest = async <IdType extends CollectionIdType>(
     requestTime: comparisonRequest.requestTime,
     userId: comparisonRequest.userId,
   };
+  console.log('Storing comparison request', postRequest);
   const allPromises: Promise<void>[] = [
-    ...storeComparisonElements(comparisonRequest.id, comparisonRequest.a),
-    ...storeComparisonElements(comparisonRequest.id, comparisonRequest.b),
+    ...storeComparisonElements(conn, comparisonRequest.id, comparisonRequest.a),
+    ...storeComparisonElements(conn, comparisonRequest.id, comparisonRequest.b),
     basicMySqlInsert(conn, 'Comparison', Object.keys(postRequest), postRequest),
   ];
   const resolved = Promise.all(allPromises)

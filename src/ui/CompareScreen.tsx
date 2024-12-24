@@ -100,7 +100,6 @@ const CompareScreen = <CO extends CollectionObject<IdType>, IdType extends Colle
           setComparison(comparisonRequest);
           setComparisonLoaded(true);
           setComparisonLoadingFailure(undefined);
-          setComparisonLoaded(false);
         } else {
           setComparisonLoadingFailure(res.success ? undefined : (res.status || 503));
         }

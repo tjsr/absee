@@ -145,10 +145,10 @@ export const startApp = (
   });
   app.get(
     '/collection/:collectionId',
-    async (request: ABSeeRequest, response: express.Response) => {
+    async (request: ABSeeRequest, response: express.Response, next: express.NextFunction) => {
       const collectionId = request.params.collectionId;
       if (collectionId == PINNY_ARCADE_DEV_COLLECTION_ID) {
-        await serveComparison(request, response, PINNY_ARCADE_DEV_COLLECTION_ID);
+        await serveComparison(request, response, next, PINNY_ARCADE_DEV_COLLECTION_ID);
       } else {
         response.status(401);
         response.end();

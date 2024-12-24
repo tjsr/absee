@@ -1,10 +1,12 @@
-import { Collection, Prisma } from '@prisma/client';
+import { Collection, Prisma, PrismaClient } from '@prisma/client';
 import { CollectionDataValidationError, CollectionTypeLoader, initializeLoader } from './datainfo.js';
 import { CollectionIdType, CollectionObject, CollectionObjectId } from './types.js';
+import { LoaderDataSource, LoaderPrismaDataSource } from './store/loader.js';
 
 import { LoaderNotFoundError } from './types/errortypes.js';
 import { NoLoaderDefinedError } from './types/errors.js';
 import { _retrieveCollections } from './database/collections.js';
+import { loaderDataSummary } from './utils.js';
 import { predefinedLoaders } from './types/loaders.js';
 
 export let allLoaders: CollectionTypeLoader<any, any, any>[];
@@ -79,4 +81,45 @@ const initialiseLoadersFromPrisma = async (collections: Prisma.CollectionDelegat
     });
   });
   return loaderList;
+};
+
+const requireLoaderValue = (loader: CollectionTypeLoader, key: keyof CollectionTypeLoader): boolean => {
+  if (loader[key] === undefined) {
+    const msg = `Loader does not have a ${key}`;
+    console.error(msg, loader);
+    throw new Error(`Loader does not have a ${key}`);
+  }
+  return true;
+};
+
+export const getCollectionLoaders = async (client: PrismaClient): Promise<
+  CollectionTypeLoader<CollectionObjectId, CollectionObject<CollectionObjectId>, any>[]
+> => {
+  const lds: LoaderDataSource<CollectionObjectId, CollectionObject<CollectionObjectId>, any> = new LoaderPrismaDataSource(client);
+  let allLoaders: CollectionTypeLoader[] = await lds.getAll().then((loaders) => {
+    if (loaders.length === 0) {
+      console.error('No loaders found for collections in database. Exiting.');
+      process.exit(1);
+    }
+    loaders.forEach((loader) => {
+      requireLoaderValue(loader, 'collectionId')
+      requireLoaderValue(loader, 'datasourceUrl')
+    });
+    const initialisedLoaders: Promise<
+      CollectionTypeLoader<CollectionObjectId, CollectionObject<CollectionObjectId>, any>
+    >[] = loaders.map((loader) => initializeLoader(loader).then((data) => {
+      return data;
+    }).then((data) => {
+      if (!loader.validateData(loader.collectionId, loader.name, loader.collectionData)) {
+        throw new CollectionDataValidationError(loader.collectionId, `Unknown error validating collection data for ${loader.name}`);
+      }
+      console.log('Loader Initialized', loader.collectionId, `${loader.name} from ${loader.datasourceUrl}`);
+      console.debug('Loader Initialized', loader.collectionId, loaderDataSummary(loader.collectionData));
+      return data;
+    }));
+    console.log('Loading multiple collection data sets:', loaders.map((l) => `${l.collectionId} (${l.name})=>${l.datasourceUrl}`));
+    return Promise.all(initialisedLoaders).then((_data) => loaders);
+  });
+
+  return allLoaders;
 };

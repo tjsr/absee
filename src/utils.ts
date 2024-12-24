@@ -30,8 +30,9 @@ const randomlySelectNumberOfElements = (max: number): number => {
 
 const createNewUniqueElementArray = <
   CollectionObjectType extends CollectionObject<IdType>,
-  IdType extends CollectionObjectId
->(loader: CollectionTypeLoader<CollectionObjectType, any, IdType>,
+  IdType extends CollectionObjectId = CollectionObjectId,
+  DataType = any
+>(loader: CollectionTypeLoader<IdType, CollectionObjectType, DataType>,
     max?: number,
     existingSets?: string[][]): IdType[] => {
   const results: IdType[] = [];
@@ -56,9 +57,10 @@ const createNewUniqueElementArray = <
 
 export const createCandidateElementList = <
   CollectionObjectType extends CollectionObject<IdType>,
-  IdType extends CollectionObjectId
+  IdType extends CollectionObjectId,
+  DataSourceDataStructure = any
 >(
-    loader: CollectionTypeLoader<CollectionObjectType, any, IdType>,
+    loader: CollectionTypeLoader<IdType, CollectionObjectType, DataSourceDataStructure>,
     maxLeft?: number,
     maxRight?: number
   ): [IdType[], IdType[]] => {
@@ -97,21 +99,31 @@ export const validateEmailString = (email: string): boolean => {
 
 const getRandomObjectId = <
 CollectionObjectType extends CollectionObject<IdType>,
-IdType extends CollectionObjectId
->(loader: CollectionTypeLoader<CollectionObjectType, any, IdType>): IdType => {
+IdType extends CollectionObjectId = CollectionObjectId,
+DataSourceDataStructure = any
+>(loader: CollectionTypeLoader<IdType, CollectionObjectType, DataSourceDataStructure>): IdType => {
+  if (loader.collectionData === undefined) {
+    throw new Error(`Collection data must be loaded on ${loader.name} before a random object can be selected`);
+  }
   const randomIndex: number = getRandomId(
     loader.getNumberOfElements(loader)
   );
 
-  const objectForIndex: CollectionObjectType = loader.getObjectByIndex(loader.collectionData, randomIndex);
+  const objectForIndex: CollectionObjectType = loader.getObjectByIndex(
+    loader.collectionData,
+    randomIndex,
+    loader.collectionId,
+    loader.name
+  );
   const randomObjectId: IdType = loader.getObjectId(objectForIndex);
   return randomObjectId;
 };
 
 const getPrioritizedOrRandomObjectId = <
 CollectionObjectType extends CollectionObject<IdType>,
-IdType extends CollectionObjectId
->(loader: CollectionTypeLoader<CollectionObjectType, any, IdType>): IdType => {
+IdType extends CollectionObjectId = CollectionObjectId,
+DataSourceDataStructure = any
+>(loader: CollectionTypeLoader<IdType, CollectionObjectType, DataSourceDataStructure>): IdType => {
   const id = loader.prioritizedObjectIdList?.pop();
   if (id) {
     return id;
@@ -119,3 +131,19 @@ IdType extends CollectionObjectId
   return getRandomObjectId(loader);
 };
 
+export const loaderDataSummary = <D extends Record<string, any>>(data: D): string => {
+  if (data === undefined || data === null) {
+    return 'No data';
+  }
+  const summaryData: Record<string, any> = { };
+  Object.keys(data).forEach((key: string) => {
+    const dataElement = data[key];
+    if (Array.isArray(dataElement)) {
+      const summaryKey = `${key}[].length`;
+      summaryData[summaryKey] = data[key].length;
+    } else {
+      summaryData[key] = data[key];
+    }
+  });
+  return JSON.stringify(summaryData);
+};
