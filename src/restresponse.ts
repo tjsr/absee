@@ -16,9 +16,11 @@ import { STARTING_ELO_RATING, updateEloRatings } from './rankings/elo.js';
 import { CollectionTypeLoader } from './datainfo.js';
 
 const elementToElementResponse = <
-  CollectionObjectType extends CollectionObject<IdType>, IdType extends CollectionObjectId>(
+  CollectionObjectType extends CollectionObject<IdType>,
+  IdType extends CollectionObjectId = CollectionObjectId
+>(
     element: ComparisonElement<IdType>,
-    loader: CollectionTypeLoader<CollectionObjectType, any, IdType>
+    loader: CollectionTypeLoader<IdType, CollectionObjectType, any>
   ): ComparisonElementResponse<CollectionObjectType, IdType> => {
   return {
     data: element.objectIds.map((objectId: IdType) =>
@@ -27,10 +29,13 @@ const elementToElementResponse = <
   };
 };
 
-const resultToResultResponse = <CollectionObjectType extends CollectionObject<IdType>,
-IdType extends CollectionObjectId>(
+const resultToResultResponse = <
+  IdType extends CollectionObjectId = CollectionObjectId,
+  CollectionObjectType extends CollectionObject<IdType> = CollectionObject<IdType>,
+  DataType = any
+>(
     result:ComparisonResult<IdType>,
-    loader: CollectionTypeLoader<CollectionObjectType, any, IdType>
+    loader: CollectionTypeLoader<IdType, CollectionObjectType, DataType>
   ): ComparisonResultResponse<CollectionObjectType, IdType> => {
   const output: ComparisonResultResponse<CollectionObjectType, IdType> = {
     elements: result.elements?.map((element: ComparisonElement<IdType>) => elementToElementResponse(element, loader)),
@@ -43,9 +48,11 @@ IdType extends CollectionObjectId>(
 };
 
 export const createComparisonResultResponse = <
-CollectionObjectType extends CollectionObject<IdType>, IdType extends CollectionObjectId>(
+  IdType extends CollectionObjectId = CollectionObjectId,
+  CollectionObjectType extends CollectionObject<IdType> = CollectionObject<IdType>
+  >(
     result: ComparisonResult<IdType>[],
-    loader: CollectionTypeLoader<CollectionObjectType, any, IdType>
+    loader: CollectionTypeLoader<IdType, CollectionObjectType, any>
   ): ComparisonResultResponse<CollectionObjectType, IdType>[] => {
   if (loader.collectionData === undefined) {
     throw Error('Can\'t populate data when existingData has not been loaded.');
@@ -177,9 +184,12 @@ export const createEloTimelineFromComparisons = <IdType extends CollectionObject
 };
 
 export const createComparableObjectResponse = <
-CollectionObjectType extends CollectionObject<IdType>, IdType extends CollectionObjectId>(
+CollectionObjectType extends CollectionObject<IdType>,
+IdType extends CollectionObjectId = CollectionObjectId,
+DataType = any
+>(
     comparableObject: ComparableObjectModel<IdType>[],
-    loader: CollectionTypeLoader<CollectionObjectType, any, IdType>
+    loader: CollectionTypeLoader<IdType, CollectionObjectType, DataType>
   ): ComparableObjectResponse<CollectionObjectType> => {
   if (comparableObject === undefined || comparableObject.length == 0) {
     throw Error(
@@ -199,9 +209,12 @@ CollectionObjectType extends CollectionObject<IdType>, IdType extends Collection
 };
 
 export const createComparisonSelectionResponse = <
-CollectionObjectType extends CollectionObject<IdType>, IdType extends CollectionObjectId>(
+  CollectionObjectType extends CollectionObject<IdType>,
+  IdType extends CollectionObjectId = CollectionObjectId,
+  DataType = any
+>(
     comparisonRequest: ComparisonModel<IdType>,
-    loader: CollectionTypeLoader<CollectionObjectType, any, IdType>
+    loader: CollectionTypeLoader<IdType, CollectionObjectType, DataType>
   ): ComparisonSelectionResponse<CollectionObjectType> => {
   let a!: ComparableObjectResponse<CollectionObjectType>;
 

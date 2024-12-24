@@ -9,35 +9,60 @@ import {
 import { QUERYSTRING_ARRAY_DELIMETER, QUERYSTRING_ELEMENT_DELIMETER, getServerHost } from './utils.js';
 
 import Cookies from 'js-cookie';
+import { SESSION_ID_HEADER } from '../api/apiUtils.js';
 
-export const fetchNewComparison = async (collectionId: string, comparisonObjects?: string[][]) => {
+export const fetchNewComparison = async (collectionId: string, comparisonObjects?: string[][]):
+Promise<RestCallResult> => {
   const serverHost = getServerHost();
+  let connectionUrl: string|undefined;
   try {
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json',
-    };
-    const sessionId = Cookies.get('sessionId');
-    if (sessionId !== undefined && sessionId !== 'undefined') {
-      headers['x-session-id'] = sessionId;
-    }
-
-    const comparisonParams = comparisonObjects?.length == 2 ?
-      `?objects=${comparisonObjects[0].join(QUERYSTRING_ELEMENT_DELIMETER)}`+
+    const comparisonParams = comparisonObjects?.length == 2
+      ? `?objects=${comparisonObjects[0].join(QUERYSTRING_ELEMENT_DELIMETER)}`+
         `${QUERYSTRING_ARRAY_DELIMETER}${comparisonObjects[1].join(QUERYSTRING_ELEMENT_DELIMETER)}` : '';
+    connectionUrl = `${serverHost}/collection/${collectionId}${comparisonParams}`;
+  } catch (error) {
+    console.error(`Failed to create connection url for ${serverHost}`, connectionUrl, error);
+    return { status: null, success: false };
+  }
 
-    const response = await fetch(
-      `${serverHost}/collection/${collectionId}${comparisonParams}`,
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+  };
+  const sessionId = Cookies.get('sessionId');
+  if (sessionId !== undefined && sessionId !== 'undefined') {
+    headers[`${SESSION_ID_HEADER}`] = sessionId;
+  }
+
+  let status = null;
+  try {
+    const response = await fetch(connectionUrl,
       {
         headers,
         method: 'GET',
       }
     );
+    status = response.status;
 
-    const json = await response.json();
-    return { data: json, success: true };
-  } catch (error) {
-    console.error(`Failed fetching from url ${serverHost}`, error);
-    return { success: false };
+    const success = status < 400;
+    console.log(`Received response from ${connectionUrl} with status ${status}, returning success=${success}.`);
+    const json = success ? await response.json() : undefined;
+    return { data: json, status: status, success: success };
+  } catch (error: any) {
+    if (error.status) {
+      status = error.status;
+    }
+    // if (error.status === 404) {
+    //   throw new CollectionNotFoundError(collectionId);
+    //   return { success: false };
+    // }
+    // if (error instanceof Error) {
+    //   if (error.httpStatus) {
+
+    //   }
+    //   console.error(`Failed fetching from url ${serverHost}`, error);
+    // }
+    console.error(`Failed fetching from url ${connectionUrl}`, error);
+    return { status: status, success: false };
   }
 };
 

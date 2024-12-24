@@ -1,5 +1,18 @@
 {
+  "delay": 500,
+  "experimentalSpecifierResolution": "node",
+  "esm": true,
+  "exec": "tsc --noEmit && node --import=./register.js --debug-port=8999 ./server.ts",
   "execMap": {
-      "ts": "ts-node"
+    "ts": "ts-node"
+  },
+  "ignore": ["src/**/*.spec.ts", "src/**/*.test.ts", "vite.config.ts.timestamp-*", "docker-compose.yml"],
+  "ext": "ts",
+  "watch": ["src", "nodemon.json", "package.json", "./*.ts", ".env.local"],
+  "verbose": true,
+  "transpileOnly": true,
+  "env": {
+    "NODE_ENV": "development",
+    "DOTENV_FLOW_PATTERN": ".env[.local]"
   }
 }
