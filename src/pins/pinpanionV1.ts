@@ -1,17 +1,17 @@
 import { ClientCollectionType, CollectionIdType, CollectionObject, CollectionObjectId } from '../types.js';
+import { PAX, PinpanionData } from './pinpanionTypes.js';
 
 import { CollectionTypeLoader } from '../datainfo.js';
-import events from './eventnames.json' assert { type: 'json' };
 import { PinCollectionDataValidationError } from './pinpanionShared.js';
-import { PAX, PinpanionData } from './pinpanionTypes.js';
+import events from './eventnames.json' assert { type: 'json' };
 
 const PIN_LIST_URL =
   process.env.PIN_LIST_URL || 'https://pinpanion.com/pins.json';
 
 let paxs: PAX[] | undefined = undefined;
 let sets: PinSet[] | undefined = undefined;
-// @ts-ignore: TS6133
-let pins: PinpanionPin[] | undefined = undefined;
+// @ts-expect-error: TS6133
+const _pins: PinpanionPin[] | undefined = undefined;
 
 export type PinIdType = CollectionObjectId;
 
@@ -155,7 +155,8 @@ export const validateV1PinCollectionData = (
   collectionData: PinpanionV1ProdData|undefined
 ): boolean => {
   if (collectionData === undefined) {
-    throw new PinCollectionDataValidationError(collectionId, 'Pin collection data not yet loaded for collection ' + collectionName);
+    throw new PinCollectionDataValidationError(collectionId,
+      'Pin collection data not yet loaded for collection ' + collectionName);
   }
 
 

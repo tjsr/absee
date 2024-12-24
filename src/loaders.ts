@@ -45,8 +45,8 @@ export const getLoaderFromPrisma = async (
       }
       return initializeLoader(loader!).then(() => loader!);
     }
-    return loader!
-    });
+    return loader!;
+  });
 };
 
 export const createLoaderFromCollection = <
@@ -70,7 +70,9 @@ export const createLoaderFromCollection = <
   return outputLoader;
 };
 
-const initialiseLoadersFromPrisma = async (collections: Prisma.CollectionDelegate): Promise<CollectionTypeLoader<any, any, any>[]> => {
+const initialiseLoadersFromPrisma = async (
+  collections: Prisma.CollectionDelegate
+): Promise<CollectionTypeLoader<any, any, any>[]> => {
   const loaderList:CollectionTypeLoader<any, any, any>[] = [];
   const allCollections = collections.findMany();
   await allCollections.then((result: Collection[]) => {
@@ -95,15 +97,16 @@ const requireLoaderValue = (loader: CollectionTypeLoader, key: keyof CollectionT
 export const getCollectionLoaders = async (client: PrismaClient): Promise<
   CollectionTypeLoader<CollectionObjectId, CollectionObject<CollectionObjectId>, any>[]
 > => {
-  const lds: LoaderDataSource<CollectionObjectId, CollectionObject<CollectionObjectId>, any> = new LoaderPrismaDataSource(client);
-  let allLoaders: CollectionTypeLoader[] = await lds.getAll().then((loaders) => {
+  const lds: LoaderDataSource<CollectionObjectId, CollectionObject<CollectionObjectId>, any> =
+    new LoaderPrismaDataSource(client);
+  const allLoaders: CollectionTypeLoader[] = await lds.getAll().then((loaders) => {
     if (loaders.length === 0) {
       console.error('No loaders found for collections in database. Exiting.');
       process.exit(1);
     }
     loaders.forEach((loader) => {
-      requireLoaderValue(loader, 'collectionId')
-      requireLoaderValue(loader, 'datasourceUrl')
+      requireLoaderValue(loader, 'collectionId');
+      requireLoaderValue(loader, 'datasourceUrl');
     });
     const initialisedLoaders: Promise<
       CollectionTypeLoader<CollectionObjectId, CollectionObject<CollectionObjectId>, any>
@@ -111,13 +114,15 @@ export const getCollectionLoaders = async (client: PrismaClient): Promise<
       return data;
     }).then((data) => {
       if (!loader.validateData(loader.collectionId, loader.name, loader.collectionData)) {
-        throw new CollectionDataValidationError(loader.collectionId, `Unknown error validating collection data for ${loader.name}`);
+        throw new CollectionDataValidationError(loader.collectionId,
+          `Unknown error validating collection data for ${loader.name}`);
       }
       console.log('Loader Initialized', loader.collectionId, `${loader.name} from ${loader.datasourceUrl}`);
       console.debug('Loader Initialized', loader.collectionId, loaderDataSummary(loader.collectionData));
       return data;
     }));
-    console.log('Loading multiple collection data sets:', loaders.map((l) => `${l.collectionId} (${l.name})=>${l.datasourceUrl}`));
+    console.log('Loading multiple collection data sets:', loaders.map((l) =>
+      `${l.collectionId} (${l.name})=>${l.datasourceUrl}`));
     return Promise.all(initialisedLoaders).then((_data) => loaders);
   });
 

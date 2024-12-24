@@ -13,7 +13,8 @@ export let allLoaders: CollectionTypeLoader<any, any, any>[];
  * @deprecated Use initialiseLoadersFromPrisma
  */
 // ts-ignore-next-line(TS6133)
-const _initialiseLoadersFromDatabase = async (useConn: DatabaseConnection): Promise<CollectionTypeLoader<any, any, any>[]> => {
+const _initialiseLoadersFromDatabase = async (useConn: DatabaseConnection):
+  Promise<CollectionTypeLoader<any, any, any>[]> => {
   const loaderList:CollectionTypeLoader<any, any, any>[] = [];
   const loaderData: CollectionTypeData[] = await _retrieveCollections(useConn);
   loaderData.map((loader: CollectionTypeData) => {

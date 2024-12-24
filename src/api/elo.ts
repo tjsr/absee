@@ -94,7 +94,8 @@ IdType extends CollectionIdType = CollectionIdType,
 ) => {
   try {
     const prismaClient = request.app.locals.prismaClient || new PrismaClient();
-    const loader: CollectionTypeLoader<IdType, CollectionObjectType, any> = await getLoaderFromPrisma(prismaClient, loaderId);
+    const loader: CollectionTypeLoader<IdType, CollectionObjectType, any> =
+      await getLoaderFromPrisma(prismaClient, loaderId);
     const conn = response.locals.connectionPromise;
 
     retrieveComparisonResults(

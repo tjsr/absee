@@ -1,9 +1,9 @@
-import { PinpanionV2PAX, Pin, PinIdType, PinpanionDevData, PinpanionPin, PinSet } from "./pinpanionV2types.js";
-import events from './eventnames.json' assert { type: 'json' };
-
-import { CollectionTypeLoader } from "../datainfo.js";
+import { Pin, PinIdType, PinSet, PinpanionDevData, PinpanionPin, PinpanionV2PAX } from "./pinpanionV2types.js";
 import { PinCollectionDataValidationError, verifyBaseImageUrl } from "./pinpanionShared.js";
 import { CollectionIdType } from "../types.js";
+import { CollectionTypeLoader } from "../datainfo.js";
+
+import events from './eventnames.json' assert { type: 'json' };
 
 const PIN_LIST_URL =
   process.env.PIN_LIST_URL || 'https://dev.pinpanion.com/pins.json';
@@ -108,7 +108,8 @@ export const validateV2PinCollectionData = (
   collectionData: PinpanionDevData|undefined
 ): boolean => {
   if (collectionData === undefined) {
-    throw new PinCollectionDataValidationError(collectionId, 'Pin collection data not yet loaded for collection ' + collectionName);
+    throw new PinCollectionDataValidationError(collectionId,
+      'Pin collection data not yet loaded for collection ' + collectionName);
   }
 
   return verifyBaseImageUrl(collectionData.baseImageUrl, collectionId, collectionName);

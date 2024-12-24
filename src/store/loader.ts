@@ -9,7 +9,9 @@ export interface LoaderDataSource<
   IdType extends CollectionObjectId = CollectionObjectId,
   CollectionObjectType extends CollectionObject<IdType> = CollectionObject<IdType>,
   DataType = any,
-  Loader extends CollectionTypeLoader<IdType, CollectionObjectType, DataType> = CollectionTypeLoader<IdType, CollectionObjectType, DataType>,
+  Loader extends CollectionTypeLoader<
+    IdType, CollectionObjectType, DataType
+  > = CollectionTypeLoader<IdType, CollectionObjectType, DataType>,
 > {
   getAll(): Promise<Loader[]>;
   getById(id: string): Promise<Loader | null>;
@@ -23,18 +25,22 @@ export class LoaderPrismaDataSource<
   IdType extends CollectionObjectId = CollectionObjectId,
   CollectionObjectType extends CollectionObject<IdType> = CollectionObject<IdType>,
   DataType = any,
-  Loader extends CollectionTypeLoader<IdType, CollectionObjectType, DataType> = CollectionTypeLoader<IdType, CollectionObjectType, DataType>,
+  Loader extends CollectionTypeLoader<IdType, CollectionObjectType, DataType> =
+    CollectionTypeLoader<IdType, CollectionObjectType, DataType>,
 > implements LoaderDataSource<IdType, CollectionObjectType, DataType, Loader> {
   _prisma: PrismaClient;
   constructor(client: PrismaClient) {
     this._prisma = client;
   }
 
-  createLoaderFromCollection = (collection: Collection): Loader => { // CollectionTypeLoader<CollectionObjectId, any, any> => {
+  createLoaderFromCollection = (collection: Collection): Loader => {
+    // CollectionTypeLoader<CollectionObjectId, any, any> => {
     // type LoaderType = CollectionTypeLoader;
-    // const predefinedLoader: Loader | undefined = predefinedLoaders.get(collection.collectionId) || predefinedLoaders.get(collection.name);
+    // const predefinedLoader: Loader | undefined = 
+    // predefinedLoaders.get(collection.collectionId) || predefinedLoaders.get(collection.name);
 
-    const predefinedLoader: CollectionTypeLoader<CollectionObjectId, any, any> | undefined = predefinedLoaders.get(collection.collectionId) || predefinedLoaders.get(collection.name);
+    const predefinedLoader: CollectionTypeLoader<CollectionObjectId, any, any> | undefined =
+      predefinedLoaders.get(collection.collectionId) || predefinedLoaders.get(collection.name);
     if (predefinedLoader === undefined) {
       throw new NoLoaderDefinedError(collection.name, collection.collectionId);
     }
@@ -55,13 +61,14 @@ export class LoaderPrismaDataSource<
     //   }
     //   return initializeLoader<IdType, CollectionObjectType, DataType>(loader!).then(() => {
     //     if (!loader.validateData(loader.collectionId, loader.name, loader.collectionData)) {
-    //       throw new CollectionDataValidationError(loader.collectionId, 'Unknown error validating collection data');
+    //       throw new CollectionDataValidationError(loader.collectionId,
+    // 'Unknown error validating collection data');
     //     }
     //     return loader!;
     //   });
     // }
     return loader;
-  }
+  };
 
   async getAll(): Promise<Loader[]> {
     return this._prisma.collection

@@ -4,12 +4,25 @@ import { defaultDevPinLoader, validateV2PinCollectionData } from "./pinpanionV2.
 
 import { TaskContext } from "vitest";
 import fs from 'node:fs';
+import path from "node:path";
 
-type PinpanionV2LoaderContext = TaskContext & { localFileData: any, loader: CollectionTypeLoader<PinIdType, Pin, PinpanionDevData> }
+const TEST_DATA_FILE = 'pinpanion.dev.20241223.json';
+type PinpanionV2LoaderContext = TaskContext &
+  { localFileData: any, loader: CollectionTypeLoader<PinIdType, Pin, PinpanionDevData> };
+
 describe('pinpanionV2', () => {
   let localFileData: any = undefined;
   beforeAll(() => {
-    const data = fs.readFileSync('file://../../../data/pinpanion.dev.20241223.json', 'utf8');
+    let dataPath = undefined;
+    dataPath = path.join(process.cwd(), 'data/pinpanion', TEST_DATA_FILE);
+    if (!fs.existsSync(dataPath)) {
+      dataPath = path.resolve(path.join('../..', 'data/pinpanion', TEST_DATA_FILE));
+    }
+    if (!fs.existsSync(dataPath)) {
+      throw new Error(`Can't find data file ${TEST_DATA_FILE}`);
+    }
+
+    const data = fs.readFileSync(dataPath, 'utf8');
     localFileData = JSON.parse(data);
   });
 
@@ -21,6 +34,8 @@ describe('pinpanionV2', () => {
 
   test('Should use existing cache data from disk', async (context: PinpanionV2LoaderContext) => {
     context.loader.collectionData = localFileData;
+    expect(context.loader.collectionData).toBeDefined();
+    context.loader.collectionData!.baseImageUrl = 'https://dev.pinpanion.com/imgs';
     const data = await initializeLoader(context.loader);
     expect(data).toBeDefined();
     // await context.loader.
@@ -36,10 +51,6 @@ describe('pinpanionV2', () => {
     expect(data).toBeDefined();
     // await context.loader.
   });
-
-  test('Data from dev site should be valid.', (context: PinpanionV2LoaderContext) => {
-    context.loader.validateData(context.loader.collectionId, context.loader.name, context.loader.collectionData);
-  });
 });
 
 describe('pinpanionV2.initializeLoader', () => {
@@ -54,5 +65,11 @@ describe('pinpanionV2.initializeLoader', () => {
     const data = await initializeLoader(context.loader);
     expect(data).toBeDefined();
     // expect(data.baseImageUrl).toBeDefined();
+  });
+
+  test('Data from dev site should be valid.', async (context: PinpanionV2LoaderContext) => {
+    const loader = context.loader;
+    await initializeLoader(loader);
+    loader.validateData(loader.collectionId, loader.name, loader.collectionData);
   });
 });

@@ -51,10 +51,24 @@ export interface CollectionTypeLoader<
   getNumberOfElements: (loader: CollectionTypeLoader<IdType, CollectionObjectType, ProcessedCollectionData>) => number;
   // defaultElementCounter;
   convertDatasourceOnLoad: <D>(data: InputData) => D;
-  getObjectForId: (collectionData: ProcessedCollectionData, id: IdType, collectionId?: CollectionIdType, collectionName?: string) => CollectionObjectType;
-  getObjectByIndex: (collectionData: ProcessedCollectionData, index: number, collectionId: CollectionIdType, collectionName: string) => CollectionObjectType;
+  getObjectForId: (
+    collectionData: ProcessedCollectionData,
+    id: IdType,
+    collectionId?: CollectionIdType,
+    collectionName?: string
+  ) => CollectionObjectType;
+  getObjectByIndex: (
+    collectionData: ProcessedCollectionData,
+    index: number,
+    collectionId: CollectionIdType,
+    collectionName: string
+  ) => CollectionObjectType;
   getObjectId: (object: CollectionObjectType) => IdType;
-  validateData: (collectionId: CollectionIdType, collectionName: string, collectionData: ProcessedCollectionData|undefined) => boolean;
+  validateData: (
+    collectionId: CollectionIdType,
+    collectionName: string,
+    collectionData: ProcessedCollectionData|undefined
+  ) => boolean;
   prioritizedObjectIdList?: IdType[] | undefined;
 };
 
@@ -65,10 +79,10 @@ DataType = any>(
   loader: CollectionTypeLoader<IdType, CollectionObjectType, DataType>
 ): Promise<DataType> => {
   return retrieveCollectionData(
-      loader.collectionData,
-      loader.datasourceUrl,
-      loader.convertDatasourceOnLoad
-    )
+    loader.collectionData,
+    loader.datasourceUrl,
+    loader.convertDatasourceOnLoad
+  )
     .then((data: DataType) => {
       loader.collectionData = data;
       return data;
