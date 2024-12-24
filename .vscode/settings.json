@@ -1,4 +1,14 @@
 {
   "jest.debugMode": false,
-  "jest.enable": false
+  "jest.enable": false,
+  "eslint.useFlatConfig": true,
+  "eslint.options": {
+    "overrideConfigFile": "eslint.config.mjs"
+  },
+  "prettier.requireConfig": true,
+  "javascript.preferences.importModuleSpecifierEnding": "js",
+  "typescript.preferences.importModuleSpecifierEnding": "js",
+  "prettier.configPath": ".prettierrc.json",
+  "editor.rulers": [120],
+  "npm.packageManager": "npm"
 }
