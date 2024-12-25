@@ -12,9 +12,10 @@ import {
 
 import { ABSeeRequest } from '../session.js';
 import { CollectionTypeLoader } from '../datainfo.js';
+import { PrismaClient } from '@prisma/client';
 import { createEloTimelineFromComparisons } from '../restresponse.js';
 import express from 'express';
-import { getLoader } from '../loaders.js';
+import { getLoaderFromPrisma } from '../loaders.js';
 import { retrieveComparisonResults } from '../database/mysql.js';
 
 const MAX_ELO_COMPARISONS = 99999;
@@ -56,7 +57,7 @@ const roundEloValues = <ET extends CollectionObjectEloRating<IdType>[], IdType e
 
 const convertTimelineToResponse = <
 CollectionObjectType extends CollectionObject<IdType>, IdType extends CollectionObjectId>
-  (timeline: EloTimeline<IdType>[], loader: CollectionTypeLoader<CollectionObjectType, any, IdType>):
+  (timeline: EloTimeline<IdType>[], loader: CollectionTypeLoader<IdType, CollectionObjectType, any>):
   EloTimelineResponse<CollectionObjectType, IdType>[] => {
   return timeline
     .sort((te1, te2) => te1.requestTime.getTime() - te2.requestTime.getTime())
@@ -85,14 +86,20 @@ CollectionObjectType extends CollectionObject<IdType>, IdType extends Collection
     });
 };
 
-export const elo = async <CollectionObjectType extends CollectionObject<IdType>,
-IdType extends CollectionIdType>(
+export const elo = async <
+CollectionObjectType extends CollectionObject<IdType>,
+IdType extends CollectionIdType = CollectionIdType,
+>(
   request: ABSeeRequest, response: express.Response, loaderId: CollectionIdType
 ) => {
   try {
-    const loader: CollectionTypeLoader<CollectionObjectType, any, IdType> = await getLoader(loaderId);
+    const prismaClient = request.app.locals.prismaClient || new PrismaClient();
+    const loader: CollectionTypeLoader<IdType, CollectionObjectType, any> =
+      await getLoaderFromPrisma(prismaClient, loaderId);
+    const conn = response.locals.connectionPromise;
 
     retrieveComparisonResults(
+      conn,
       loader.collectionId, undefined, MAX_ELO_COMPARISONS
     ).then((comparisons: ComparisonResult<string>[]) => {
       response.contentType('application/json');
@@ -109,7 +116,7 @@ IdType extends CollectionIdType>(
     });
 
     // return retrieveComparisonResults(collectionId, userId, maxComparisons);
-  } catch (err) {
+  } catch (_err) {
     response.status(500);
     response.send({ message: 'error' });
     response.end();

@@ -1,4 +1,9 @@
 import { ISO8601Date, SnowflakeType } from './types/mysqltypes.js';
+import { Pool, getConnection } from '@tjsr/mysql-pool-utils';
+import { SessionStoreDataType, UserSessionData, UserSessionOptions } from '@tjsr/user-session-middleware';
+
+import { ExpressServerConfig } from '@tjsr/express-server-helper';
+import { GoogleAuthSettings } from './auth/types.js';
 
 export type uuid = string;
 export type uuid5 = uuid;
@@ -49,17 +54,19 @@ export type ComparisonSelectionResponse<CollectionObject> = {
 };
 
 export type ComparisonElementResponse<
-  CollectionObjectType extends CollectionObject<IdType>, IdType extends CollectionObjectId> = {
+  CollectionObjectType extends CollectionObject<IdType>,
+  IdType extends CollectionObjectId = CollectionObjectId
+> = {
   elementId: ComparisonElementId;
   data: CollectionObjectType[];
 }
 
-export type ComparisonElement<IdType extends CollectionObjectId> = {
+export type ComparisonElement<IdType extends CollectionObjectId = CollectionObjectId> = {
   elementId: ComparisonElementId;
   objectIds: IdType[];
 }
 
-export type ComparisonResult<IdType extends CollectionObjectId> = {
+export type ComparisonResult<IdType extends CollectionObjectId = CollectionObjectId> = {
   id: ComparisonResultId;
   userId: UserId;
   elements: ComparisonElement<IdType>[];
@@ -67,8 +74,10 @@ export type ComparisonResult<IdType extends CollectionObjectId> = {
   requestTime: ISO8601Date;
 };
 
-export interface ComparisonResultResponse<CollectionObjectType extends CollectionObject<IdType>,
-  IdType extends CollectionObjectId> {
+export interface ComparisonResultResponse<
+  CollectionObjectType extends CollectionObject<IdType>,
+  IdType extends CollectionObjectId = CollectionObjectId,
+> {
   id: SnowflakeType;
   userId: UserId;
   elements: ComparisonElementResponse<CollectionObjectType, IdType>[];
@@ -76,19 +85,20 @@ export interface ComparisonResultResponse<CollectionObjectType extends Collectio
   requestTime: ISO8601Date;
 }
 
-export interface CollectionObjectEloRating<IdType extends CollectionObjectId> {
+export interface CollectionObjectEloRating<IdType extends CollectionObjectId = CollectionObjectId> {
   objectId: IdType;
   rating: number;
 }
 
-export interface EloTimeline<CollectionObjectIdType extends CollectionObjectId>
+export interface EloTimeline<CollectionObjectIdType extends CollectionObjectId = CollectionObjectId>
   extends ComparisonResult<CollectionObjectIdType> {
   eloRatingsAfter: CollectionObjectEloRating<CollectionObjectIdType>[];
   eloRatingsBefore: CollectionObjectEloRating<CollectionObjectIdType>[];
 }
 
 export interface EloTimelineResponse<
-CollectionObjectType extends CollectionObject<IdType>, IdType extends CollectionObjectId
+  CollectionObjectType extends CollectionObject<IdType>,
+  IdType extends CollectionObjectId = CollectionObjectId,
 >
   extends ComparisonResultResponse<CollectionObjectType, IdType> {
   collectionObjects: CollectionObjectType[];
@@ -97,9 +107,23 @@ CollectionObjectType extends CollectionObject<IdType>, IdType extends Collection
 }
 
 export interface ClientCollectionType<
-  CollectionObjectType extends CollectionObject<IdType>, IdType extends CollectionObjectId
+  IdType extends CollectionObjectId,
+  CollectionObjectType extends CollectionObject<IdType>
 > {
   getObjectId: (object: CollectionObjectType) => IdType;
 }
 
 export type { ISO8601Date, SnowflakeType };
+
+export interface AbseeConfig extends ExpressServerConfig {
+  initConnections?: boolean;
+  connectionPool: Pool;
+  googleAuthSettings: GoogleAuthSettings;
+}
+
+export type AbseeMinimumConfig = AbseeConfig & Partial<ExpressServerConfig> & UserSessionOptions;
+
+export type AbseeUserSessionData = UserSessionData;
+export type AbseeSessionStoreDataType = SessionStoreDataType;
+
+export type DatabaseConnection = ReturnType<typeof getConnection>;

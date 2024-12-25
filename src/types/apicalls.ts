@@ -8,7 +8,7 @@ export type ComparisonSubmissionRequestBody = {
 export type RestCallResult = {
   success: boolean;
   data?: any;
-  status: number;
+  status: number | null;
 };
 
 export type AuthenticationRestResult = {

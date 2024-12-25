@@ -1,4 +1,4 @@
-import {onCLS, onINP, onLCP} from 'web-vitals';
+import { onCLS, onINP, onLCP } from 'web-vitals';
 
 import Frontend from './ui/frontend.js';
 import { GoogleOAuthProvider } from '@react-oauth/google';

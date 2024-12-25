@@ -1,27 +1,37 @@
-import { CollectionIdType, CollectionObject, CollectionObjectId, ComparisonResult, UserId } from '../types.js';
+import {
+  CollectionIdType,
+  CollectionObject,
+  CollectionObjectId,
+  ComparisonResult,
+  DatabaseConnection,
+  UserId
+} from '../types.js';
 
 import { ABSeeRequest } from '../session.js';
 import { CollectionTypeLoader } from '../datainfo.js';
 import { createComparisonResultResponse } from '../restresponse.js';
 import express from 'express';
-import { getLoader } from '../loaders.js';
-import { getUserId } from '../auth/user.js';
+import { getLoaderFromPrisma } from '../loaders.js';
 import { retrieveComparisonResults } from '../database/mysql.js';
 
 const retrieveComparisonsForUser = async <
   IdType extends CollectionObjectId>(
+  conn: DatabaseConnection,
   collectionId: CollectionIdType,
   userId: UserId,
   maxComparisons?: number): Promise<ComparisonResult<IdType>[]> => {
-  return retrieveComparisonResults(collectionId, userId, maxComparisons);
+  return retrieveComparisonResults(conn, collectionId, userId, maxComparisons);
 };
 
 export const recent = async <
-  CollectionObjectType extends CollectionObject<IdType>, D, IdType extends CollectionObjectId>(
+IdType extends CollectionObjectId, CollectionObjectType extends CollectionObject<IdType>>(
   request: ABSeeRequest, response: express.Response, loaderId: CollectionIdType) => {
   try {
-    const userId: UserId = getUserId(request);
-    const loader: CollectionTypeLoader<CollectionObjectType, D, IdType> = await getLoader(loaderId);
+    const userId: UserId = request.session.userId;
+    const loader: CollectionTypeLoader<IdType, CollectionObjectType> = await getLoaderFromPrisma(
+      request.app.locals.prismaClient, loaderId
+    );
+    const connectionPromise: DatabaseConnection = request.app.locals.connectionPromise;
 
     let maxComparisons: number|undefined;
 
@@ -32,28 +42,25 @@ export const recent = async <
           return response.status(400).send({ message: 'max must be a number' });
         }
         maxComparisons = parsedMax;
-      } catch (err) {
+      } catch (_err) {
         return response.status(400).send({ message: 'max must be a number' });
       }
     }
 
-    retrieveComparisonsForUser<IdType>(
+    return await retrieveComparisonsForUser<IdType>(
+      connectionPromise,
       loader.collectionId,
       userId,
       maxComparisons
     ).then((comparisons: ComparisonResult<IdType>[]) => {
       response.contentType('application/json');
-      const responseJson = createComparisonResultResponse<CollectionObjectType, IdType>(comparisons, loader);
+      const responseJson = createComparisonResultResponse<IdType, CollectionObjectType>(comparisons, loader);
       response.send(responseJson);
-      response.end();
+      return response.end();
     }).catch((err: Error) => {
-      response.status(500);
-      response.send({ message: err.message });
-      response.end();
+      return response.status(500).send({ message: err.message }).end();
     });
-  } catch (err) {
-    response.status(500);
-    response.send({ message: 'error' });
-    response.end();
+  } catch (_err) {
+    return response.status(500).send({ message: 'error' }).end();
   }
 };

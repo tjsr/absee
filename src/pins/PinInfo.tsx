@@ -11,11 +11,10 @@ type PinInfoPropTypes = {
   style?: any;
   minimal?: boolean;
 };
-const PINPANION_IMAGE_LOCATION = 'https://pinpanion.com/imgs';
 
-export const PinInfo = ({ pin, style, minimal = false }: PinInfoPropTypes): JSX.Element => {
-  const url = `${PINPANION_IMAGE_LOCATION}/${pin.imageUrl}`;
-
+export const PinInfo = (
+  { pin, style, minimal = false }: PinInfoPropTypes
+): JSX.Element => {
   let pinClasses = minimal ? 'pinMinimal' : 'pin';
   let paxCssClass = 'pax';
   let setCssClass = 'set';
@@ -32,7 +31,7 @@ export const PinInfo = ({ pin, style, minimal = false }: PinInfoPropTypes): JSX.
         <div
           className="pinInfo"
           style={{
-            backgroundImage: `url(${url})`,
+            backgroundImage: `url(${pin.imageUrl})`,
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
             backgroundSize: 'contain',

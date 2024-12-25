@@ -7,20 +7,25 @@ services:
       context: .
       dockerfile_inline: |
         ARG MYSQL_VERSION 5.7
-        FROM mysql:${MYSQL_VERSION:-5.7} as mysql
+        FROM mysql:${MYSQL_VERSION:-5.7} AS mysql
 
         RUN --mount=type=cache,target=/var/cache/yum yum install -y -q gettext
 
-        COPY scripts/api-db-users.sh /docker-entrypoint-initdb.d/010-api-db-users.sh
-        COPY scripts/privs.api.template /docker-entrypoint-initdb.d/privs.api.template
-        COPY scripts/030-sqlmode.sql /docker-entrypoint-initdb.d/030-sqlmode.sql
-        COPY scripts/my.cnf /etc/mysql/my.cnf
-
-        RUN chmod 700 /docker-entrypoint-initdb.d/010-api-db-users.sh
+        COPY --chown=mysql:mysql --chmod=750 scripts/api-db-users.sh /docker-entrypoint-initdb.d/010-api-db-users.sh
+        COPY --chown=mysql:mysql --chmod=640 scripts/privs.api.template /docker-entrypoint-initdb.d/privs.api.template
+        COPY --chown=mysql:mysql --chmod=640 scripts/030-sqlmode.sql /docker-entrypoint-initdb.d/030-sqlmode.sql
+        COPY --chown=mysql:mysql --chmod=640 scripts/my.cnf /etc/mysql/my.cnf
+        RUN touch /var/run/020-privs.api.sql && \
+          ln -s /var/run/020-privs.api.sql /docker-entrypoint-initdb.d/020-privs.api.sql && \
+          chown mysql:mysql /var/run/020-privs.api.sql && \
+          chmod 660 /var/run/020-privs.api.sql
     env_file:
     - ./.env.test
     ports:
     - "${MYSQL_CI_HOST_PORT:-23507}:3306"
+    volumes:
+    - ./data/mysql_schema.sql:/docker-entrypoint-initdb.d/051-mysql_schema.sql:ro
+    - ./data/mysql_data.sql:/docker-entrypoint-initdb.d/052-mysql_data.sql:ro
     command: --default-authentication-plugin=mysql_native_password
     healthcheck:
       test: ["CMD-SHELL", "mysql -h 127.0.0.1 --silent -u$$MYSQL_USER -p$$MYSQL_PASSWORD", "-e", "SELECT 1"]
@@ -29,7 +34,7 @@ services:
       start_period: 30s
       
   abseedbold:
-    image: mysql:5.7.18
+    image: mysql:5.7.44
     restart: always
     environment:
       MYSQL_DATABASE: absee_dev

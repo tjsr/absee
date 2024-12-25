@@ -8,8 +8,8 @@ import { useDrag, useGesture } from '@use-gesture/react';
 import { SwiperSharedProps } from '../index.js';
 
 interface SwipableBoxContentProps extends React.HTMLProps<HTMLDivElement> {
-  boxMinHeight?: number;
-  boxMinWidth?: number;
+  boxMinHeight?: number|undefined;
+  boxMinWidth?: number|undefined;
 }
 const SwipableBoxContent: React.FC<SwipableBoxContentProps> = ({ ...props }) => {
   return (<div {...props} className="swipableBox" style={{
@@ -41,8 +41,8 @@ const SwipableBoxContent: React.FC<SwipableBoxContentProps> = ({ ...props }) => 
 
 
 export interface SwipableBoxProps extends SwiperSharedProps {
-  boxMinHeight?: number;
-  boxMinWidth?: number;
+  boxMinHeight?: number | undefined;
+  boxMinWidth?: number | undefined;
   children: React.ReactNode;
   dropArea?: MutableRefObject<HTMLDivElement | null>;
   itemSelected: (direction: SwipeDirection) => void;
