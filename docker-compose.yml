@@ -32,25 +32,12 @@ services:
       interval: 3s
       retries: 5
       start_period: 30s
-      
-  abseedbold:
-    image: mysql:5.7.44
-    restart: always
-    environment:
-      MYSQL_DATABASE: absee_dev
-      MYSQL_USER: absee_dev_user
-      MYSQL_ROOT_USER: absee_dev_root
-      MYSQL_RANDOM_ROOT_PASSWORD: true
-    ports:
-    - 3136:3306
-    volumes:
-      - absee_db_data:/var/lib/mysql
 
   cidbmig:
     container_name: absee_prismamig
     volumes:
     - ./prisma:/opt/migrator/prisma
-    image: public.ecr.aws/tjsrowe/prisma-generic:5.20.0
+    image: public.ecr.aws/tjsrowe/prisma-generic:6.1.0
     env_file:
       - path: ./.env.test
         required: true
