@@ -48,7 +48,7 @@ jobs:
       url: "https://${{ github.event.inputs.environment }}.pinpare.com"
     env:
         IMAGE_NAME: absee:${{ github.sha }}
-        DB_IMAGE_NAME: prisma-generic:5.20.0
+        DB_IMAGE_NAME: prisma-generic:6.1.0
         REGISTRY_ALIAS: tjsrowe
 
     steps:
@@ -103,7 +103,7 @@ jobs:
     env:
       IMAGE_TAG: absee:${{ github.event.inputs.environment }}
       IMAGE_NAME: absee:${{ github.sha }}
-      DB_IMAGE_NAME: prisma-generic:5.20.0
+      DB_IMAGE_NAME: prisma-generic:6.1.0
       REGISTRY_ALIAS: tjsrowe
       PRISMA_DATABASE_URL: ${{ secrets.PRISMA_DATABASE_URL }}
       CONTAINER_NAME: ${{ vars.CONTAINER_NAME }}
