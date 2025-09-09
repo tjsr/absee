@@ -44,7 +44,7 @@ jobs:
 
     - name: Pull patched node image
       run: |
-        docker pull ghcr.io/tjsr/node_patched_npm:20.18.1-alpine3.20-npm11.0.0
+        docker pull ghcr.io/tjsr/node_patched_npm:22.19.0-alpine3.22-npm11.6.0
   
     - name: Build API image
       uses: docker/build-push-action@v6
