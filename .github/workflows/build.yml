@@ -30,7 +30,7 @@ jobs:
         registry-type: public
 
     - name: Build dbmigrate image
-      uses: docker/build-push-action@v6
+      uses: docker/build-push-action@v7
       with:
         context: .
         builder: ${{ steps.buildx.outputs.name }}
@@ -47,7 +47,7 @@ jobs:
         docker pull ghcr.io/tjsr/node_patched_npm:20.18.1-alpine3.20-npm11.0.0
   
     - name: Build API image
-      uses: docker/build-push-action@v6
+      uses: docker/build-push-action@v7
       with:
         context: .
         builder: ${{ steps.buildx.outputs.name }}
