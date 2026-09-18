@@ -62,3 +62,6 @@ prisma/migrations_sqlite
 .env.*.local
 
 coverage
+
+/src/generated/prisma
+absee.tar
