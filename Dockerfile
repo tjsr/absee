@@ -1,6 +1,6 @@
-ARG NODE_VERSION=20.18.1
-ARG ALPINE_VERSION=3.20
-ARG NPM_VERSION=11.0.0
+ARG NODE_VERSION=22.19.0
+ARG ALPINE_VERSION=3.22
+ARG NPM_VERSION=11.6.0
 FROM ghcr.io/tjsr/node_patched_npm:${NODE_VERSION}-alpine${ALPINE_VERSION}-npm${NPM_VERSION} AS absee-build-preflight
 
 RUN mkdir /opt/absee
@@ -15,7 +15,7 @@ COPY [ "tsconfig.json", ".npmrc", "vite.config.ts", "vitest.config.ts", "server.
 
 COPY public/ /opt/absee/public
 COPY src/ /opt/absee/src
-COPY prisma/schema.prisma /opt/absee/prisma/schema.prisma
+COPY src/schema.prisma /opt/absee/src/schema.prisma
 
 RUN --mount=type=secret,id=github --mount=type=cache,target=/root/.npm  \
   echo "//npm.pkg.github.com/:_authToken=$(cat /run/secrets/github)" >> /root/.npmrc && \
@@ -27,7 +27,7 @@ FROM absee-build-preflight AS absee
 
 COPY package*.json /opt/absee
 COPY .npmrc /opt/absee
-COPY prisma/schema.prisma /opt/absee/prisma/schema.prisma
+COPY src/schema.prisma /opt/absee/src/schema.prisma
 
 RUN --mount=type=secret,id=github --mount=type=cache,target=/root/.npm \
   echo "//npm.pkg.github.com/:_authToken=$(cat /run/secrets/github)" >> /root/.npmrc && \
