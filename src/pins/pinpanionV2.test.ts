@@ -2,12 +2,12 @@ import { CollectionTypeLoader, initializeLoader } from "../datainfo.js";
 import { Pin, PinIdType, PinpanionDevData } from "./pinpanionV2types.js";
 import { defaultDevPinLoader, validateV2PinCollectionData } from "./pinpanionV2.js";
 
-import { TaskContext } from "vitest";
+import { TestContext } from "vitest";
 import fs from 'node:fs';
 import path from "node:path";
 
 const TEST_DATA_FILE = 'pinpanion.dev.20241223.json';
-type PinpanionV2LoaderContext = TaskContext &
+type PinpanionV2LoaderContext = TestContext &
   { localFileData: any, loader: CollectionTypeLoader<PinIdType, Pin, PinpanionDevData> };
 
 describe('pinpanionV2', () => {
