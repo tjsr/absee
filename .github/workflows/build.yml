@@ -11,11 +11,42 @@ jobs:
   verify:
     name: Test and build without publishing
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      mysql:
+        # Match the existing Compose test environment; this is not a deployment.
+        image: mysql:5.7.44
+        env:
+          MYSQL_ROOT_PASSWORD: ci-only-root-password
+          MYSQL_DATABASE: testdb
+        ports:
+        - 3306/tcp
+        options: >-
+          --health-cmd="mysqladmin ping --host=127.0.0.1 --user=root --password=ci-only-root-password --silent"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=12
+          --health-start-period=10s
     env:
       NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      MYSQL_HOST: 127.0.0.1
+      MYSQL_PORT: ${{ job.services.mysql.ports['3306'] }}
+      MYSQL_DATABASE: testdb
+      MYSQL_USER: testuser
+      MYSQL_PASSWORD: testpassword
+      PRISMA_DATABASE_URL: mysql://testuser:testpassword@127.0.0.1:${{ job.services.mysql.ports['3306'] }}/testdb
+      # Non-secret placeholders: tests never call Google login/callback routes.
+      GOOGLE_CLIENT_ID: ci-only-client-id.invalid
+      GOOGLE_CLIENT_SECRET: ci-only-google-secret
+      SERVER_PREFIX: http://127.0.0.1:8283
     steps:
     - name: Check out repository code
       uses: actions/checkout@v7
+
+    - name: Prepare isolated test database
+      env:
+        CI_MYSQL_CONTAINER: ${{ job.services.mysql.id }}
+      run: bash .github/scripts/prepare-test-database.sh
 
     - name: Use Node.js 24
       uses: actions/setup-node@v7
