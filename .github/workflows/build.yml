@@ -42,9 +42,6 @@ jobs:
         cache-from: type=gha
         cache-to: type=gha
 
-    - name: Pull patched node image
-      run: |
-        docker pull ghcr.io/tjsr/node_patched_npm:20.18.1-alpine3.20-npm11.0.0
   
     - name: Build API image
       uses: docker/build-push-action@v7
@@ -58,3 +55,30 @@ jobs:
         tags: ${{ github.actor != 'dependabot[bot]' && format('{0}/', steps.login-ecr-public.outputs.registry) || ''}}${{ env.API_IMAGE }}
         cache-from: type=gha
         cache-to: type=gha
+
+  node-lts:
+    name: Docker build (Node ${{ matrix.node-version }})
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [22, 24, 26]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          push: false
+          build-args: |
+            NODE_VERSION=${{ matrix.node-version }}
+            NODE_IMAGE=node:${{ matrix.node-version }}-alpine3.24
+            NODE_RUNTIME_IMAGE=node:${{ matrix.node-version }}-alpine3.24
+          secrets: |
+            github=${{ secrets.GITHUB_TOKEN }}
+          cache-from: type=gha,scope=node-${{ matrix.node-version }}
+          cache-to: type=gha,mode=max,scope=node-${{ matrix.node-version }}

@@ -1,7 +1,9 @@
-ARG NODE_VERSION=20.18.1
-ARG ALPINE_VERSION=3.20
-ARG NPM_VERSION=11.0.0
-FROM ghcr.io/tjsr/node_patched_npm:${NODE_VERSION}-alpine${ALPINE_VERSION}-npm${NPM_VERSION} AS absee-build-preflight
+ARG NODE_VERSION=22.19.0
+ARG ALPINE_VERSION=3.22
+ARG NPM_VERSION=11.6.2
+ARG NODE_IMAGE=ghcr.io/tjsr/node_patched_npm:${NODE_VERSION}-alpine${ALPINE_VERSION}-npm${NPM_VERSION}
+ARG NODE_RUNTIME_IMAGE=node:${NODE_VERSION}-alpine${ALPINE_VERSION}
+FROM ${NODE_IMAGE} AS absee-build-preflight
 
 RUN mkdir /opt/absee
 
