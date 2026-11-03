@@ -30,11 +30,9 @@ jobs:
     env:
       NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       MYSQL_HOST: 127.0.0.1
-      MYSQL_PORT: ${{ job.services.mysql.ports['3306'] }}
       MYSQL_DATABASE: testdb
       MYSQL_USER: testuser
       MYSQL_PASSWORD: testpassword
-      PRISMA_DATABASE_URL: mysql://testuser:testpassword@127.0.0.1:${{ job.services.mysql.ports['3306'] }}/testdb
       # Non-secret placeholders: tests never call Google login/callback routes.
       GOOGLE_CLIENT_ID: ci-only-client-id.invalid
       GOOGLE_CLIENT_SECRET: ci-only-google-secret
@@ -46,7 +44,11 @@ jobs:
     - name: Prepare isolated test database
       env:
         CI_MYSQL_CONTAINER: ${{ job.services.mysql.id }}
-      run: bash .github/scripts/prepare-test-database.sh
+        MYSQL_PORT: ${{ job.services.mysql.ports['3306'] }}
+      run: |
+        printf 'MYSQL_PORT=%s\n' "$MYSQL_PORT" >> "$GITHUB_ENV"
+        printf 'PRISMA_DATABASE_URL=mysql://testuser:testpassword@127.0.0.1:%s/testdb\n' "$MYSQL_PORT" >> "$GITHUB_ENV"
+        bash .github/scripts/prepare-test-database.sh
 
     - name: Use Node.js 24
       uses: actions/setup-node@v7
