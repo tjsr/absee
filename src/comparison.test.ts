@@ -2,12 +2,12 @@ import { CollectionObjectId, SnowflakeType } from './types.js';
 import { ComparableObjectModel, ComparisonModel } from './types/model.js';
 import { PoolConnection, closeConnectionPool, getConnection } from '@tjsr/mysql-pool-utils';
 
-import { TaskContext } from 'vitest';
+import { TestContext } from 'vitest';
 import { getSnowflake } from './snowflake.js';
 import { storeComparisonRequest } from './comparison.js';
 import { v4 as uuidv4 } from 'uuid';
 
-type ConnectionTaskContext = TaskContext & { conn: Promise<PoolConnection> };
+type ConnectionTaskContext = TestContext & { conn: Promise<PoolConnection> };
 
 describe('comparison', async () => {
   beforeEach<ConnectionTaskContext>((ctx) => {
