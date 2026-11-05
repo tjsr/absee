@@ -1,0 +1,61 @@
+name: Update internal dependency
+run-name: Update ${{ github.event_name == 'repository_dispatch' && github.event.client_payload.package || inputs.package }}
+
+on:
+  repository_dispatch:
+    types: [tjsr-package-published]
+  workflow_dispatch:
+    inputs:
+      package:
+        description: Dependency to update
+        type: choice
+        required: true
+        options: ['@tjsr/express-server-helper', '@tjsr/mysql-pool-utils', '@tjsr/simple-env-utils', '@tjsr/user-session-middleware', '@tjsr/testutils']
+      package-version:
+        description: Package version (leave empty to use the latest compatible version)
+        type: string
+        required: false
+  workflow_call:
+    inputs:
+      package:
+        type: string
+        required: true
+      package-version:
+        type: string
+        required: false
+
+permissions:
+  contents: write
+  packages: read
+  pull-requests: write
+
+jobs:
+  create-pr:
+    runs-on: ubuntu-latest
+    env:
+      PACKAGE: ${{ github.event_name == 'repository_dispatch' && github.event.client_payload.package || inputs.package }}
+      PACKAGE_VERSION: ${{ github.event_name == 'repository_dispatch' && github.event.client_payload.version || inputs.package-version }}
+      EVENT_NAME: ${{ github.event_name }}
+      ALLOWED_PACKAGES: '@tjsr/express-server-helper @tjsr/mysql-pool-utils @tjsr/simple-env-utils @tjsr/user-session-middleware @tjsr/testutils'
+      NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Validate dependency update request
+        run: |
+          test -n "$PACKAGE" || { echo 'A package is required.'; exit 1; }
+          case " $ALLOWED_PACKAGES " in *" $PACKAGE "*) ;; *) echo "Unsupported internal dependency: $PACKAGE"; exit 1;; esac
+          if [ "$EVENT_NAME" = repository_dispatch ]; then test -n "$PACKAGE_VERSION" || { echo 'A published-version event must include a version.'; exit 1; }; fi
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          registry-url: https://npm.pkg.github.com
+          scope: '@tjsr'
+      - name: Update dependency and open pull request
+        id: raise-version-pr
+        uses: tjsr/gh-util-actions/npm-dependency-pr@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          dependency: ${{ env.PACKAGE }}
+          packageVersion: ${{ env.PACKAGE_VERSION }}
+          reviewers: 'tjsr'
+
