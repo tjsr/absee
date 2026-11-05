@@ -1,7 +1,75 @@
 name: Build A/B See
 run-name: ${{ github.actor }} Running A/B See build.
-on: [push]
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+  packages: read
+
 jobs:
+  verify:
+    name: Test and build without publishing
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      mysql:
+        # Match the existing Compose test environment; this is not a deployment.
+        image: mysql:5.7.44
+        env:
+          MYSQL_ROOT_PASSWORD: ci-only-root-password
+          MYSQL_DATABASE: testdb
+        ports:
+        - 3306/tcp
+        options: >-
+          --health-cmd="mysqladmin ping --host=127.0.0.1 --user=root --password=ci-only-root-password --silent"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=12
+          --health-start-period=10s
+    env:
+      NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      MYSQL_HOST: 127.0.0.1
+      MYSQL_DATABASE: testdb
+      MYSQL_USER: testuser
+      MYSQL_PASSWORD: testpassword
+      # Non-secret placeholders: tests never call Google login/callback routes.
+      GOOGLE_CLIENT_ID: ci-only-client-id.invalid
+      GOOGLE_CLIENT_SECRET: ci-only-google-secret
+      SERVER_PREFIX: http://127.0.0.1:8283
+    steps:
+    - name: Check out repository code
+      uses: actions/checkout@v7
+
+    - name: Prepare isolated test database
+      env:
+        CI_MYSQL_CONTAINER: ${{ job.services.mysql.id }}
+        MYSQL_PORT: ${{ job.services.mysql.ports['3306'] }}
+      run: |
+        printf 'MYSQL_PORT=%s\n' "$MYSQL_PORT" >> "$GITHUB_ENV"
+        printf 'PRISMA_DATABASE_URL=mysql://testuser:testpassword@127.0.0.1:%s/testdb\n' "$MYSQL_PORT" >> "$GITHUB_ENV"
+        bash .github/scripts/prepare-test-database.sh
+
+    - name: Use Node.js 24
+      uses: actions/setup-node@v7
+      with:
+        node-version: 24
+        registry-url: 'https://npm.pkg.github.com'
+        scope: '@tjsr'
+        cache: npm
+
+    - name: Use latest compatible npm
+      run: npm install --global npm@latest --registry=https://registry.npmjs.org
+
+    - name: Install locked dependencies
+      run: npm ci --allow-git=root
+
+    - name: Run tests
+      run: npm test
+
+    - name: Build
+      run: npm run build
+
   build-absee:
     runs-on: ubuntu-latest
     env:
@@ -20,7 +88,7 @@ jobs:
 
     - name: Login to Amazon ECR Public
       id: login-ecr-public
-      if: ${{ github.actor != 'dependabot[bot]' }}
+      if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'tjsr/absee' && github.actor != 'dependabot[bot]' }}
       uses: aws-actions/amazon-ecr-login@v2
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
@@ -37,8 +105,8 @@ jobs:
         secrets: |
           github=${{ secrets.GITHUB_TOKEN }}
         file: Dockerfile.dbmigrate
-        push: ${{ github.actor != 'dependabot[bot]' }}
-        tags: ${{ github.actor != 'dependabot[bot]' && format('{0}/', steps.login-ecr-public.outputs.registry) || ''}}${{ env.DBMIGRATE_IMAGE }}
+        push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'tjsr/absee' && github.actor != 'dependabot[bot]' }}
+        tags: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'tjsr/absee' && github.actor != 'dependabot[bot]' && format('{0}/', steps.login-ecr-public.outputs.registry) || ''}}${{ env.DBMIGRATE_IMAGE }}
         cache-from: type=gha
         cache-to: type=gha
 
@@ -51,8 +119,8 @@ jobs:
         secrets: |
           github=${{ secrets.GITHUB_TOKEN }}
         file: Dockerfile
-        push: ${{ github.actor != 'dependabot[bot]' }}
-        tags: ${{ github.actor != 'dependabot[bot]' && format('{0}/', steps.login-ecr-public.outputs.registry) || ''}}${{ env.API_IMAGE }}
+        push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'tjsr/absee' && github.actor != 'dependabot[bot]' }}
+        tags: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'tjsr/absee' && github.actor != 'dependabot[bot]' && format('{0}/', steps.login-ecr-public.outputs.registry) || ''}}${{ env.API_IMAGE }}
         cache-from: type=gha
         cache-to: type=gha
 
