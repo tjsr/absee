@@ -1,2 +1,2 @@
-export { default as StaticDualSwiper } from './StaticDualSwiper.js';
-export type { StaticDualSwiperProps } from './StaticDualSwiper.js';
+export { default as StaticDualSwiper } from './StaticDualSwiper.tsx';
+export type { StaticDualSwiperProps } from './StaticDualSwiper.tsx';

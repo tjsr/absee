@@ -1,10 +1,10 @@
-import { EmailAddress, IPAddress, SnowflakeType } from '../types.js';
+import { EmailAddress, IPAddress, SnowflakeType } from '../types.ts';
 import express, { NextFunction } from 'express';
 
-import { ABSeeRequest } from '../session.js';
+import { ABSeeRequest } from '../session.ts';
 import { PoolConnection } from '@tjsr/mysql-pool-utils';
-import { basicMySqlInsert } from '../database/basicMysqlInsert.js';
-import { getSnowflake } from '../snowflake.js';
+import { basicMySqlInsert } from '../database/mysql/basicMysqlInsert.ts';
+import { getSnowflake } from '../snowflake.ts';
 
 export const saveUserOnlogin = async (
   _req: ABSeeRequest,
@@ -88,6 +88,6 @@ export const saveUserLogin =
     const idSnowflake: SnowflakeType = getSnowflake();
     return basicMySqlInsert(conn, 'UserLogins',
       ['id', 'userId', 'email', 'sessionId', 'loginTime', 'loginIp'],
-      [idSnowflake, userId, email, sessionId, new Date(), loginIp]);
+      [idSnowflake, userId, email, sessionId, new Date().toISOString(), loginIp]);
   };
 

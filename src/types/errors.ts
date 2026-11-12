@@ -1,4 +1,4 @@
-import { CollectionIdType } from '../types.js';
+import { CollectionIdType } from '../types.ts';
 
 export class NoLoaderDefinedError extends Error {
   _collectionId: CollectionIdType;

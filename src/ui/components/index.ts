@@ -1,12 +1,12 @@
-export { DualSwiper } from './DualSwiper/index.js';
-export { StaticDualSwiper } from './StaticDualSwiper/index.js';
-export { SwipableBox } from './SwipableBox/index.js';
+export { DualSwiper } from './DualSwiper/index.ts';
+export { StaticDualSwiper } from './StaticDualSwiper/index.ts';
+export { SwipableBox } from './SwipableBox/index.ts';
 
-export { SwipeDirection, DragDirection } from './SwipableBox/types.js';
-export { SelectionAction } from './DualSwiper/types.js';
-export type { DualSwiperProps } from './DualSwiper/index.js';
-export type { StaticDualSwiperProps } from './StaticDualSwiper/index.js';
-export type { SwipableBoxProps } from './SwipableBox/index.js';
+export { SwipeDirection, DragDirection } from './SwipableBox/types.ts';
+export { SelectionAction } from './DualSwiper/types.ts';
+export type { DualSwiperProps } from './DualSwiper/index.ts';
+export type { StaticDualSwiperProps } from './StaticDualSwiper/index.ts';
+export type { SwipableBoxProps } from './SwipableBox/index.ts';
 
 export type RGB = `rgb(${number}, ${number}, ${number})`;
 export type RGBA = `rgba(${number}, ${number}, ${number}, ${number})`;

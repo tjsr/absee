@@ -62,3 +62,27 @@ prisma/migrations_sqlite
 .env.*.local
 
 coverage
+api.env.out
+.env.3700x
+.env.*
+absee.tar
+api.env
+.wrangler/
+.wrangler/state/v3/d1
+.wrangler/state/v3/d1/miniflare-D1DatabaseObject/*.sqlite
+.wrangler/worker-configuration.*.d.ts
+absee-ec2.bat
+dbquery.bat
+Dockerfile.*
+data/hinge*.sql
+data/hinge*.json
+upgrade
+*.crt
+*.key
+*rydev*.*
+data/mysql_data.sql
+src/database/containerusers copy.sql
+wrangler.jsonc
+prisma-mysql/pinpanion.db
+prisma-mysql/dev.db
+migrations-d1/0002_seed_pinpanion_collections.sql

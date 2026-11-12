@@ -2,9 +2,9 @@ import { UserSessionMiddlewareRequestHandler, getUserIdFromSession } from '@tjsr
 
 import { HttpStatusCode } from '@tjsr/user-session-middleware';
 import { NextFunction } from 'express';
-import { USERID_UUID_NAMESPACE } from '../auth/user.js';
-import { UserId } from '../types.js';
-import { asyncHandlerWrap } from '../utils/asyncHandlerWrap.js';
+import { USERID_UUID_NAMESPACE } from '../auth/user.ts';
+import { UserId } from '../types.ts';
+import { asyncHandlerWrap } from '../utils/asyncHandlerWrap.ts';
 import { endWithJsonMessage } from '@tjsr/user-session-middleware';
 
 const getUserAsync: UserSessionMiddlewareRequestHandler = async (

@@ -1,11 +1,11 @@
 // import './SwipableBox.css';
 
-import { DragDirection, SwipeDirection } from './types.js';
+import { DragDirection, SwipeDirection } from './types.ts';
 import React, { MutableRefObject, useRef } from 'react';
 import { animated, useSpring } from '@react-spring/web';
 import { useDrag, useGesture } from '@use-gesture/react';
 
-import { SwiperSharedProps } from '../index.js';
+import { SwiperSharedProps } from '../index.ts';
 
 interface SwipableBoxContentProps extends React.HTMLProps<HTMLDivElement> {
   boxMinHeight?: number|undefined;

@@ -72,14 +72,14 @@ const getPinSetName = (setId: number): string | undefined => {
 
 const getObjectId = (pin: Pin): PinIdType => pin.id;
 
-const datasourceConvertor = <PinpanionData>(inputData: PinpanionDevData): PinpanionData => {
+const datasourceConvertor = (inputData: PinpanionDevData): PinpanionDevData => {
   paxs = inputData.pax;
   sets = inputData.sets;
   const output = {
     ...inputData,
     baseImageUrl: inputData.baseImageUrl || PINPANION_IMAGE_LOCATION,
   };
-  return output as PinpanionData;
+  return output;
 };
 
 export const countPinsInCollection = (

@@ -6,17 +6,17 @@ import {
   ComparisonSelectionResponse,
   EmailAddress,
   SnowflakeType
-} from '../types.js';
+} from '../types.ts';
 import { Link, useLocation } from 'react-router-dom';
-import { QUERYSTRING_ARRAY_DELIMETER, QUERYSTRING_ELEMENT_DELIMETER } from './utils.js';
+import { QUERYSTRING_ARRAY_DELIMETER, QUERYSTRING_ELEMENT_DELIMETER } from './utils.ts';
 import React, { useEffect, useRef, useState } from 'react';
 import { TokenResponse, useGoogleLogin } from '@react-oauth/google';
-import { fetchNewComparison, submitComparisonChoice } from './comparisonChoice.js';
+import { fetchNewComparison, submitComparisonChoice } from './comparisonChoice.ts';
 
-import { ComparisonLink } from './ComparisonLink.js';
-import { ElementPicker } from './simplePicker.js';
-import { LoginControl } from './auth/LoginControl.js';
-import { RestCallResult } from '../types/apicalls.js';
+import { ComparisonLink } from './ComparisonLink.tsx';
+import { ElementPicker } from './simplePicker.tsx';
+import { LoginControl } from './auth/LoginControl.tsx';
+import { RestCallResult } from '../types/apicalls.ts';
 import SuperJSON from 'superjson';
 import { useSearchParams } from 'react-router-dom';
 
@@ -96,7 +96,8 @@ const CompareScreen = <CO extends CollectionObject<IdType>, IdType extends Colle
         const res = await fetchNewComparison(collectionId, preselectedObjectArr);
         if (res.success) {
           console.log(`Successfully loaded ${SuperJSON.stringify(res.data)}`);
-          const comparisonRequest: ComparisonSelectionResponse<CO> = res.data.json;
+          const comparisonRequest: ComparisonSelectionResponse<CO> =
+            (res.data as { json?: ComparisonSelectionResponse<CO> }).json ?? res.data;
           setComparison(comparisonRequest);
           setComparisonLoaded(true);
           setComparisonLoadingFailure(undefined);

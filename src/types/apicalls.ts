@@ -1,4 +1,4 @@
-import { EmailAddress, SnowflakeType } from '../types.js';
+import { EmailAddress, SnowflakeType } from '../types.ts';
 
 export type ComparisonSubmissionRequestBody = {
   comparisonId: SnowflakeType;

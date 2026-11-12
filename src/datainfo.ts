@@ -1,12 +1,12 @@
-import { CollectionIdType, CollectionObject, CollectionObjectId } from './types.js';
+import { CollectionIdType, CollectionObject, CollectionObjectId } from './types.ts';
 
 import axios from 'axios';
 
-export const retrieveCollectionData = async <D>(
-  existingData: D | undefined,
+export const retrieveCollectionData = async <InputData, OutputData>(
+  existingData: OutputData | undefined,
   url: string,
-  datasourceConvertor: <D>(data: any) => D
-): Promise<D> => {
+  datasourceConvertor: (data: InputData) => OutputData
+): Promise<OutputData> => {
   return new Promise((resolve, reject) => {
     if (existingData == undefined) {
       // TODO: Swap axios with fetch
@@ -40,8 +40,8 @@ export class CollectionDataValidationError extends Error {
 export interface CollectionTypeLoader<
   IdType extends CollectionObjectId = CollectionObjectId,
   CollectionObjectType extends CollectionObject<IdType> = CollectionObject<IdType>,
-  ProcessedCollectionData = any,
-  InputData = any
+  ProcessedCollectionData = unknown,
+  InputData = ProcessedCollectionData
 > {
   collectionId: CollectionIdType;
   datasourceUrl: string;
@@ -50,7 +50,7 @@ export interface CollectionTypeLoader<
   name: string;
   getNumberOfElements: (loader: CollectionTypeLoader<IdType, CollectionObjectType, ProcessedCollectionData>) => number;
   // defaultElementCounter;
-  convertDatasourceOnLoad: <D>(data: InputData) => D;
+  convertDatasourceOnLoad: (data: InputData) => ProcessedCollectionData;
   getObjectForId: (
     collectionData: ProcessedCollectionData,
     id: IdType,

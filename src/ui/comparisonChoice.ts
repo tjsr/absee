@@ -1,15 +1,15 @@
 import {
   ComparisonSelectionResponse,
   SnowflakeType
-} from '../types.js';
+} from '../types.ts';
 import {
   ComparisonSubmissionRequestBody,
   RestCallResult
-} from '../types/apicalls.js';
-import { QUERYSTRING_ARRAY_DELIMETER, QUERYSTRING_ELEMENT_DELIMETER, getServerHost } from './utils.js';
+} from '../types/apicalls.ts';
+import { QUERYSTRING_ARRAY_DELIMETER, QUERYSTRING_ELEMENT_DELIMETER, getServerHost } from './utils.ts';
 
 import Cookies from 'js-cookie';
-import { SESSION_ID_HEADER } from '../api/apiUtils.js';
+import { SESSION_ID_HEADER } from '../api/apiUtils.ts';
 
 export const fetchNewComparison = async (collectionId: string, comparisonObjects?: string[][]):
 Promise<RestCallResult> => {

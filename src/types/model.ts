@@ -6,7 +6,7 @@ import {
   ISO8601Date,
   SnowflakeType,
   UserId
-} from '../types.js';
+} from '../types.ts';
 
 export type ComparableObjectModel<CollectionObjectIdType extends CollectionObjectId> = {
   id: SnowflakeType;

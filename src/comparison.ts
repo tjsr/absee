@@ -1,24 +1,48 @@
 import {
   CollectionIdType,
   ComparisonRequestPutBody,
-  DatabaseConnection,
   IPAddress,
   SnowflakeType,
   UserId
-} from './types.js';
+} from './types.ts';
 
-import { ComparisonModel } from './types/model.js';
-import { ComparisonRequestResponseBody } from './types/datasource.js';
-import { basicMySqlInsert } from './database/basicMysqlInsert.js';
-import {
-  retrieveComparisonRequest
-} from './database/mysql.js';
-import { storeComparisonElements } from './comparisonelement.js';
+import { ComparisonModel } from './types/model.ts';
+import { ComparisonRequestResponseBody } from './types/datasource.ts';
+import { PrismaClient } from '@prisma/client';
+import { retrieveComparisonRequest } from './api/retrieveComparison.ts';
+import { storeComparisonElements } from './comparisonelement.ts';
 
-export const storeComparisonRequest = async <IdType extends CollectionIdType>(
-  conn: DatabaseConnection,
-  comparisonRequest: ComparisonModel<IdType>
+// import { basicMySqlInsert } from './database/mysql/basicMysqlInsert.ts';
+// import {
+//   retrieveComparisonRequest
+// } from './database/mysql.ts';
+
+
+
+const storeComparison = (
+  prisma: PrismaClient,
+  comparisonRequest: ComparisonRequestPutBody
 ): Promise<void> => {
+  return prisma.comparison.create({
+    data: {
+      collectionId: comparisonRequest.collectionId,
+      id: BigInt(comparisonRequest.id),
+      requestIp: comparisonRequest.requestIp,
+      requestTime: comparisonRequest.requestTime,
+      userId: comparisonRequest.userId,
+    },
+  }).then(() => {
+    return Promise.resolve();
+  }).catch((err) => {
+    console.error('Error while storing comparison request', err);
+    return Promise.reject(err);
+  });
+};
+
+export const storeComparisonRequest = <IdType extends CollectionIdType>(
+  prisma: PrismaClient,
+  comparisonRequest: ComparisonModel<IdType>
+): Promise<unknown[]> => {
   const postRequest: ComparisonRequestPutBody = {
     collectionId: comparisonRequest.collectionId,
     id: comparisonRequest.id,
@@ -27,20 +51,13 @@ export const storeComparisonRequest = async <IdType extends CollectionIdType>(
     userId: comparisonRequest.userId,
   };
   console.log('Storing comparison request', postRequest);
-  const allPromises: Promise<void>[] = [
-    ...storeComparisonElements(conn, comparisonRequest.id, comparisonRequest.a),
-    ...storeComparisonElements(conn, comparisonRequest.id, comparisonRequest.b),
-    basicMySqlInsert(conn, 'Comparison', Object.keys(postRequest), postRequest),
-  ];
-  const resolved = Promise.all(allPromises)
-    .then(() => {
-      return Promise.resolve();
-    })
-    .catch((err) => {
-      console.error('Error while storing comparison', err);
-      return Promise.reject(err);
-    });
-  return resolved;
+  return storeComparison(prisma, postRequest).then(() => Promise.all([
+    ...storeComparisonElements(prisma, comparisonRequest.id, comparisonRequest.a),
+    ...storeComparisonElements(prisma, comparisonRequest.id, comparisonRequest.b),
+  ])).catch((err) => {
+    console.error('Error while storing comparison', err);
+    return Promise.reject(err);
+  });
 };
 
 const ipAddressMatches = (first: IPAddress, second: IPAddress): boolean => {
@@ -52,31 +69,22 @@ const ipAddressMatches = (first: IPAddress, second: IPAddress): boolean => {
 };
 
 export const verifyComparisonOwner = async (
-  conn: DatabaseConnection,
+  prisma: PrismaClient,
   comparisonId: SnowflakeType,
   userId: UserId,
   requestIpAddress: IPAddress
-): Promise<void> => {
-  return new Promise((resolve, reject) => {
-    retrieveComparisonRequest(conn, comparisonId).then(
-      (response: ComparisonRequestResponseBody) => {
-        if (!ipAddressMatches(response.requestIp, requestIpAddress)) {
-          reject(
-            new Error(
-              `Response came from a different IP Address (${requestIpAddress}) ` +
-                `origin than comparison was issued for (${response.requestIp})`
-            )
-          );
-        }
-        if (response.userId != userId) {
-          reject(
-            new Error(
-              `Response came from a different user (${response.userId}) than comparison was issued for (${userId})`
-            )
-          );
-        }
-        resolve();
-      }
-    );
-  });
-};
+): Promise<void> => retrieveComparisonRequest(prisma, comparisonId).then(
+  (response: ComparisonRequestResponseBody) => {
+    if (!ipAddressMatches(response.requestIp, requestIpAddress)) {
+      throw new Error(
+        `Response came from a different IP Address (${requestIpAddress}) ` +
+            `origin than comparison was issued for (${response.requestIp})`
+      );
+    }
+    if (response.userId != userId) {
+      throw new Error(
+        `Response came from a different user (${response.userId}) than comparison was issued for (${userId})`
+      );
+    }
+  }
+);

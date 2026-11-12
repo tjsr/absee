@@ -1,0 +1,86 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("PRISMA_DATABASE_URL")
+}
+
+model User {
+  id String @id
+  email String @unique
+
+  google_id String
+  display_name String // @db.VarChar(255)
+  logins UserLogins[]
+  comparisons Comparison[]
+}
+
+model Comparison {
+  id BigInt @id
+  collection Collection @relation(fields: [collectionId], references: [collectionId])
+  collectionId String @default("")
+  user User? @relation(fields:[userId], references: [id])
+  userId String
+  requestTime DateTime
+  requestIp String
+  @@index([collectionId], map: "IDX_Comparison_collectionId")
+  elements ComparisonElement[]
+  responses ComparisonResponse[]
+}
+
+model Collection {
+  collectionId String @id
+  name String
+  datasource String // @db.Text
+  description String // @db.Text
+  cachedData String // @db.Text
+  lastUpdateTime DateTime
+  maxElementsPerComparison Int @default(1)
+  comparisons Comparison[]
+}
+
+model ComparisonElement {
+  id BigInt @id
+  elementId BigInt
+  comparison Comparison @relation(fields: [comparisonId], references: [id])
+  comparisonId BigInt
+  objectId String
+
+  @@index([comparisonId], map: "IDX_ComparisonElement_comparisonId")
+  @@index([elementId], map: "IDX_ComparisonElement_elementId")
+}
+
+model ComparisonResponse {
+  id BigInt @id
+  selectedComparisonElementId BigInt
+  comparisonId BigInt
+  comparison Comparison @relation(fields: [comparisonId], references: [id])
+}
+
+model session {
+  session_id    String   @id // @db.VarChar(128)
+  sess   String
+  expire Int // @db.UnsignedInt
+
+  @@index([expire], map: "IDX_session_expire")
+  logins UserLogins[]
+}
+
+model UserLogins {
+  id BigInt @id
+  user User? @relation(fields: [userId], references: [id])
+  userId String
+  email String
+  sessionId String  // @db.VarChar(128)
+  sessions session? @relation(fields: [sessionId], references: [session_id])
+  loginTime DateTime
+  loginIp String
+
+  @@index([userId], map: "IDX_UserLogins_userId")
+}

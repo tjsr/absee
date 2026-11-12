@@ -1,9 +1,9 @@
-import { CollectionObject, CollectionObjectId, ComparableObjectResponse, SnowflakeType } from '../types.js';
-import { DualSwiper, SelectionAction, StaticDualSwiper, SwipeDirection } from './components/index.js';
+import { CollectionObject, CollectionObjectId, ComparableObjectResponse, SnowflakeType } from '../types.ts';
+import { DualSwiper, SelectionAction, StaticDualSwiper, SwipeDirection } from './components/index.ts';
 import React, { SetStateAction, useRef, useState } from 'react';
 
-import { Pin } from '../pins/pinpanion.js';
-import { PinCollection } from '../pins/pincollection.js';
+import { Pin } from '../pins/pinpanion.ts';
+import { PinCollection } from '../pins/pincollection.tsx';
 import { isMobile } from 'react-device-detect';
 
 type SelectionTypeOptions = 'click' | 'swipe' | 'static';

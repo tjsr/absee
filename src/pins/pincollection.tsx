@@ -1,9 +1,9 @@
 import './pincollection.css';
 
-import { Collection, CollectionPropTypes } from '../ui/collection.js';
-import { Pin, PinIdType } from './pinpanion.js';
+import { Collection, CollectionPropTypes } from '../ui/collection.tsx';
+import { Pin, PinIdType } from './pinpanion.ts';
 
-import { PinInfo } from './PinInfo.js';
+import { PinInfo } from './PinInfo.tsx';
 import React from 'react';
 
 const getCollectionItem = (data: Pin): JSX.Element => {

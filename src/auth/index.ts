@@ -1,3 +1,3 @@
-export { getGoogleAuthSettings } from './settings.js';
+export { getGoogleAuthSettings } from './settings.ts';
 
-export type { GoogleAuthSettings } from './types.js';
+export type { GoogleAuthSettings } from './types.ts';

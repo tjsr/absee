@@ -1,16 +1,17 @@
-import { CollectionObject, CollectionObjectId, DatabaseConnection } from './types.js';
+import { CollectionObject, CollectionObjectId } from './types.ts';
 
-import { CollectionTypeLoader } from './datainfo.js';
-import { retrieveObjectFrequency } from './database/retrieveObjectFrequency.js';
+import { CollectionTypeLoader } from './datainfo.ts';
+import { PrismaClient } from '@prisma/client';
+import { retrieveObjectFrequency } from './database/retrieveObjectFrequency.ts';
 
 export const populatePrioritizedObjectList = async <
 CollectionObjectType extends CollectionObject<IdType>, DataType, IdType extends CollectionObjectId>(
-  conn: DatabaseConnection,
+  prisma: PrismaClient,
   loader: CollectionTypeLoader<IdType, CollectionObjectType, DataType>): Promise<void> => {
   if (!loader.collectionData) {
     throw new Error('Collection data must be loaded before prioritized object list can be populated');
   }
-  const frequencyList: Map<string, number> = await retrieveObjectFrequency(conn, loader.collectionId);
+  const frequencyList: Map<string, number> = await retrieveObjectFrequency(prisma, loader.collectionId);
   const occurenceNumberValues = frequencyList.values();
   let maxOccurrences = 0;
   for (const value of occurenceNumberValues) {

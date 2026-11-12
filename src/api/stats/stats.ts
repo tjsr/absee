@@ -1,4 +1,4 @@
-import { CollectionIdType, DatabaseConnection } from '../../types.js';
+import { CollectionIdType, DatabaseConnection } from '../../types.ts';
 import { FieldPacket, QueryResult, mysqlQuery } from '@tjsr/mysql-pool-utils';
 
 export interface StatsResponse {

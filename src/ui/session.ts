@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie';
-import { getServerHost } from './utils.js';
+import { getServerHost } from './utils.ts';
 
 export const fetchNewSession = async () => {
   const headers: HeadersInit = {
@@ -10,7 +10,7 @@ export const fetchNewSession = async () => {
     method: 'GET',
   });
 
-  const json = await response.json();
+  const json = await response.json() as {sessionId?: string};
   if (json.sessionId) {
     Cookies.set('sessionId', json.sessionId);
   }

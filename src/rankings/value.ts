@@ -5,7 +5,7 @@ import {
   CollectionObjectId,
   ComparisonElementResponse,
   ComparisonResultResponse
-} from '../types.js';
+} from '../types.ts';
 
 // import { getComparableObjectId } from './ids.js";
 const DEFAULT_ELEMENT_VALUE = 15;

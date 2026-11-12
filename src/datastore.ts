@@ -1,7 +1,7 @@
-import { CollectionIdType, IPAddress, SnowflakeType, UserId } from './types.js';
-import { ComparableObjectModel, ComparisonModel } from './types/model.js';
+import { CollectionIdType, IPAddress, SnowflakeType, UserId } from './types.ts';
+import { ComparableObjectModel, ComparisonModel } from './types/model.ts';
 
-import { iso8601Now } from './utils.js';
+import { iso8601Now } from './utils.ts';
 
 export const createComparisonSelection = <IdType extends CollectionIdType>(
   collectionId: CollectionIdType,

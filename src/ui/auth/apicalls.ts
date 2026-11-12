@@ -1,7 +1,7 @@
-import { AuthenticationRestResult } from '../../types/apicalls.js';
+import { AuthenticationRestResult } from '../../types/apicalls.ts';
 import Cookies from 'js-cookie';
-import { EmailAddress } from '../../types.js';
-import { getServerHost } from '../utils.js';
+import { EmailAddress } from '../../types.ts';
+import { getServerHost } from '../utils.ts';
 
 type LoginPostBody = {
   email: EmailAddress;

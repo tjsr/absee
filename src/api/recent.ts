@@ -3,24 +3,25 @@ import {
   CollectionObject,
   CollectionObjectId,
   ComparisonResult,
-  DatabaseConnection,
   UserId
-} from '../types.js';
+} from '../types.ts';
 
-import { ABSeeRequest } from '../session.js';
-import { CollectionTypeLoader } from '../datainfo.js';
-import { createComparisonResultResponse } from '../restresponse.js';
+import { ABSeeRequest } from '../session.ts';
+import { CollectionTypeLoader } from '../datainfo.ts';
+import { PrismaClient } from '@prisma/client';
+import { createComparisonResultResponse } from '../restresponse.ts';
+import { createPrismaClient } from '../database/prisma/client.ts';
 import express from 'express';
-import { getLoaderFromPrisma } from '../loaders.js';
-import { retrieveComparisonResults } from '../database/mysql.js';
+import { getLoaderFromPrisma } from '../loaders.ts';
+import { retrieveComparisonResults } from '../database/comparisonResults.ts';
 
 const retrieveComparisonsForUser = async <
   IdType extends CollectionObjectId>(
-  conn: DatabaseConnection,
+  client: PrismaClient,
   collectionId: CollectionIdType,
   userId: UserId,
   maxComparisons?: number): Promise<ComparisonResult<IdType>[]> => {
-  return retrieveComparisonResults(conn, collectionId, userId, maxComparisons);
+  return retrieveComparisonResults(client, collectionId, userId, maxComparisons);
 };
 
 export const recent = async <
@@ -31,7 +32,8 @@ IdType extends CollectionObjectId, CollectionObjectType extends CollectionObject
     const loader: CollectionTypeLoader<IdType, CollectionObjectType> = await getLoaderFromPrisma(
       request.app.locals.prismaClient, loaderId
     );
-    const connectionPromise: DatabaseConnection = request.app.locals.connectionPromise;
+
+    // const connectionPromise: DatabaseConnection = request.app.locals.connectionPromise;
 
     let maxComparisons: number|undefined;
 
@@ -47,8 +49,10 @@ IdType extends CollectionObjectId, CollectionObjectType extends CollectionObject
       }
     }
 
+    const client: PrismaClient = request.app.locals.prismaClient || createPrismaClient();
+
     return await retrieveComparisonsForUser<IdType>(
-      connectionPromise,
+      client,
       loader.collectionId,
       userId,
       maxComparisons

@@ -1,3 +1,3 @@
-import { ComparisonRequestPutBody } from '../types.js';
+import { ComparisonRequestPutBody } from '../types.ts';
 
 export type ComparisonRequestResponseBody = ComparisonRequestPutBody;

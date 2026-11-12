@@ -1,9 +1,9 @@
 import * as EmailValidator from 'email-validator';
 
-import { CollectionObject, CollectionObjectId, ISO8601Date } from './types.js';
+import { CollectionObject, CollectionObjectId, ISO8601Date } from './types.ts';
 
-import { CollectionTypeLoader } from './datainfo.js';
-import { RequiredEnvError } from './types/errortypes.js';
+import { CollectionTypeLoader } from './datainfo.ts';
+import { RequiredEnvError } from './types/errortypes.ts';
 
 export const iso8601Now = (): ISO8601Date => {
   // return (new Date()).toISOString();
