@@ -3,47 +3,45 @@ import {
   CollectionObject,
   CollectionObjectEloRating,
   CollectionObjectId,
-  ComparisonElement,
-  ComparisonElementResponse,
   ComparisonResult,
   EloTimeline,
   EloTimelineResponse
-} from '../types.js';
+} from '../types.ts';
 
-import { ABSeeRequest } from '../session.js';
-import { CollectionTypeLoader } from '../datainfo.js';
-import { PrismaClient } from '@prisma/client';
-import { createEloTimelineFromComparisons } from '../restresponse.js';
+import { ABSeeRequest } from '../session.ts';
+import { CollectionTypeLoader } from '../datainfo.ts';
+import { createEloTimelineFromComparisons } from '../restresponse.ts';
+import { createPrismaClient } from '../database/prisma/client.ts';
 import express from 'express';
-import { getLoaderFromPrisma } from '../loaders.js';
-import { retrieveComparisonResults } from '../database/mysql.js';
+import { getLoaderFromPrisma } from '../loaders.ts';
+import { retrieveComparisonResults } from '../database/comparisonResults.ts';
 
 const MAX_ELO_COMPARISONS = 99999;
 
-const createObjectFromId = <
-T extends CollectionObject<IdType>,
-IdType extends CollectionObjectId
-> (objectId: CollectionObjectId): T => {
-  const output: CollectionObject<IdType> = {
-    id: idStringToCollectionObjectId<IdType>(objectId),
-  };
-  return output as T;
-};
+// const createObjectFromId = <
+// T extends CollectionObject<IdType>,
+// IdType extends CollectionObjectId
+// > (objectId: CollectionObjectId): T => {
+//   const output: CollectionObject<IdType> = {
+//     id: idStringToCollectionObjectId<IdType>(objectId),
+//   };
+//   return output as T;
+// };
 
-const idStringToCollectionObjectId = <CollectionObjectIdType extends CollectionObjectId>(
-  idString: CollectionObjectId
-): CollectionObjectIdType => {
-  return idString as unknown as CollectionObjectIdType;
-};
+// const idStringToCollectionObjectId = <CollectionObjectIdType extends CollectionObjectId>(
+//   idString: CollectionObjectId
+// ): CollectionObjectIdType => {
+//   return idString as unknown as CollectionObjectIdType;
+// };
 
-const convertElementIdsToCollectionObjects = <
-  CollectionObjectType extends CollectionObject<IdType>,
-  IdType extends CollectionObjectId
-  > (
-    objects: CollectionObjectId[]
-  ): CollectionObjectType[] => {
-  return objects.map((objectId: CollectionObjectId) => createObjectFromId(objectId));
-};
+// const convertElementIdsToCollectionObjects = <
+//   CollectionObjectType extends CollectionObject<IdType>,
+//   IdType extends CollectionObjectId
+//   > (
+//     objects: CollectionObjectId[]
+//   ): CollectionObjectType[] => {
+//   return objects.map((objectId: CollectionObjectId) => createObjectFromId(objectId));
+// };
 
 const roundEloValues = <ET extends CollectionObjectEloRating<IdType>[], IdType extends CollectionObjectId>(
   values: ET): CollectionObjectEloRating<IdType>[] => {
@@ -57,24 +55,15 @@ const roundEloValues = <ET extends CollectionObjectEloRating<IdType>[], IdType e
 
 const convertTimelineToResponse = <
 CollectionObjectType extends CollectionObject<IdType>, IdType extends CollectionObjectId>
-  (timeline: EloTimeline<IdType>[], loader: CollectionTypeLoader<IdType, CollectionObjectType, any>):
+  (timeline: EloTimeline<IdType>[], loader: CollectionTypeLoader<IdType, CollectionObjectType>):
   EloTimelineResponse<CollectionObjectType, IdType>[] => {
   return timeline
     .sort((te1, te2) => te1.requestTime.getTime() - te2.requestTime.getTime())
     .map((timelineEntry) => {
-      const elements: ComparisonElementResponse<CollectionObjectType, IdType>[] =
-      timelineEntry.elements.map((ce: ComparisonElement<IdType>) => {
-        const response: ComparisonElementResponse<CollectionObjectType, IdType> = {
-          data: convertElementIdsToCollectionObjects(ce.objectIds),
-          elementId: ce.elementId,
-        };
-        return response;
-      });
-
       const responseElement: EloTimelineResponse<CollectionObjectType, IdType> = {
-        collectionObjects: timelineEntry.elements.flatMap((et) => et.objectIds).map(
+        collectionObjects: timelineEntry.elements.flatMap((et) => et.objectId).map(
           (objectId) => loader.getObjectForId(loader.collectionData, objectId)),
-        elements: elements,
+        elements: [...timelineEntry.elements],
         eloRatingsAfter: roundEloValues(timelineEntry.eloRatingsAfter),
         eloRatingsBefore: roundEloValues(timelineEntry.eloRatingsBefore),
         id: timelineEntry.id,
@@ -93,13 +82,12 @@ IdType extends CollectionIdType = CollectionIdType,
   request: ABSeeRequest, response: express.Response, loaderId: CollectionIdType
 ) => {
   try {
-    const prismaClient = request.app.locals.prismaClient || new PrismaClient();
-    const loader: CollectionTypeLoader<IdType, CollectionObjectType, any> =
+    const prismaClient = request.app.locals.prismaClient || createPrismaClient();
+    const loader: CollectionTypeLoader<IdType, CollectionObjectType> =
       await getLoaderFromPrisma(prismaClient, loaderId);
-    const conn = response.locals.connectionPromise;
 
     retrieveComparisonResults(
-      conn,
+      prismaClient,
       loader.collectionId, undefined, MAX_ELO_COMPARISONS
     ).then((comparisons: ComparisonResult<string>[]) => {
       response.contentType('application/json');

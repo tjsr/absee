@@ -1,4 +1,4 @@
-import { AbseeConfig, IPAddress } from './types.js';
+import { AbseeConfig, IPAddress } from './types.ts';
 import { ExpressServerConfig, ExpressServerHelper } from '@tjsr/express-server-helper';
 import { Options, createProxyMiddleware } from 'http-proxy-middleware';
 import { Pool, PoolConnection, safeReleaseConnection } from '@tjsr/mysql-pool-utils';
@@ -7,22 +7,22 @@ import {
   getElementsCompared,
   getMostFrequentlyComparedElement,
   getUniqueContibutingUserCount
-} from './api/stats/stats.js';
+} from './api/stats/stats.ts';
 
-import { ABSeeRequest } from './session.js';
-import { GoogleAuthSettings } from './auth/types.js';
-import { PrismaClient } from '@prisma/client';
-import { SESSION_ID_HEADER } from './api/apiUtils.js';
-import { debugHeaders } from './api/debugHeaders.js';
-import { elo } from './api/elo.js';
+import { ABSeeRequest } from './session.ts';
+import { GoogleAuthSettings } from './auth/types.ts';
+import { SESSION_ID_HEADER } from './api/apiUtils.ts';
+import { createPrismaClient } from './database/prisma/client.ts';
+import { debugHeaders } from './api/debugHeaders.ts';
+import { elo } from './api/elo.ts';
 import express from 'express';
 import fs from 'fs';
-import { getUser } from './api/user.js';
-import { initialisePassportToExpressApp } from './auth/passport.js';
+import { getUser } from './api/user.ts';
+import { initialisePassportToExpressApp } from './auth/passport.ts';
 import onFinished from 'on-finished';
-import { recent } from './api/recent.js';
-import { serveComparison } from './api/serveComparison.js';
-import { submit } from './api/submit.js';
+import { recent } from './api/recent.ts';
+import { serveComparison } from './api/serveComparison.ts';
+import { submit } from './api/submit.ts';
 
 export const DEFAULT_HTTP_PORT = 8283;
 
@@ -93,7 +93,7 @@ export const startApp = (
 
   const app: express.Express = expressHelper.init().app();
   app.locals.connectionPool = config.connectionPool;
-  app.locals.prismaClient = new PrismaClient();
+  app.locals.prismaClient = createPrismaClient();
   app.use(getRequestConnectionPromise);
 
   initialisePassportToExpressApp(app, config.googleAuthSettings);

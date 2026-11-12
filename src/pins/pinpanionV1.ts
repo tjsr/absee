@@ -1,8 +1,8 @@
-import { ClientCollectionType, CollectionIdType, CollectionObject, CollectionObjectId } from '../types.js';
-import { PAX, PinpanionData } from './pinpanionTypes.js';
+import { ClientCollectionType, CollectionIdType, CollectionObject, CollectionObjectId } from '../types.ts';
+import { PAX, PinpanionData } from './pinpanionTypes.ts';
 
-import { CollectionTypeLoader } from '../datainfo.js';
-import { PinCollectionDataValidationError } from './pinpanionShared.js';
+import { CollectionTypeLoader } from '../datainfo.ts';
+import { PinCollectionDataValidationError } from './pinpanionShared.ts';
 import events from './eventnames.json' assert { type: 'json' };
 
 const PIN_LIST_URL =
@@ -139,16 +139,15 @@ const getObjectForId = (sourceData: PinpanionV1ProdData, id: PinIdType): Pin => 
   throw new Error(`Couldn't find pin for (${typeof id}) id [${id}]`);
 };
 
-const datasourceConvertor = <PinpanionData>(inputData: PinpanionV1ProdData): PinpanionData => {
+const datasourceConvertor = (inputData: PinpanionV1ProdData): PinpanionV1ProdData => {
   paxs = inputData.pax;
   pins = inputData.pins;
   sets = inputData.sets;
   return {
     ...inputData,
-    paxs,
     pins,
     sets,
-  } as PinpanionData;
+  };
 };
 
 export const validateV1PinCollectionData = (

@@ -6,7 +6,7 @@ import {
   ComparisonElement,
   ComparisonElementResponse,
   ComparisonResultResponse
-} from '../types.js';
+} from '../types.ts';
 
 export const STARTING_ELO_RATING = 2000;
 const ELO_WIN_DELTA = 32;
@@ -52,10 +52,7 @@ const getEloRatingForElement =
     objectEloRatings: Map<IdType, number>,
     element: ComparisonElement<IdType>
   ): number => {
-  const elementRating = element.objectIds.map(
-    (objectId: CollectionObjectId) => getCurrentEloRating(objectEloRatings, objectId))
-    .reduce((acc, cur) => acc + cur);
-  return elementRating;
+  return getCurrentEloRating(objectEloRatings, element.objectId);
 };
 
 const updateEloRatingForResponse = <
@@ -79,16 +76,15 @@ const updateEloRating =
     wonByLower?: boolean
   ): void => {
     // const elo = getEloRatingForElement(eloRatings, element);
-    element.objectIds.forEach((objectElementId: CollectionObjectId) => {
-      const winContribution = getWinContributionRating(eloRatings, element, objectElementId);
-      const contributedRating = ratingUpdate * winContribution * element.objectIds.length;
-      const existingObjectElo = getCurrentEloRating(eloRatings, objectElementId);
-      if (objectElementId === '1134' || wonByLower) {
-        console.log(`Updating ${objectElementId} by ${contributedRating}/${ratingUpdate} `+
+    const objectId = element.objectId;
+    const winContribution = getWinContributionRating(eloRatings, element, objectId);
+    const contributedRating = ratingUpdate * winContribution;
+    const existingObjectElo = getCurrentEloRating(eloRatings, objectId);
+    if (objectId === '1134' || wonByLower) {
+      console.log(`Updating ${objectId} by ${contributedRating}/${ratingUpdate} `+
       `to ${existingObjectElo + contributedRating}`);
-      }
-      eloRatings.set(objectElementId, existingObjectElo + contributedRating);
-    });
+    }
+    eloRatings.set(objectId, existingObjectElo + contributedRating);
   };
 
 const calculateExpectedOutcome = (eloRating1: number, eloRating2: number): number => 1 / (1 +
@@ -173,7 +169,7 @@ const comparisonWonByLowerEloElement = <IdType extends CollectionObjectId>(
 
 const elementContainsObject = <IdType extends CollectionObjectId>(
   element: ComparisonElement<IdType>, objectId: IdType): boolean => {
-  return element.objectIds.includes(objectId);
+  return element.objectId === objectId;
 };
 
 export const updateEloRatings = <IdType extends CollectionObjectId>(
@@ -193,10 +189,10 @@ export const updateEloRatings = <IdType extends CollectionObjectId>(
   const wonByLower: boolean = comparisonWonByLowerEloElement(eloRatings, winningElement, otherElement);
 
   if (wonByLower || hasDebugSearch) {
-    const winnerObjectList = winningElement.objectIds.map((oId) =>
-      `${oId}=${Math.round(getCurrentEloRating(eloRatings, oId))}`).join(',');
-    const otherObjectList = otherElement.objectIds.map((oId) =>
-      `${oId}=${Math.round(getCurrentEloRating(eloRatings, oId))}`).join(',');
+    const winnerObjectList = `${winningElement.objectId}=`+
+      `${Math.round(getCurrentEloRating(eloRatings, winningElement.objectId))}`;
+    const otherObjectList = `${otherElement.objectId}=`+
+      `${Math.round(getCurrentEloRating(eloRatings, otherElement.objectId))}`;
     console.log(`Expected outcome: 
       ${Math.round(existingWinnerElo)} +${Math.round(pointsForRatingA)}: ${expectedOutcomeA} (${winnerObjectList})
    vs ${Math.round(existingOtherElo)} ${Math.round(pointsForRatingB)}: ${expectedOutcomeB} (${otherObjectList})`);

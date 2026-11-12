@@ -1,13 +1,13 @@
 import { Collection, Prisma, PrismaClient } from '@prisma/client';
-import { CollectionDataValidationError, CollectionTypeLoader, initializeLoader } from './datainfo.js';
-import { CollectionIdType, CollectionObject, CollectionObjectId } from './types.js';
-import { LoaderDataSource, LoaderPrismaDataSource } from './store/loader.js';
+import { CollectionDataValidationError, CollectionTypeLoader, initializeLoader } from './datainfo.ts';
+import { CollectionIdType, CollectionObject, CollectionObjectId } from './types.ts';
+import { LoaderDataSource, LoaderPrismaDataSource } from './store/loader.ts';
 
-import { LoaderNotFoundError } from './types/errortypes.js';
-import { NoLoaderDefinedError } from './types/errors.js';
-import { _retrieveCollections } from './database/collections.js';
-import { loaderDataSummary } from './utils.js';
-import { predefinedLoaders } from './types/loaders.js';
+import { LoaderNotFoundError } from './types/errortypes.ts';
+import { NoLoaderDefinedError } from './types/errors.ts';
+import { _retrieveCollections } from './database/collections.ts';
+import { loaderDataSummary } from './utils.ts';
+import { predefinedLoaders } from './types/loaders.ts';
 
 export let allLoaders: CollectionTypeLoader<any, any, any>[];
 

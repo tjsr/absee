@@ -1,12 +1,12 @@
 import { generateUserIdForTestName, setSessionCookie } from '@tjsr/testutils';
 
-import { SESSION_ID_HEADER } from './apiUtils.js';
+import { SESSION_ID_HEADER } from './apiUtils.ts';
 import { UserSessionOptions } from '@tjsr/user-session-middleware';
 import express from 'express';
 import { getConnectionPool } from '@tjsr/mysql-pool-utils';
-import { getGoogleAuthSettings } from '../auth/settings.js';
+import { getGoogleAuthSettings } from '../auth/settings.ts';
 import session from 'express-session';
-import { startApp } from '../server.js';
+import { startApp } from '../server.ts';
 import supertest from 'supertest';
 
 describe('API tests for tags', () => {

@@ -1,32 +1,27 @@
-import { CollectionObjectId, SnowflakeType } from './types.js';
-import { Pool, closeConnectionPool, getConnectionPool } from '@tjsr/mysql-pool-utils';
+import { CollectionObjectId, SnowflakeType } from './types.ts';
 
-import { ComparableObjectModel } from './types/model.js';
-import { TestContext } from 'vitest';
-import { getSnowflake } from './snowflake.js';
-import { storeComparisonElement } from './comparisonelement.js';
-
-type TestWithPoolConnection = TestContext &
-  {
-    poolPromise: Promise<Pool>;
-  };
+import { ComparableObjectModel } from './types/model.ts';
+import { PrismaClient } from '@prisma/client';
+import { getSnowflake } from './snowflake.ts';
+import { storeComparisonElement } from './comparisonelement.ts';
 
 describe('comparisonelement', () => {
-  beforeEach((ctx: TestWithPoolConnection) => { 
-    ctx.poolPromise = getConnectionPool(ctx.task.name);
-  });
-  test('Should write an element to the DB', async (
-    ctx: TestWithPoolConnection
-  ):Promise<void> => {
+  test('Should write an element through Prisma', async (): Promise<void> => {
     const comparisonId: SnowflakeType = getSnowflake();
     const meta: ComparableObjectModel<CollectionObjectId> = {
       elementId: getSnowflake(),
       id: getSnowflake(),
       objectId: '1' as CollectionObjectId,
     };
-    const conn = ctx.poolPromise.then((pool) => pool.getConnection());
-    await expect(storeComparisonElement(conn, comparisonId, meta)).resolves.not.toThrow();
-  });
+    const prisma = {
+      comparisonElement: { create: async ({ data }: {data: ComparableObjectModel<CollectionObjectId>}) => data },
+    } as unknown as PrismaClient;
 
-  afterEach((ctx: TestContext) => closeConnectionPool(ctx.task.name));
+    await expect(storeComparisonElement(prisma, comparisonId, meta)).resolves.toMatchObject({
+      comparisonId,
+      elementId: meta.elementId,
+      id: meta.id,
+      objectId: meta.objectId,
+    });
+  });
 });

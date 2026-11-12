@@ -1,15 +1,15 @@
-import { ABSeeRequest, ABSeeSessionData } from '../session.js';
-import { DatabaseConnection, EmailAddress, UserId } from '../types.js';
+import { ABSeeRequest, ABSeeSessionData } from '../session.ts';
+import { DatabaseConnection, EmailAddress, UserId } from '../types.ts';
 import { FieldPacket, PoolConnection, QueryResult, mysqlQuery, safeReleaseConnection } from '@tjsr/mysql-pool-utils';
 import { Strategy as GoogleStrategy, Profile } from 'passport-google-oauth20';
 import express, { NextFunction, Response } from 'express';
 
-import { GoogleAuthSettings } from './index.js';
+import { GoogleAuthSettings } from './index.ts';
 import debug from 'debug';
 import { getConnection } from '@tjsr/mysql-pool-utils';
 import passport from 'passport';
-import { saveUserLogin } from '../api/login.js';
-import { setUserCookies } from '../sessions/setUserCookies.js';
+import { saveUserLogin } from '../api/login.ts';
+import { setUserCookies } from '../sessions/setUserCookies.ts';
 
 const pd = debug('absee:passport');
 

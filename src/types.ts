@@ -1,14 +1,21 @@
-import { ISO8601Date, SnowflakeType } from './types/mysqltypes.js';
+import { ISO8601Date, SnowflakeType } from './types/mysqltypes.ts';
 import { Pool, getConnection } from '@tjsr/mysql-pool-utils';
 import { SessionStoreDataType, UserSessionData, UserSessionOptions } from '@tjsr/user-session-middleware';
 
 import { ExpressServerConfig } from '@tjsr/express-server-helper';
-import { GoogleAuthSettings } from './auth/types.js';
+import { GoogleAuthSettings } from './auth/types.ts';
 
 export type uuid = string;
 export type uuid5 = uuid;
 export type uuid4 = uuid;
 export type IPAddress = string;
+
+export type RequestErrorBody = {
+message: string;
+  code?: string;
+};
+
+export type ComparisonRequestPutErrorBody = RequestErrorBody;
 
 export type ComparisonRequestPutBody = {
   id: SnowflakeType;
@@ -55,15 +62,17 @@ export type ComparisonSelectionResponse<CollectionObject> = {
 
 export type ComparisonElementResponse<
   CollectionObjectType extends CollectionObject<IdType>,
-  IdType extends CollectionObjectId = CollectionObjectId
+  IdType extends CollectionObjectId
 > = {
   elementId: ComparisonElementId;
   data: CollectionObjectType[];
-}
+};
 
 export type ComparisonElement<IdType extends CollectionObjectId = CollectionObjectId> = {
+  id: SnowflakeType;
+  comparisonId: ComparisonId;
   elementId: ComparisonElementId;
-  objectIds: IdType[];
+  objectId: IdType;
 }
 
 export type ComparisonResult<IdType extends CollectionObjectId = CollectionObjectId> = {
@@ -76,7 +85,7 @@ export type ComparisonResult<IdType extends CollectionObjectId = CollectionObjec
 
 export interface ComparisonResultResponse<
   CollectionObjectType extends CollectionObject<IdType>,
-  IdType extends CollectionObjectId = CollectionObjectId,
+  IdType extends CollectionObjectId,
 > {
   id: SnowflakeType;
   userId: UserId;
@@ -100,7 +109,7 @@ export interface EloTimelineResponse<
   CollectionObjectType extends CollectionObject<IdType>,
   IdType extends CollectionObjectId = CollectionObjectId,
 >
-  extends ComparisonResultResponse<CollectionObjectType, IdType> {
+  extends ComparisonResult<IdType> {
   collectionObjects: CollectionObjectType[];
   eloRatingsAfter: CollectionObjectEloRating<IdType>[];
   eloRatingsBefore: CollectionObjectEloRating<IdType>[];

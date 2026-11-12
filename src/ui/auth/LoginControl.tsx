@@ -1,10 +1,10 @@
 import { CredentialResponse, GoogleLogin, googleLogout } from '@react-oauth/google';
 
 import Cookies from 'js-cookie';
-import { EmailAddress } from '../../types.js';
-import { FreeformEmailLoginBox } from '../freeformEmailLogin.js';
+import { EmailAddress } from '../../types.ts';
+import { FreeformEmailLoginBox } from '../freeformEmailLogin.tsx';
 import React from 'react';
-import { submitLogout } from './apicalls.js';
+import { submitLogout } from './apicalls.ts';
 
 interface LoginControlProps {
   isLoggedIn: boolean;

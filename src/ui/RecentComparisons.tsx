@@ -5,17 +5,17 @@ import {
   CollectionObjectId,
   ComparisonElementResponse,
   ComparisonResultResponse
-} from '../types.js';
-import { QUERYSTRING_ARRAY_DELIMETER, QUERYSTRING_ELEMENT_DELIMETER, getServerHost } from './utils.js';
+} from '../types.ts';
+import { QUERYSTRING_ARRAY_DELIMETER, QUERYSTRING_ELEMENT_DELIMETER, getServerHost } from './utils.ts';
 import React, { useEffect, useState } from 'react';
 
 import Cookies from 'js-cookie';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { Link } from 'react-router-dom';
-import { Pin } from '../pins/pinpanion.js';
-import { PinInfo } from '../pins/PinInfo.js';
-import { Snackbar } from './Snackbar.js';
-import { calculateRelativeValues } from '../rankings/value.js';
+import { Pin } from '../pins/pinpanion.ts';
+import { PinInfo } from '../pins/PinInfo.tsx';
+import { Snackbar } from './Snackbar.tsx';
+import { calculateRelativeValues } from '../rankings/value.ts';
 
 // const eloRating: CollectionEloMap = new Map<SnowflakeType | string | number, number>();
 // const elementValues: Map<SnowflakeType | object | number, number> =

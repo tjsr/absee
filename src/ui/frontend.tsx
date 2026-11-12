@@ -1,22 +1,22 @@
 import './frontend.css';
 
-import { CollectionIdType, EmailAddress } from '../types.js';
+import { CollectionIdType, EmailAddress } from '../types.ts';
 import React, { useEffect, useState } from 'react';
 import {
   RouterProvider,
   createBrowserRouter
 } from 'react-router-dom';
 
-import { AboutPage } from './AboutPage.js';
-import CompareScreen from './CompareScreen.js';
+import { AboutPage } from './AboutPage.tsx';
+import CompareScreen from './CompareScreen.tsx';
 import Cookies from 'js-cookie';
-import { EloCalculation } from './EloCalculation.js';
+import { EloCalculation } from './EloCalculation.tsx';
 import { slide as Menu } from 'react-burger-menu';
-import { RecentComparisons } from './RecentComparisons.js';
-import { StatsPage } from './StatsPage.js';
-import { doGoogleLogout } from './auth/LoginControl.js';
-import { fetchNewSession } from './session.js';
-import { submitLogout } from './auth/apicalls.js';
+import { RecentComparisons } from './RecentComparisons.tsx';
+import { StatsPage } from './StatsPage.tsx';
+import { doGoogleLogout } from './auth/LoginControl.tsx';
+import { fetchNewSession } from './session.ts';
+import { submitLogout } from './auth/apicalls.ts';
 
 type FrontendProps = {
   collectionId: CollectionIdType;
@@ -35,6 +35,8 @@ const DEFAULT_COLLECTION: CollectionIdType = '83fd0b3e-dd08-4707-8135-e5f138a43f
 const Frontend = ({ collectionId }: FrontendProps): JSX.Element => {
   const [isLoggedIn, setLoggedIn] = useState<boolean>(false);
   const [email, setEmail] = useState<EmailAddress | undefined>(undefined);
+  const [sessionReady, setSessionReady] = useState(false);
+  const [sessionError, setSessionError] = useState(false);
 
   useEffect(() => {
     const sessionId = Cookies.get('sessionId');
@@ -52,7 +54,8 @@ const Frontend = ({ collectionId }: FrontendProps): JSX.Element => {
         setEmail(cookieEmail);
         console.log(`Email: ${cookieEmail} (as cookie: ${Cookies.get('displayName')})`);
       }
-    })();
+      setSessionReady(true);
+    })().catch(() => setSessionError(true));
   }, []);
 
   const router = createBrowserRouter([
@@ -143,7 +146,8 @@ const Frontend = ({ collectionId }: FrontendProps): JSX.Element => {
         <br />
       </div>
       <main id="page-wrap">
-        <RouterProvider router={router} />
+        {sessionError ? <p>Unable to start a session. Please reload the page.</p> :
+          sessionReady ? <RouterProvider router={router} /> : <p>Starting session...</p>}
         {/* <CompareScreen collectionId={DEFAULT_COLLECTION}/> */}
       </main>
     </>

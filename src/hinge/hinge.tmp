@@ -1,0 +1,28 @@
+import { CollectionObject, uuid } from '../types.ts';
+
+import { CollectionTypeLoader } from '../datainfo.ts';
+
+export interface QuestionResponse extends CollectionObject<uuid> {
+  id: uuid;
+  responseId: uuid;
+  response: string;
+}
+
+const getObjectId = (response: QuestionResponse): string => response.id;
+
+export const defaultDevQuestionLoader: CollectionTypeLoader<QuestionResponse, QuestionServerData> = {
+  collectionData: undefined,
+  collectionId: '94130ead-bc25-11ee-864e-0242ac120002',
+  convertDatasourceOnLoad: datasourceConvertor,
+  datasourceUrl: QUESTION_LIST_URL,
+  getNumberOfElements: countQuestionsInCollection,
+  getObjectByIndex: getObjectForIndex,
+  getObjectForId: getObjectForId,
+  getObjectId: getObjectId,
+  maxElementsPerComparison: 1,
+  name: 'hinge_dev',
+};
+
+export const clientPinLoader: ClientCollectionType<QuestionResponse, uuid> = {
+  getObjectId: getObjectId,
+};

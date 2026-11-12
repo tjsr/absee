@@ -1,37 +1,38 @@
-import { CollectionObjectId, ComparableObjectPutBody, DatabaseConnection, SnowflakeType } from './types.js';
+import { CollectionObjectId, ComparableObjectPutBody, ComparisonElement, SnowflakeType } from './types.ts';
 
-import { ComparableObjectModel } from './types/model.js';
-import { basicMySqlInsert } from './database/basicMysqlInsert.js';
+import { ComparableObjectModel } from './types/model.ts';
+import { PrismaClient } from '@prisma/client';
 
 export const storeComparisonElement = async <IdType extends CollectionObjectId>(
-  conn: DatabaseConnection,
+  prisma: PrismaClient,
   comparisonId: SnowflakeType,
   comparisonElement: ComparableObjectModel<IdType>
-): Promise<void> => {
+): Promise<ComparisonElement> => {
   const postRequest: ComparableObjectPutBody = {
     comparisonId: comparisonId,
     elementId: comparisonElement.elementId,
     id: comparisonElement.id,
     objectId: comparisonElement.objectId,
   };
-  return basicMySqlInsert(
-    conn,
-    'ComparisonElement',
-    // ['id', 'comparisonId', 'elementId', 'objectId'],
-    ['comparisonId', 'elementId', 'id', 'objectId'],
-    postRequest
-  );
+  return prisma.comparisonElement.create({
+    data: {
+      comparisonId: BigInt(postRequest.comparisonId),
+      elementId: BigInt(postRequest.elementId),
+      id: BigInt(postRequest.id),
+      objectId: postRequest.objectId,
+    },
+  });
 };
 
 export const storeComparisonElements = <IdType extends CollectionObjectId>(
-  conn: DatabaseConnection,
+  prisma: PrismaClient,
   comparisonId: SnowflakeType,
   comparisonElements: ComparableObjectModel<IdType>[]
-): Promise<void>[] => {
-  const storagePromises: Promise<void>[] = [];
+): Promise<unknown>[] => {
+  const storagePromises: Promise<unknown>[] = [];
 
   comparisonElements.forEach((element) => {
-    storagePromises.push(storeComparisonElement(conn, comparisonId, element));
+    storagePromises.push(storeComparisonElement(prisma, comparisonId, element));
   });
   return storagePromises;
 };

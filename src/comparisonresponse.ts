@@ -1,16 +1,17 @@
-import { DatabaseConnection, SnowflakeType } from './types.js';
+import { ComparisonElementId, ComparisonId } from './types.ts';
 
-import { basicMySqlInsert } from './database/basicMysqlInsert.js';
+import { PrismaClient } from '@prisma/client';
 
-export const saveComparisonSelection = async (
-  conn: DatabaseConnection,
-  comparisonId: SnowflakeType,
-  elementId: SnowflakeType
+export const saveComparisonSelection = (
+  prisma: PrismaClient,
+  comparisonId: ComparisonId,
+  elementId: ComparisonElementId
 ): Promise<void> => {
-  return basicMySqlInsert(
-    conn,
-    'ComparisonResponse',
-    ['id', 'selectedComparisonElementId'],
-    { id: comparisonId, selectedComparisonElementId: elementId }
-  );
+  return prisma.comparisonResponse.create({
+    data: {
+      comparisonId: BigInt(comparisonId),
+      id: BigInt(comparisonId),
+      selectedComparisonElementId: BigInt(elementId),
+    },
+  }).then(() => undefined);
 };

@@ -1,26 +1,27 @@
-import { CollectionDataValidationError, CollectionTypeLoader } from '../datainfo.js';
+import { CollectionDataValidationError, CollectionTypeLoader } from '../datainfo.ts';
 import {
   CollectionIdType,
   CollectionObject,
   CollectionObjectId,
   ComparisonSelectionResponse,
   SnowflakeType
-} from '../types.js';
-import { ComparableObjectModel, ComparisonModel } from '../types/model.js';
-import { QUERYSTRING_ARRAY_DELIMETER, QUERYSTRING_ELEMENT_DELIMETER } from '../ui/utils.js';
+} from '../types.ts';
+import { ComparableObjectModel, ComparisonModel } from '../types/model.ts';
+import { QUERYSTRING_ARRAY_DELIMETER, QUERYSTRING_ELEMENT_DELIMETER } from '../ui/utils.ts';
 
-import { LoaderNotFoundError } from '../types/errortypes.js';
+import { LoaderNotFoundError } from '../types/errortypes.ts';
+import { PrismaClient } from '@prisma/client';
 import SuperJSON from 'superjson';
-import { createCandidateElementList } from '../utils.js';
-import { createComparableObjectList } from '../comparableobjects.js';
-import { createComparisonSelection } from '../datastore.js';
-import { createComparisonSelectionResponse } from '../restresponse.js';
+import { createCandidateElementList } from '../utils.ts';
+import { createComparableObjectList } from '../comparableobjects.ts';
+import { createComparisonSelection } from '../datastore.ts';
+import { createComparisonSelectionResponse } from '../restresponse.ts';
 import express from 'express';
-import { getIp } from '../server.js';
-import { getSnowflake } from '../snowflake.js';
-import { getUserIdentificationString } from '../auth/user.js';
-import { populatePrioritizedObjectList } from '../populatePrioritizedObjectList.js';
-import { storeComparisonRequest } from '../comparison.js';
+import { getIp } from '../server.ts';
+import { getSnowflake } from '../snowflake.ts';
+import { getUserIdentificationString } from '../auth/user.ts';
+import { populatePrioritizedObjectList } from '../populatePrioritizedObjectList.ts';
+import { storeComparisonRequest } from '../comparison.ts';
 
 const MINIMUM_PRIORITIZED_OBJECTS = 100;
 
@@ -44,21 +45,15 @@ const checkLoaders = (loaders: CollectionTypeLoader<any, any, any>[], collection
   return loader;
 };
 
-export const serveComparison = async <
+export const serveComparison = <
 CollectionObjectType extends CollectionObject<IdType>, _D, IdType extends CollectionObjectId>(
-  request: express.Request,
-  response: express.Response,
-  next: express.NextFunction,
-  collectionId: CollectionIdType
-): Promise<void> => {
-  if (!response.locals.connectionPromise) {
-    const noConnectionError = new Error('Response requires connection pool handle but none available');
-    console.error(serveComparison, noConnectionError);
-    response.status(500);
-    next(noConnectionError);
-    return Promise.resolve();
-  }
+    request: express.Request,
+    response: express.Response,
+    _next: express.NextFunction,
+    collectionId: CollectionIdType
+  ): Promise<void> => {
   try {
+    const prisma = request.app.locals.prismaClient as PrismaClient;
     const userId = request.session.userId;
     const idString: string = getUserIdentificationString(request);
     const ipAddress = getIp(request);
@@ -79,81 +74,57 @@ CollectionObjectType extends CollectionObject<IdType>, _D, IdType extends Collec
     const comparisonId: SnowflakeType = getSnowflake();
     const objectsQueryString = request.query.objects as string;
     const queryStringGroups:string[] = objectsQueryString?.split(QUERYSTRING_ARRAY_DELIMETER);
-    let leftElements: IdType[]|undefined = undefined;
-    let rightElements: IdType[]|undefined = undefined;
-
+    let candidateElementsPromise: Promise<[IdType[], IdType[]]>;
     if (queryStringGroups?.length == 2) {
-      leftElements = queryStringGroups[0].split(QUERYSTRING_ELEMENT_DELIMETER) as IdType[];
-      rightElements = queryStringGroups[1].split(QUERYSTRING_ELEMENT_DELIMETER) as IdType[];
+      const leftElements = queryStringGroups[0].split(QUERYSTRING_ELEMENT_DELIMETER) as IdType[];
+      const rightElements = queryStringGroups[1].split(QUERYSTRING_ELEMENT_DELIMETER) as IdType[];
       console.debug(serveComparison,
         `Serving comparison request ${comparisonId} to userId ${userId} (${idString}) `+
         `with predefined set ${leftElements} vs ${rightElements}}`);
+      candidateElementsPromise = Promise.resolve([leftElements, rightElements]);
     } else {
       console.debug(serveComparison,
         `Serving comparison request ${comparisonId} to userId ${userId} (${idString})`
       );
 
-      if (loader.prioritizedObjectIdList === undefined ||
-        loader.prioritizedObjectIdList.length <= MINIMUM_PRIORITIZED_OBJECTS) {
-        try {
-          await populatePrioritizedObjectList(response.locals.connectionPromise, loader);
-        } catch (err: any) {
-          // safeReleaseConnection(conn);
-          console.error('Failed geting object list from DB');
-          response.contentType('application/json');
-          response.status(500);
-          console.error(err);
-          response.send(err.message);
-          response.end();
-          return;
-        }
-      }
-
-      const candidateElements: [IdType[], IdType[]] = createCandidateElementList(
+      const refreshPriorities = loader.prioritizedObjectIdList === undefined ||
+        loader.prioritizedObjectIdList.length <= MINIMUM_PRIORITIZED_OBJECTS
+        ? populatePrioritizedObjectList(prisma, loader) : Promise.resolve();
+      candidateElementsPromise = refreshPriorities.then(() => createCandidateElementList(
         loader,
         loader.maxElementsPerComparison,
         loader.maxElementsPerComparison
-      );
-      leftElements = candidateElements[0];
-      rightElements = candidateElements[1];
+      ));
     }
 
-    console.debug(serveComparison, 'Got element candidate lists for left and right elements');
-
-    const left: ComparableObjectModel<IdType>[] = createComparableObjectList(
-      leftElements
-    );
-    const right: ComparableObjectModel<IdType>[] = createComparableObjectList(
-      rightElements
-    );
-    const comparisonRequest: ComparisonModel<IdType> = createComparisonSelection(
-      loader.collectionId,
-      comparisonId,
-      userId,
-      ipAddress,
-      left,
-      right
-    );
-    console.debug(serveComparison, 'Storing comparison request', comparisonId);
-    storeComparisonRequest(response.locals.connectionPromise, comparisonRequest)
-      .then(() => {
+    return candidateElementsPromise.then(([leftElements, rightElements]) => {
+      console.debug(serveComparison, 'Got element candidate lists for left and right elements');
+      const left: ComparableObjectModel<IdType>[] = createComparableObjectList(leftElements);
+      const right: ComparableObjectModel<IdType>[] = createComparableObjectList(rightElements);
+      const comparisonRequest: ComparisonModel<IdType> = createComparisonSelection(
+        loader.collectionId,
+        comparisonId,
+        userId,
+        ipAddress,
+        left,
+        right
+      );
+      console.debug(serveComparison, 'Storing comparison request', comparisonId);
+      return storeComparisonRequest(prisma, comparisonRequest).then(() => {
         console.debug(serveComparison, 'Finished storing new comparison request', comparisonId);
         response.contentType('application/json');
         const responseJson: ComparisonSelectionResponse<CollectionObjectType> =
           createComparisonSelectionResponse<CollectionObjectType, IdType>(comparisonRequest, loader);
         response.send(SuperJSON.stringify(responseJson));
         response.end();
-      })
-      .catch((err: Error) => {
-        console.error('Failed while storing comparisonRequest in DB');
-        console.error(SuperJSON.stringify(comparisonRequest));
-        response.contentType('application/json');
-        response.status(500);
-        console.error(err);
-        response.send(err.message);
-        response.end();
       });
-    // Return two random options from the configured collection.
+    }).catch((err: unknown) => {
+      console.error('Failed while preparing or storing comparison request', err);
+      response.contentType('application/json');
+      response.status(500);
+      response.send(err instanceof Error ? err.message : String(err));
+      response.end();
+    });
   } catch (err: unknown) {
     if (err instanceof LoaderNotFoundError) {
       console.warn(
@@ -167,12 +138,13 @@ CollectionObjectType extends CollectionObject<IdType>, _D, IdType extends Collec
         message: err.message,
       });
       response.end();
-      return;
+      return Promise.resolve();
     }
 
     response.status(500);
     response.send();
     response.end();
     console.warn(`Failure in GET /`, err);
+    return Promise.resolve();
   }
 };

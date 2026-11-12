@@ -2,21 +2,19 @@ import * as fs from 'fs';
 import * as https from 'https';
 import * as sourcemap from 'source-map-support';
 
-import { AbseeConfig, CollectionObject, CollectionObjectId } from './src/types.js';
-import { CollectionTypeLoader, initializeLoader } from './src/datainfo.js';
-import { DEFAULT_HTTP_PORT, startApp } from './src/server.js';
-import { GoogleAuthSettings, getGoogleAuthSettings } from './src/auth/index.js';
-import { LoaderDataSource, LoaderPrismaDataSource } from './src/store/loader.js';
+import { DEFAULT_HTTP_PORT, startApp } from './src/server.ts';
+import { GoogleAuthSettings, getGoogleAuthSettings } from './src/auth/index.ts';
 import { UserSessionOptions, getMysqlSessionStore } from '@tjsr/user-session-middleware';
 import { intEnv, loadEnv } from '@tjsr/simple-env-utils';
 
+import { AbseeConfig } from './src/types.ts';
 import { CorsOptions } from 'cors';
-import { PrismaClient } from '@prisma/client';
-import { SESSION_ID_HEADER } from './src/api/apiUtils.js';
+import { SESSION_ID_HEADER } from './src/api/apiUtils.ts';
+import { createPrismaClient } from './src/database/prisma/client.ts';
 import express from 'express';
-import { getCollectionLoaders } from './src/loaders.js';
+import { getCollectionLoaders } from './src/loaders.ts';
 import { getConnectionPool } from '@tjsr/mysql-pool-utils';
-import { requireEnv } from './src/utils.js';
+import { requireEnv } from './src/utils.ts';
 
 loadEnv();
 
@@ -32,6 +30,7 @@ process.on('unhandledRejection', console.warn);
 let googleAuthSettings: GoogleAuthSettings;
 
 try {
+  requireEnv('PRISMA_DATABASE_URL');
   requireEnv('SESSION_SECRET');
   requireEnv('USERID_UUID_NAMESPACE');
   requireEnv('HTTP_PORT');
@@ -71,7 +70,7 @@ const abseeOptions: Partial<AbseeConfig & UserSessionOptions> & { googleAuthSett
   skipExposeHeaders: false,
 };
 
-const prismaClient = new PrismaClient();
+const prismaClient = createPrismaClient();
 const loaders = await getCollectionLoaders(prismaClient).catch((err) => {
   console.error('Error getting loaders', err);
   process.exit(1);

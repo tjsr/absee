@@ -3,71 +3,10 @@
 
 generator client {
   provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
-//  provider = "sqlite"
-  provider = "mysql"
-  url      = env("PRISMA_DATABASE_URL")
-}
-
-model User {
-  id BigInt @id @default(autoincrement())
-  email String @unique
-
-  google_id String
-  display_name String @db.VarChar(255)
-}
-
-model Comparison {
-  id BigInt @id
-  collectionId String @default("")
-  userId String
-  requestTime DateTime
-  requestIp String
-  @@index([collectionId], map: "IDX_Comparison_collectionId")
-}
-
-model Collection {
-  collectionId String @id
-  name String
-  datasource String @db.Text
-  description String @db.Text
-  cachedData String @db.Text
-  lastUpdateTime DateTime
-  maxElementsPerComparison Int @default(1)
-}
-
-model ComparisonElement {
-  id BigInt @id
-  elementId BigInt
-  comparisonId BigInt
-  objectId String
-
-  @@index([comparisonId], map: "IDX_ComparisonElement_comparisonId")
-  @@index([elementId], map: "IDX_ComparisonElement_elementId")
-}
-
-model ComparisonResponse {
-  id BigInt @id
-  selectedComparisonElementId BigInt
-}
-
-model session {
-  session_id    String   @id @db.VarChar(128)
-  sess   Json     @db.Json
-  expire Int @db.UnsignedInt
-
-  @@index([expire], map: "IDX_session_expire")
-}
-
-model UserLogins {
-  id BigInt @id
-  userId String  @db.VarChar(128)
-  email String
-  sessionId String  @db.VarChar(128)
-  loginTime DateTime
-  loginIp String
-
-  @@index([userId], map: "IDX_UserLogins_userId")
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
 }

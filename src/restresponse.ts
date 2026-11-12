@@ -9,11 +9,11 @@ import {
   ComparisonResultResponse,
   ComparisonSelectionResponse,
   EloTimeline
-} from './types.js';
-import { ComparableObjectModel, ComparisonModel } from './types/model.js';
-import { STARTING_ELO_RATING, updateEloRatings } from './rankings/elo.js';
+} from './types.ts';
+import { ComparableObjectModel, ComparisonModel } from './types/model.ts';
+import { STARTING_ELO_RATING, updateEloRatings } from './rankings/elo.ts';
 
-import { CollectionTypeLoader } from './datainfo.js';
+import { CollectionTypeLoader } from './datainfo.ts';
 
 const elementToElementResponse = <
   CollectionObjectType extends CollectionObject<IdType>,
@@ -23,8 +23,7 @@ const elementToElementResponse = <
     loader: CollectionTypeLoader<IdType, CollectionObjectType, any>
   ): ComparisonElementResponse<CollectionObjectType, IdType> => {
   return {
-    data: element.objectIds.map((objectId: IdType) =>
-      loader.getObjectForId(loader.collectionData!, objectId)),
+    data: [loader.getObjectForId(loader.collectionData!, element.objectId)],
     elementId: element.elementId.toString(),
   };
 };
@@ -74,10 +73,9 @@ const getEloRatingsOfElements = <IdType extends CollectionObjectId>(
     console.warn(`ComparisonResult ${result?.id} had no elements array.`);
   }
   result?.elements?.forEach((element: ComparisonElement<IdType>) => {
-    element?.objectIds?.forEach((objectId: CollectionObjectId) => {
-      const objectEloRating = eloRatings.get(objectId as unknown as IdType) || STARTING_ELO_RATING;
-      output.push({ objectId: objectId as unknown as IdType, rating: objectEloRating });
-    });
+    const objectId = element.objectId;
+    const objectEloRating = eloRatings.get(objectId as unknown as IdType) || STARTING_ELO_RATING;
+    output.push({ objectId: objectId as unknown as IdType, rating: objectEloRating });
   });
 
   return output;
@@ -119,14 +117,9 @@ const updateObjectEvolutions = <IdType extends CollectionObjectId>(
   evolutionElements: ComparisonElement<IdType>[], objectEvolutions: Map<IdType, number>
 ) => {
   evolutionElements.forEach((element) => {
-    element.objectIds.forEach((objectId: IdType) => {
-      if (!objectEvolutions.has(objectId)) {
-        objectEvolutions.set(objectId, 1);
-      } else {
-        const currentEvo = objectEvolutions.get(objectId)!;
-        objectEvolutions.set(objectId, currentEvo + 1);
-      }
-    });
+    const objectId = element.objectId;
+    const currentEvo = objectEvolutions.get(objectId);
+    objectEvolutions.set(objectId, currentEvo === undefined ? 1 : currentEvo + 1);
   });
 };
 

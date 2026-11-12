@@ -7,13 +7,13 @@ import {
   ComparisonElementId,
   ComparisonElementResponse,
   EloTimelineResponse
-} from '../types.js';
+} from '../types.ts';
 import React, { useEffect, useState } from 'react';
 
 import Cookies from 'js-cookie';
-import { Pin } from '../pins/pinpanion.js';
-import { PinInfo } from '../pins/PinInfo.js';
-import { getServerHost } from './utils.js';
+import { Pin } from '../pins/pinpanion.ts';
+import { PinInfo } from '../pins/PinInfo.tsx';
+import { getServerHost } from './utils.ts';
 
 const DEFAULT_ELO_RATING = 2000;
 

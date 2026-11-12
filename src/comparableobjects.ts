@@ -1,7 +1,7 @@
-import { CollectionObjectId, SnowflakeType } from './types.js';
+import { CollectionObjectId, SnowflakeType } from './types.ts';
 
-import { ComparableObjectModel } from './types/model.js';
-import { getSnowflake } from './snowflake.js';
+import { ComparableObjectModel } from './types/model.ts';
+import { getSnowflake } from './snowflake.ts';
 
 export const createComparableObject = <IdType extends CollectionObjectId>(
   objectId: IdType,

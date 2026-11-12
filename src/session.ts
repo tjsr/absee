@@ -1,12 +1,12 @@
 import * as Express from 'express';
 import * as expressSession from 'express-session';
 
-import { EmailAddress, UserId } from './types.js';
+import { EmailAddress, UserId } from './types.ts';
 import { PoolOptions, getPoolConfig } from '@tjsr/mysql-pool-utils';
 import { Session, SessionData } from 'express-session';
 import mySQLStore, { MySQLStore } from 'express-mysql-session';
 
-import { RequiredEnvError } from './types/errortypes.js';
+import { RequiredEnvError } from './types/errortypes.ts';
 import { loadEnv } from '@tjsr/simple-env-utils';
 
 loadEnv({ debug: true });
