@@ -42,7 +42,6 @@ CREATE TABLE "ComparisonResponse" (
     "id" BIGINT NOT NULL PRIMARY KEY,
     "selectedComparisonElementId" BIGINT NOT NULL,
     "comparisonId" BIGINT NOT NULL,
-    CONSTRAINT "ComparisonResponse_selectedComparisonElementId_fkey" FOREIGN KEY ("selectedComparisonElementId") REFERENCES "ComparisonElement" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "ComparisonResponse_comparisonId_fkey" FOREIGN KEY ("comparisonId") REFERENCES "Comparison" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 

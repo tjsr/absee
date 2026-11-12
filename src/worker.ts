@@ -24,6 +24,7 @@ type PinpanionPin = {
 };
 
 type PinpanionData = {
+  baseImageUrl?: string;
   events?: Array<{ id: number; name: string; subType?: string }>;
   pax?: Array<{ id: number; name: string }>;
   pins: PinpanionPin[];
@@ -174,7 +175,9 @@ const toDisplayPin = (pin: PinpanionPin, data: PinpanionData, datasource: string
   const output: Pin = {
     cssClass: getCssClass(event?.subType),
     id: String(pin.id),
-    imageUrl: new URL(imagePath, `${sourceUrl.origin}/`).toString(),
+    imageUrl: data.baseImageUrl
+      ? `${data.baseImageUrl.replace(/\/$/, '')}/${imageName}`
+      : new URL(imagePath, `${sourceUrl.origin}/`).toString(),
     name: pin.name,
     paxId,
     year: pin.year,
@@ -251,8 +254,8 @@ const getRandomPinGroups = (pins: Pin[], maxElements: number): [Pin[], Pin[]] =>
 };
 
 const createDatabaseId = (): number => {
-  const suffix = crypto.getRandomValues(new Uint32Array(1))[0] % 1_000_000;
-  return Math.floor(Date.now() / 1_000) * 1_000_000 + suffix;
+  const random = crypto.getRandomValues(new Uint32Array(2));
+  return (random[0] & 0x1fffff) * 0x100000000 + random[1];
 };
 
 const storeComparison = async (
@@ -453,21 +456,26 @@ const recentComparisonsResponse = async (
   }
 
   const comparisonIds = completedComparisons.map((comparison) => comparison.comparisonId);
-  const placeholders = comparisonIds.map((_, index) => `?${index + 1}`).join(', ');
-  const elementsResult = await env.pinpare
+  const elements: StoredComparisonElement[] = [];
+  for (let offset = 0; offset < comparisonIds.length; offset += 100) {
+    const batch = comparisonIds.slice(offset, offset + 100);
+    const placeholders = batch.map((_, index) => `?${index + 1}`).join(', ');
+    const elementsResult = await env.pinpare
     .prepare(
       `SELECT "comparisonId", "elementId", "objectId"
       FROM "ComparisonElement"
       WHERE "comparisonId" IN (${placeholders})
       ORDER BY "comparisonId", "elementId", "id"`
     )
-    .bind(...comparisonIds)
+    .bind(...batch)
     .all<StoredComparisonElement>();
+    elements.push(...elementsResult.results);
+  }
   const pins = await retrievePins(collection);
   const pinsById = new Map(pins.map((pin) => [pin.id, pin]));
   const elementsByComparisonId = new Map<number, Map<number, Pin[]>>();
 
-  elementsResult.results.forEach((element) => {
+  elements.forEach((element) => {
     const pin = pinsById.get(element.objectId);
     if (pin === undefined) {
       return;
@@ -608,21 +616,26 @@ const eloResponse = async (collectionId: string, env: Env): Promise<Response> =>
   }
 
   const comparisonIds = completedComparisons.map((comparison) => comparison.comparisonId);
-  const placeholders = comparisonIds.map((_, index) => `?${index + 1}`).join(', ');
-  const elementsResult = await env.pinpare
+  const elements: StoredComparisonElement[] = [];
+  for (let offset = 0; offset < comparisonIds.length; offset += 100) {
+    const batch = comparisonIds.slice(offset, offset + 100);
+    const placeholders = batch.map((_, index) => `?${index + 1}`).join(', ');
+    const elementsResult = await env.pinpare
     .prepare(
       `SELECT "comparisonId", "elementId", "objectId"
       FROM "ComparisonElement"
       WHERE "comparisonId" IN (${placeholders})
       ORDER BY "comparisonId", "elementId", "id"`
     )
-    .bind(...comparisonIds)
+    .bind(...batch)
     .all<StoredComparisonElement>();
+    elements.push(...elementsResult.results);
+  }
   const pins = await retrievePins(collection);
   const pinsById = new Map(pins.map((pin) => [pin.id, pin]));
   const elementsByComparisonId = new Map<number, Map<number, Pin[]>>();
 
-  elementsResult.results.forEach((element) => {
+  elements.forEach((element) => {
     const pin = pinsById.get(element.objectId);
     if (pin === undefined) {
       return;

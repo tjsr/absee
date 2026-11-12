@@ -10,8 +10,12 @@ export const fetchNewSession = async () => {
     method: 'GET',
   });
 
+  if (!response.ok) throw new Error('Failed to create session');
+
   const json = await response.json() as {sessionId?: string};
   if (json.sessionId) {
     Cookies.set('sessionId', json.sessionId);
+  } else {
+    throw new Error('Session response did not contain a session ID');
   }
 };

@@ -63,6 +63,7 @@ export const retrieveComparisonResults = async <IdType extends CollectionObjectI
     take: maxComparisons,
     where: {
       collectionId: collectionId,
+      responses: { some: {} },
       ...(userId ? { userId: userId } : {}),
     },
   });
@@ -81,11 +82,16 @@ export const retrieveComparisonResults = async <IdType extends CollectionObjectI
 
   const outputResults: ComparisonResult<IdType>[] = comparisonResults.map((result: any) => {
     return {
-      elements: [],
-      id: result.comparisonId,
-      requestTime: result.requestTime,
+      elements: result.elements.map((element: any) => ({
+        id: element.id.toString(),
+        comparisonId: element.comparisonId.toString(),
+        elementId: element.elementId.toString(),
+        objectId: element.objectId as IdType,
+      })),
+      id: result.id.toString(),
+      requestTime: result.requestTime.toISOString(),
       userId: result.userId,
-      winner: result.selectedComparisonElementId,
+      winner: result.responses[0].selectedComparisonElementId.toString(),
     };
   });
   return outputResults;
