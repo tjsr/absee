@@ -1,3 +1,0 @@
-FROM public.ecr.aws/tjsrowe/prisma-generic:6.1.0 AS absee-migrate
-
-COPY prisma /opt/migrator
