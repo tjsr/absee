@@ -8,10 +8,7 @@ This project was originally written to provide a comparison tool for Pinny Arcad
 
 ## How do I get set up? ##
 
-For this project you will need
-
-* A host from which to run the Express API server, either standalone or in the built docker container.  This can also host the React frontend and serve this as static compiled resources.
-* A MySQL server or container
+The application is being migrated to Cloudflare Workers with D1. The legacy Express server and MySQL configuration remain available during the transition.
 
 ### Logging ###
 
@@ -50,18 +47,7 @@ This assumes you have a running database with database connection details config
 
 This will launch both the frontend with react-scripts on port 3000, and a nodemon process for the API server running on port 8283 or another port specified by `HTTP_PORT` in `.env`
 
-* To build the Docker containers
-
-```
-npm run docker:build
-npm run docker:run:test
-```
-
-To apply the database patches required:
-```
-npm run docker:build:dbmigrate
-npm run docker:run:dbmigrate
-```
+For the Cloudflare client build and Worker dry run, use `npm run cf:check:dev` with a local Wrangler configuration.
 
 ## Dependabot ##
 
