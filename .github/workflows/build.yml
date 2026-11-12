@@ -1,60 +1,30 @@
-name: Build A/B See
-run-name: ${{ github.actor }} Running A/B See build.
-on: [push]
+name: Verify Cloudflare application
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+  packages: read
+
 jobs:
-  build-absee:
+  verify:
     runs-on: ubuntu-latest
     env:
-      DOCKER_BUILDKIT: 1
-      BUILDKIT_PROGRESS: plain
-      DBMIGRATE_IMAGE: tjsrowe/absee:dbmigrate-${{ github.sha }}
-      API_IMAGE: tjsrowe/absee:${{ github.sha }}
-
+      NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GOOGLE_CLIENT_ID: ci-placeholder
     steps:
-    - name: Check out repositofy code
-      uses: actions/checkout@v6
-
-    - name: Set up Docker Buildx
-      id: buildx
-      uses: docker/setup-buildx-action@v4
-
-    - name: Login to Amazon ECR Public
-      id: login-ecr-public
-      if: ${{ github.ref == 'refs/heads/main' && github.repository == 'tjsr/absee' && github.actor != 'dependabot[bot]' }}
-      uses: aws-actions/amazon-ecr-login@v2
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ECR_SECRET_ACCESS_KEY }}
-        AWS_REGION: us-east-1
-      with:
-        registry-type: public
-
-    - name: Build dbmigrate image
-      uses: docker/build-push-action@v7
-      with:
-        context: .
-        builder: ${{ steps.buildx.outputs.name }}
-        secrets: |
-          github=${{ secrets.GITHUB_TOKEN }}
-        file: Dockerfile.dbmigrate
-        push: ${{ github.ref == 'refs/heads/main' && github.repository == 'tjsr/absee' && github.actor != 'dependabot[bot]' }}
-        tags: ${{ github.ref == 'refs/heads/main' && github.repository == 'tjsr/absee' && github.actor != 'dependabot[bot]' && format('{0}/', steps.login-ecr-public.outputs.registry) || ''}}${{ env.DBMIGRATE_IMAGE }}
-        cache-from: type=gha
-        cache-to: type=gha
-
-    - name: Pull patched node image
-      run: |
-        docker pull ghcr.io/tjsr/node_patched_npm:20.18.1-alpine3.20-npm11.0.0
-  
-    - name: Build API image
-      uses: docker/build-push-action@v7
-      with:
-        context: .
-        builder: ${{ steps.buildx.outputs.name }}
-        secrets: |
-          github=${{ secrets.GITHUB_TOKEN }}
-        file: Dockerfile
-        push: ${{ github.ref == 'refs/heads/main' && github.repository == 'tjsr/absee' && github.actor != 'dependabot[bot]' }}
-        tags: ${{ github.ref == 'refs/heads/main' && github.repository == 'tjsr/absee' && github.actor != 'dependabot[bot]' && format('{0}/', steps.login-ecr-public.outputs.registry) || ''}}${{ env.API_IMAGE }}
-        cache-from: type=gha
-        cache-to: type=gha
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          registry-url: https://npm.pkg.github.com
+          scope: '@tjsr'
+          cache: npm
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - name: Test comparison result mapping
+        run: npx vitest --run src/database/comparisonResults.test.ts
+      - run: npm run build:client
+      - name: Check Worker bundle
+        run: npx wrangler deploy --dry-run --config wrangler.ci.jsonc

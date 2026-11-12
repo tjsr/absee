@@ -1,0 +1,24 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "absee-ci",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-10-07",
+  "assets": {
+    "binding": "ASSETS",
+    "directory": "./dist/",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": [
+      "/api/*", "/collection/*", "/debugHeaders", "/login", "/logout",
+      "/session", "/submit", "/user", "/user/*"
+    ]
+  },
+  "vars": { "ENVIRONMENT": "ci" },
+  "d1_databases": [
+    {
+      "binding": "pinpare",
+      "database_name": "ci-only",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations-d1"
+    }
+  ]
+}
