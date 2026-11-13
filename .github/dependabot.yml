@@ -3,7 +3,7 @@ registries:
   npm-github:
     type: npm-registry
     url: https://npm.pkg.github.com
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.TJSR_GITHUB_PACKAGES_TOKEN }}
   npm-npmjs:
     type: npm-registry
     url: https://registry.npmjs.org
