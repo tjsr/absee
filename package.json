@@ -114,7 +114,6 @@
     "dotenv-flow": "^4.1.0",
     "email-validator": "^2.0.4",
     "express": "^4.22.3",
-    "express-ip": "^1.0.4",
     "express-mysql-session": "^3.0.3",
     "express-session": "^1.18.1",
     "is-uuid": "^1.0.2",
@@ -160,6 +159,21 @@
     "npm": ">=10.2.4"
   },
   "overrides": {
-    "mysql2": ">=3.10.0"
+    "mysql2": ">=3.10.0",
+    "@prisma/config": {
+      "deepmerge-ts": "^8.0.2"
+    },
+    "@eslint/config-array": {
+      "minimatch": "^11.0.8"
+    },
+    "eslint": {
+      "minimatch": "^11.0.8"
+    },
+    "@typescript-eslint/typescript-estree": {
+      "minimatch": "^11.0.8"
+    },
+    "nodemon": {
+      "minimatch": "^11.0.8"
+    }
   }
 }
