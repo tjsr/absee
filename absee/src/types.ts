@@ -1,13 +1,12 @@
-import { DateTime, Str } from "chanfana";
-import type { Context } from "hono";
-import { z } from "zod";
+import type { Context } from 'hono';
+import { z } from 'zod';
 
 export type AppContext = Context<{ Bindings: Env }>;
 
 export const Task = z.object({
-	name: Str({ example: "lorem" }),
-	slug: Str(),
-	description: Str({ required: false }),
-	completed: z.boolean().default(false),
-	due_date: DateTime(),
+  name: z.string().meta({ example: 'lorem' }),
+  slug: z.string(),
+  description: z.string().optional(),
+  completed: z.boolean().default(false),
+  due_date: z.iso.datetime(),
 });
