@@ -37,3 +37,5 @@ jobs:
         run: node --experimental-strip-types --test absee/tests/security-upgrade.test.ts
       - name: Audit nested Worker dependencies
         run: npm audit --prefix absee --package-lock-only --ignore-scripts
+      - name: Audit root dependency lockfile
+        run: npm audit --package-lock-only --ignore-scripts
