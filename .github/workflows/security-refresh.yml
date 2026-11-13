@@ -36,3 +36,4 @@ jobs:
       - name: Summarize remaining advisories
         run: |
           node -e 'const a=require("./audit.json"); console.log(JSON.stringify(a.metadata)); for (const [n,v] of Object.entries(a.vulnerabilities||{})) console.log(n, v.severity, v.via.filter(x=>typeof x==="object").map(x=>x.url+" "+x.range).join("; "));'
+# Refresh security upgrades and prune unused vulnerable tools.
