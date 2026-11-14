@@ -1,28 +1,28 @@
-import { Bool, OpenAPIRoute } from "chanfana";
-import { z } from "zod";
-import { type AppContext, Task } from "../types";
+import { OpenAPIRoute } from 'chanfana';
+import { z } from 'zod';
+import { type AppContext, Task } from '../types.ts';
 
 export class TaskCreate extends OpenAPIRoute {
   schema = {
-    tags: ["Tasks"],
-    summary: "Create a new Task",
+    tags: ['Tasks'],
+    summary: 'Create a new Task',
     request: {
       body: {
         content: {
-          "application/json": {
+          'application/json': {
             schema: Task,
           },
         },
       },
     },
     responses: {
-      "200": {
-        description: "Returns the created task",
+      '200': {
+        description: 'Returns the created task',
         content: {
-          "application/json": {
+          'application/json': {
             schema: z.object({
               series: z.object({
-                success: Bool(),
+                success: z.boolean(),
                 result: z.object({
                   task: Task,
                 }),

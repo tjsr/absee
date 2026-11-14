@@ -57,9 +57,9 @@
     "@types/cookie-parser": "^1.4.8",
     "@types/cors": "^2.8.17",
     "@types/debug": "^4.1.12",
-    "@types/express": "^4.17.21",
-    "@types/express-mysql-session": "^3.0.6",
-    "@types/express-session": "^1.18.1",
+    "@types/express": "4.17.21",
+    "@types/express-mysql-session": "3.0.6",
+    "@types/express-session": "1.18.1",
     "@types/is-uuid": "^1.0.2",
     "@types/js-cookie": "^3.0.6",
     "@types/morgan": "^1.9.9",
@@ -87,13 +87,12 @@
     "prisma": "^6.19.3",
     "@prisma/adapter-d1": "^6.19.3",
     "rimraf": "^6.0.1",
-    "rollup-plugin-css": "^1.0.10",
     "rollup-plugin-scss": "^4.0.1",
     "shx": "^0.3.4",
     "supertest": "^7.0.0",
     "ts-node": "^10.9.2",
     "tsx": "^4.19.2",
-    "typescript": "^5.7.2",
+    "typescript": "5.7.2",
     "vite": "^6.4.5",
     "vitest": "^4.1.12",
     "wrangler": "^4.145.0",
@@ -106,7 +105,7 @@
     "@tjsr/express-server-helper": "^0.0.10",
     "@tjsr/mysql-pool-utils": "^0.2.1",
     "@tjsr/simple-env-utils": "^0.1.10",
-    "@tjsr/user-session-middleware": "^0.1.2-0",
+    "@tjsr/user-session-middleware": "0.1.2-0",
     "@use-gesture/react": "^10.3.1",
     "axios": "^1.21.0",
     "cookie-parser": "^1.4.7",
@@ -115,7 +114,6 @@
     "dotenv-flow": "^4.1.0",
     "email-validator": "^2.0.4",
     "express": "^4.22.3",
-    "express-ip": "^1.0.4",
     "express-mysql-session": "^3.0.3",
     "express-session": "^1.18.1",
     "is-uuid": "^1.0.2",
@@ -124,7 +122,6 @@
     "jwt-decode": "^4.0.0",
     "morgan": "^1.10.0",
     "mysql": "^2.18.1",
-    "npm": "^10.9.0",
     "on-finished": "^2.4.1",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
@@ -134,7 +131,7 @@
     "react-device-detect": "^2.2.3",
     "react-hook-form": "^7.54.2",
     "react-icons": "^5.4.0",
-    "react-router-dom": "^6.27.0",
+    "react-router-dom": "^7.18.5",
     "request-ip": "^3.3.0",
     "session": "^0.1.0",
     "snowflake-uuid": "^1.0.0",
@@ -142,7 +139,8 @@
     "styled-components": "^6.1.13",
     "superjson": "^2.2.2",
     "title-case": "^4.3.2",
-    "uuid": "^11.0.3"
+    "uuid": "^11.0.3",
+    "react-dom": "^18.3.1"
   },
   "browserslist": {
     "production": [
@@ -161,6 +159,21 @@
     "npm": ">=10.2.4"
   },
   "overrides": {
-    "mysql2": ">=3.10.0"
+    "mysql2": ">=3.10.0",
+    "@prisma/config": {
+      "deepmerge-ts": "^8.0.2"
+    },
+    "@eslint/config-array": {
+      "minimatch": "^11.0.8"
+    },
+    "eslint": {
+      "minimatch": "^11.0.8"
+    },
+    "@typescript-eslint/typescript-estree": {
+      "minimatch": "^11.0.8"
+    },
+    "nodemon": {
+      "minimatch": "^11.0.8"
+    }
   }
 }

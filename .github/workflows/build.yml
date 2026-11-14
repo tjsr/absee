@@ -28,3 +28,14 @@ jobs:
       - run: npm run build:client
       - name: Check Worker bundle
         run: npx wrangler deploy --dry-run --config wrangler.ci.jsonc
+
+      - name: Install nested Worker dependencies without lifecycle scripts
+        run: npm ci --prefix absee --ignore-scripts
+      - name: Typecheck nested Worker
+        run: npx tsc --noEmit --project absee/tsconfig.json
+      - name: Test nested Worker schema migration
+        run: node --experimental-strip-types --test absee/tests/security-upgrade.test.ts
+      - name: Audit nested Worker dependencies
+        run: npm audit --prefix absee --package-lock-only --ignore-scripts
+      - name: Audit root dependency lockfile
+        run: npm audit --package-lock-only --ignore-scripts
