@@ -86,3 +86,4 @@ wrangler.jsonc
 prisma-mysql/pinpanion.db
 prisma-mysql/dev.db
 migrations-d1/0002_seed_pinpanion_collections.sql
+data/mysql-2026-11-13.sql.tgz
