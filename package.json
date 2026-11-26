@@ -161,7 +161,8 @@
   "overrides": {
     "mysql2": ">=3.10.0",
     "@prisma/config": {
-      "deepmerge-ts": "^8.0.2"
+      "deepmerge-ts": "^8.0.2",
+      "effect": "^3.22.1"
     },
     "@eslint/config-array": {
       "minimatch": "^11.0.8"
