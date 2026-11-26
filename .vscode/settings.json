@@ -21,7 +21,7 @@
   "prettier.requireConfig": true,
   "javascript.preferences.importModuleSpecifierEnding": "js",
   "typescript.preferences.importModuleSpecifierEnding": "ts",
-  "prettier.configPath": ".prettierrc.json",
+  "prettier.configPath": "prettier.config.mjs",
   "editor.rulers": [120],
   "npm.packageManager": "npm"
 }
