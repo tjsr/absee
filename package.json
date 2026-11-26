@@ -29,7 +29,7 @@
     "format": "npm run prettier && npm run lint",
     "lint": "eslint --fix \"./src/**/*.{ts,tsx}\"",
     "postinstall": "npm run prisma:generate",
-    "prettier": "prettier --single-quote --write \"./src/**/*.{ts,tsx}\"",
+    "prettier": "tjsr-prettier --single-quote --write \"./src/**/*.{ts,tsx}\"",
     "db:up": "wrangler d1 migrations apply pinpare --local --env dev",
     "db:up:clean": "wrangler d1 migrations apply pinpare --local --env dev",
     "db:down": "docker compose down",
